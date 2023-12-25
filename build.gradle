@@ -1,0 +1,52 @@
+plugins {
+	id "application"
+    id "org.springframework.boot" version "3.1.2"
+    id "io.spring.dependency-management" version "1.1.2"
+    id "org.jetbrains.kotlin.jvm" version "1.8.22"
+    id "org.jetbrains.kotlin.plugin.spring" version "1.8.22"
+}
+
+group = "com.wafflestudio.seminar"
+version = "1.1.0-SNAPSHOT"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
+
+application {
+	mainClass = "com.wafflestudio.team2.Mainkt"
+}
+
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+}
+
+dependencies {
+    // kotlin
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
+
+    // spring
+    implementation("org.springframework.boot:spring-boot-starter-web")
+
+    // json
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // test
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "17"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.Embeddable")
+    annotation("jakarta.persistence.MappedSuperclass")
+}
