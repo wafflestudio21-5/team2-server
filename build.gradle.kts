@@ -8,7 +8,7 @@ plugins {
     kotlin("plugin.jpa") version "1.9.21"
 }
 
-group = "com.example"
+group = "com.wafflestudio"
 version = "0.0.1-SNAPSHOT"
 
 java {
@@ -21,13 +21,19 @@ repositories {
 }
 
 dependencies {
+	// language
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib")
+	// spring
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+	// json
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+	// db
     runtimeOnly("com.h2database:h2")
     runtimeOnly("com.mysql:mysql-connector-j")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+	// test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 }

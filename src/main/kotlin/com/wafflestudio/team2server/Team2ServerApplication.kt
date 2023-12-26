@@ -1,4 +1,4 @@
-package com.example.team2server
+package com.wafflestudio.team2server
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
