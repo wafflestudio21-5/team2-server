@@ -1,0 +1,11 @@
+server:
+  port: 8080
+spring:
+  profiles:
+    active: local
+  config:
+    import: classpath:application-db.yaml
+
+cache:
+  ttl: 10s
+  size: 100
