@@ -27,6 +27,7 @@ dependencies {
 	// spring
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-security")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 	// json
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
