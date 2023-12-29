@@ -9,3 +9,6 @@ spring:
 cache:
   ttl: 10s
   size: 100
+
+jwt:
+  secret-key: TFRsGRu_d3UWp-WpoHShC_uHQy86Sp1rYX403NBibcw
