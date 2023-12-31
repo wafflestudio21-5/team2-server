@@ -27,12 +27,17 @@ dependencies {
 	// spring
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-security")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 	// json
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	// db
     runtimeOnly("com.h2database:h2")
     runtimeOnly("com.mysql:mysql-connector-j")
+	// jwt
+	implementation("com.auth0:java-jwt:4.4.0")
+	// logging
+	implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
 	// test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
