@@ -20,19 +20,22 @@ class TokenGenerator(
 
 	private val algorithm: Algorithm = Algorithm.HMAC256(secretKeyBytes)
 
-	fun create(name: String, referenceAreaIds: List<String>): String {
+	/**
+	 * 토큰 생성.
+	 */
+	fun create(name: String, rawRefAreaIds: List<String>): String {
 		val issuedAt = Instant.now()
 		val expiredAt = issuedAt.plusMillis(1000 * 3600 * 6) // 만료 시간: 6시간
 		val jwt = try {
 			JWT.create()
 				.withClaim("v", 1)
-				.withAudience(*referenceAreaIds.toTypedArray())
+				.withAudience(*rawRefAreaIds.toTypedArray())
 				.withClaim("name", name)
 				.withIssuedAt(issuedAt)
 				.withExpiresAt(expiredAt) // TODO: 클레임 추가
 				.sign(algorithm)
 		} catch (e: JWTCreationException) {
-			throw RuntimeException("JWT creation: failed: $e") // TODO: 예외 처리
+			throw AuthException("JWT creation: failed: $e")
 		}
 		return jwt
 	}

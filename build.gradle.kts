@@ -36,6 +36,8 @@ dependencies {
     runtimeOnly("com.mysql:mysql-connector-j")
 	// jwt
 	implementation("com.auth0:java-jwt:4.4.0")
+	// logging
+	implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
 	// test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")

@@ -1,6 +1,7 @@
 package com.wafflestudio.team2server.common.auth
 
 import com.wafflestudio.team2server.common.model.User
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -19,15 +20,17 @@ class DatabaseUserDetailsService(
 		if (username == null) {
 			throw IllegalArgumentException() // TODO: 예외 처리
 		}
+		// TODO: DB에서 조회하도록 바꾸어야함.
 		val user = User(
 			username = "test",
 			password = encoder.encode("test"),
-			referenceAreaIds = listOf(1, 2)
+			role = User.Role.ADMIN,
+			refAreaIds = listOf(1, 2),
 		)
 		return SecurityUser.builder()
 			.username(user.username)
 			.password(user.password)
-			.roles(*user.referenceAreaIds.map(Int::toString).toTypedArray())
+			.authorities(user.refAreaIds.map { SimpleGrantedAuthority(it.toString()) } + SimpleGrantedAuthority(user.role.name))
 			.build()
 	}
 
