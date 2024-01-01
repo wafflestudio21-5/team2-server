@@ -1,8 +1,8 @@
-package com.wafflestudio.team2server.common.model
+package com.wafflestudio.team2server.user.model
 
 data class User(
 	val id: Long? = null,
-	val username: String,
+	val email: String,
 	val password: String,
 	val role: Role,
 	val refAreaIds: List<Int>,

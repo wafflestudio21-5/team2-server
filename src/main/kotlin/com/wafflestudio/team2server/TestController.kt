@@ -16,15 +16,16 @@ class TestController {
 
 	@GetMapping("/auth")
 	fun testAuth(@AuthenticationPrincipal authUserInfo: AuthUserInfo): String {
-		logger.warn { """
+		val result = """
 			<test auth result>
-			name = ${authUserInfo.name},
+			name = ${authUserInfo.uid},
 			refAreaIds = ${authUserInfo.refAreaIds},
 			isAdmin = ${authUserInfo.isAdmin},
 			issuedAt = ${authUserInfo.issuedAt},
 			expiredAt = ${authUserInfo.expiredAt}
-		""".trimIndent() }
-		return "ok"
+		""".trimIndent()
+		logger.debug { result }
+		return result
 	}
 
 }

@@ -30,7 +30,7 @@ class SecurityConfig {
 			csrf { disable() }
 			addFilterAfter<BasicAuthenticationFilter>(jwtHs256AuthFilter)
 			authorizeHttpRequests {
-				authorize("/login", permitAll)
+				authorize("/auth/login", permitAll)
 				authorize(anyRequest, authenticated)
 			}
 		}

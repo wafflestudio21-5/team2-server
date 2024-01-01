@@ -1,7 +1,7 @@
 package com.wafflestudio.team2server.common.auth
 
 class AuthUserInfo(
-	val name: String?,
+	val uid: Long?,
 	private val rawRefAreaIds: List<String>?,
 	val issuedAt: Long?,
 	val expiredAt: Long?,

@@ -23,14 +23,14 @@ class TokenGenerator(
 	/**
 	 * 토큰 생성.
 	 */
-	fun create(name: String, rawRefAreaIds: List<String>): String {
+	fun create(uid: Long, rawRefAreaIds: List<String>): String {
 		val issuedAt = Instant.now()
 		val expiredAt = issuedAt.plusMillis(1000 * 3600 * 6) // 만료 시간: 6시간
 		val jwt = try {
 			JWT.create()
 				.withClaim("v", 1)
 				.withAudience(*rawRefAreaIds.toTypedArray())
-				.withClaim("name", name)
+				.withClaim("uid", uid)
 				.withIssuedAt(issuedAt)
 				.withExpiresAt(expiredAt) // TODO: 클레임 추가
 				.sign(algorithm)

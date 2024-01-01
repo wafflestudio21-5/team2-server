@@ -9,11 +9,7 @@ import org.springframework.http.converter.HttpMessageConversionException
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.AuthenticationException
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 private val logger: KLogger = KotlinLogging.logger {}
 
@@ -26,18 +22,21 @@ class AuthController(
 
 	@PostMapping("/login")
 	fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<TokenResponse> {
-		val authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.username, loginRequest.password)
+		val authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.email, loginRequest.password)
 		val authenticationResponse = authenticationManager.authenticate(authenticationRequest)
 
-		val name = authenticationResponse.name
+		val uid = authenticationResponse.name.toLong()
 		val rawRefAreaIds = authenticationResponse.authorities.map { it.authority }
-		val token = tokenGenerator.create(name, rawRefAreaIds)
-		return ResponseEntity.ok().body(TokenResponse(name, rawRefAreaIds, token))
+		val token = tokenGenerator.create(uid, rawRefAreaIds)
+		return ResponseEntity.ok().body(TokenResponse(uid, rawRefAreaIds, token))
 	}
 
-	data class LoginRequest(val username: String, val password: String)
+	data class LoginRequest(
+		val email: String,
+		val password: String
+	)
 
-	data class TokenResponse(val username: String, private val rawRefAreaIds: List<String>, val token: String) {
+	data class TokenResponse(val uid: Long, private val rawRefAreaIds: List<String>, val token: String) {
 
 		val refAreaIds: List<Int>
 			get() = rawRefAreaIds.mapNotNull(String::toIntOrNull)
