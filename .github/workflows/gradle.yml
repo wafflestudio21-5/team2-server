@@ -32,3 +32,25 @@ jobs:
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
         arguments: build
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ci/cd
+        path: build/libs/*.jar
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+        - name: Download artifact
+          uses: actions/download-artifact@v2
+          with:
+            name: ci/cd
+        - name: Setup SSH
+          uses: webfactory/ssh-agent@v0.5.4
+          with:
+            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        - name: SCP transfer
+          run: scp *.jar ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/tmp
+        - name: Execute
+          run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo nohup java -jar ~/tmp/*.jar > ~/nohup.out 2>&1 &"
