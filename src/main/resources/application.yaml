@@ -21,3 +21,7 @@ springdoc:
 #    tags-sorter: alpha
 #    operations-sorter: alpha
     display-request-duration: true
+  paths-to-exclude:
+  - /channel/**
+  - /user/**
+  - /test/**
