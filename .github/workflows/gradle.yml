@@ -35,7 +35,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ci/cd
+        name: team2server
         path: build/libs/*.jar
 
   deploy:
@@ -45,7 +45,7 @@ jobs:
         - name: Download artifact
           uses: actions/download-artifact@v2
           with:
-            name: ci/cd
+            name: team2server
         - name: Setup SSH
           uses: webfactory/ssh-agent@v0.5.4
           with:
