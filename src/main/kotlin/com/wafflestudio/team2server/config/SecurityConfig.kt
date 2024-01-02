@@ -31,6 +31,9 @@ class SecurityConfig {
 			addFilterAfter<BasicAuthenticationFilter>(jwtHs256AuthFilter)
 			authorizeHttpRequests {
 				authorize("/auth/login", permitAll)
+				authorize("/swagger-ui/**", permitAll)
+				authorize("/v3/api-docs/**", permitAll)
+				authorize("/swagger-resources/**", permitAll)
 				authorize(anyRequest, authenticated)
 			}
 		}

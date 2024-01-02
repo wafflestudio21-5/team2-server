@@ -12,3 +12,12 @@ cache:
 
 jwt:
   secret-key: TFRsGRu_d3UWp-WpoHShC_uHQy86Sp1rYX403NBibcw
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+#    tags-sorter: alpha
+#    operations-sorter: alpha
+    display-request-duration: true
