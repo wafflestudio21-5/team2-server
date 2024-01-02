@@ -1,6 +1,6 @@
 package com.wafflestudio.team2server.common.auth
 
-import com.wafflestudio.team2server.common.model.User
+import com.wafflestudio.team2server.user.model.User
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -16,19 +16,20 @@ class DatabaseUserDetailsService(
 	private val encoder: PasswordEncoder,
 ) : UserDetailsService {
 
-	override fun loadUserByUsername(username: String?): UserDetails {
-		if (username == null) {
+	override fun loadUserByUsername(email: String?): UserDetails {
+		if (email == null) {
 			throw IllegalArgumentException() // TODO: 예외 처리
 		}
 		// TODO: DB에서 조회하도록 바꾸어야함.
 		val user = User(
-			username = "test",
+			id = 3,
+			email = email,
 			password = encoder.encode("test"),
 			role = User.Role.ADMIN,
 			refAreaIds = listOf(1, 2),
 		)
 		return SecurityUser.builder()
-			.username(user.username)
+			.username(user.id.toString())
 			.password(user.password)
 			.authorities(user.refAreaIds.map { SimpleGrantedAuthority(it.toString()) } + SimpleGrantedAuthority(user.role.name))
 			.build()

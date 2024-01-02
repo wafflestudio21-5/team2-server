@@ -30,17 +30,17 @@ class TokenVerifier(
 	}
 
 	private fun createAuthUserInfo(token: DecodedJWT): AuthUserInfo {
-		val name = token.getClaim("name")?.asString()
+		val uid = token.getClaim("uid")?.asLong()
 		val rawRefAreaIds = token.audience
 		val issuedAt = token.issuedAtAsInstant?.toEpochMilli()
 		val expiredAt = token.expiresAtAsInstant?.toEpochMilli()
-		return AuthUserInfo(name, rawRefAreaIds, issuedAt, expiredAt)
+		return AuthUserInfo(uid, rawRefAreaIds, issuedAt, expiredAt)
 	}
 
 	private fun initVerifier(): JWTVerifier {
 		return JWT.require(algorithm)
 			.withClaim("v", 1)
-			.withClaimPresence("name")
+			.withClaimPresence("uid")
 			.withClaimPresence("iat")
 			.build()
 	}
