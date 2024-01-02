@@ -1,3 +1,3 @@
-insert into product_post (id, author_id, buyer_id, selling_area_id, category_id, type, status, title, rep_img, description, sell_price, trading_location, view_cnt, refresh_cnt, refreshed_at, created_at, deadline, hidden_yn, offer_yn, wish_cnt, chat_cnt) values (1077, 24234, 342, -1, -1,0,0,'testpost','','desc!',10000,null,134,1,'1970-01-01 00:00:01','1970-01-01 00:00:01','1970-01-01 00:00:01',0,0,0,0);
-insert into user (nickname) values ('asp345');
-
+insert into product_post (id, author_id, buyer_id, selling_area_id, category_id, type, status, title, rep_img, description, sell_price, trading_location, view_cnt, refresh_cnt, refreshed_at, created_at, deadline, hidden_yn, offer_yn, wish_cnt, chat_cnt) values (1077, 24234, 342, -1, -1,1,1,'testpost','','desc!',10000,null,134,1,'2024-01-01 00:00:01','2024-01-01 00:00:01','2024-01-01 00:00:01',0,0,0,0);
+insert into user (email,password,nickname,created_at) values ('t1@t1.kr','1234','testuser1','2023-12-25 00:00:01');
+insert into user (email,password,nickname,created_at) values ('t2@t2.com','1234','testuser2','2023-11-30 05:10:01');
