@@ -12,9 +12,9 @@ class ProductPostEntity (
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long? = null,
 	val title: String = "",
-	@Enumerated(value = EnumType.STRING)
-	@Column(nullable = false)
+	@Enumerated(value = EnumType.ORDINAL)
 	val type: ProductPostType = ProductPostType.TRADE,
+	@Enumerated(value = EnumType.ORDINAL)
 	val status: ProductPostStatus = ProductPostStatus.NEW,
 	val authorId: Long = 0,
 	val buyerId: Long = -1,
