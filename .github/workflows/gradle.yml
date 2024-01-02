@@ -46,11 +46,17 @@ jobs:
           uses: actions/download-artifact@v2
           with:
             name: team2server
-        - name: Setup SSH
-          uses: webfactory/ssh-agent@v0.5.4
-          with:
-            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        - name: SCP transfer
-          run: scp *.jar ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/tmp
-        - name: Execute
-          run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo nohup java -jar ~/tmp/*.jar > ~/nohup.out 2>&1 &"
+        - name: Run
+          env:
+            PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+            HOST: ${{ secrets.SERVER_IP }}
+            USER: ${{ secrets.SERVER_USER }}
+          run: |
+            mkdir -p ~/.ssh
+            ssh-keyscan $HOST >> ~/.ssh/known_hosts
+            echo "$PRIVATE_KEY" > private_key.pem
+            chmod 600 private_key.pem
+            FILENAME="team2server_$(date +%y%m%d_%H_%M)"
+            scp -i private_key.pem *.jar $USER@$HOST:~/$FILENAME.jar
+            ssh -i private_key.pem $USER@$HOST "sudo fuser -k 8080/tcp"
+            ssh -i private_key.pem $USER@$HOST "sudo nohup java -jar ~/$FILENAME.jar > ~/nohup.out 2>&1 &"
