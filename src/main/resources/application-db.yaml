@@ -5,7 +5,7 @@ spring:
     url: jdbc:mysql://localhost:3306/team2_server
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: test
+    password: 1234
   jpa:
     defer-datasource-initialization: true
     properties:
@@ -30,3 +30,16 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+---
+spring.config.activate.on-profile: my
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  config:
+    import: file:./etc/mysql.yml
