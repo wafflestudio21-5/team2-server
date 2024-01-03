@@ -25,3 +25,11 @@ springdoc:
   - /channel/**
   - /user/**
   - /test/**
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
