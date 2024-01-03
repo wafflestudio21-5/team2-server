@@ -33,7 +33,6 @@ dependencies {
 	// json
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	// db
-    runtimeOnly("com.h2database:h2")
     runtimeOnly("com.mysql:mysql-connector-j")
 	// jwt
 	implementation("com.auth0:java-jwt:4.4.0")
