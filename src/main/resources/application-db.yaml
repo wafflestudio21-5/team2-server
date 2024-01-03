@@ -25,7 +25,7 @@ spring:
     url: jdbc:mysql://localhost:3306/team2_server
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: ??
+    password: bani
   jpa:
     properties:
       hibernate:
