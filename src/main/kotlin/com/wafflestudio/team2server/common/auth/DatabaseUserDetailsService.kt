@@ -1,10 +1,9 @@
 package com.wafflestudio.team2server.common.auth
 
-import com.wafflestudio.team2server.user.model.User
+import com.wafflestudio.team2server.user.repository.UserRepository
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import org.springframework.security.core.userdetails.User as SecurityUser
 
@@ -13,25 +12,19 @@ import org.springframework.security.core.userdetails.User as SecurityUser
  */
 @Component
 class DatabaseUserDetailsService(
-	private val encoder: PasswordEncoder,
+	private val userRepository: UserRepository,
 ) : UserDetailsService {
 
 	override fun loadUserByUsername(email: String?): UserDetails {
 		if (email == null) {
 			throw IllegalArgumentException() // TODO: 예외 처리
 		}
-		// TODO: DB에서 조회하도록 바꾸어야함.
-		val user = User(
-			id = 3,
-			email = email,
-			password = encoder.encode("test"),
-			role = User.Role.ADMIN,
-			refAreaIds = listOf(1, 2),
-		)
+		val user = userRepository.findByEmail(email) ?: throw RuntimeException("user not found")
 		return SecurityUser.builder()
 			.username(user.id.toString())
 			.password(user.password)
-			.authorities(user.refAreaIds.map { SimpleGrantedAuthority(it.toString()) } + SimpleGrantedAuthority(user.role.name))
+			//.authorities(user.refAreaIds.map { SimpleGrantedAuthority(it.toString()) } + SimpleGrantedAuthority(user.role.name))
+			.authorities(emptyList<Int>().map { SimpleGrantedAuthority(it.toString()) } + SimpleGrantedAuthority(user.role.name))
 			.build()
 	}
 

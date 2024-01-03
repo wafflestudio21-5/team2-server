@@ -2,6 +2,7 @@ package com.wafflestudio.team2server.user.repository
 
 import com.wafflestudio.team2server.channel.repository.ChannelUserEntity
 import com.wafflestudio.team2server.common.util.BaseCreatedDateEntity
+import com.wafflestudio.team2server.user.model.AuthProvider
 import com.wafflestudio.team2server.user.model.User
 import jakarta.persistence.*
 
@@ -11,19 +12,16 @@ class UserEntity(
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0L,
 	@Enumerated(value = EnumType.ORDINAL)
-	val provider: UserProvider,
-	val role: User.Role,
-	val profileImg: String,
+	val provider: AuthProvider,
+	val email: String? = null,
+	val password: String? = null,
+	val role: User.Role = User.Role.USER,
+	val profileImg: String?,
 	val nickname: String,
-	val sub: String?,
-	var mannerTemperature: Float,
+	val sub: String? = null,
+	var mannerTemperature: Double = 36.5,
 
 	@OneToMany(mappedBy = "user")
-	val channelUsers: List<ChannelUserEntity>
-):  BaseCreatedDateEntity() {
-
-	enum class UserProvider {
-		KAKAO, GOOGLE, NONE
-	}
-}
+	val channelUsers: List<ChannelUserEntity> = mutableListOf(),
+):  BaseCreatedDateEntity()
 

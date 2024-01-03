@@ -23,12 +23,15 @@ create table user (
 	password varchar(255),
 	role int,
 	profile_img varchar(255),
-	nickname varchar(255),
+	nickname varchar(255) not null,
 	sub varchar(255),
 	manner_temperature decimal(3,1),
 	created_at datetime,
 	rep_badge_id bigint,
-	primary key (id)
+	primary key (id),
+	unique key email (email),
+	unique key nickname (nickname),
+	unique key provide_sub (provider, sub)
 );
 create table channel (
 	id bigint auto_increment,
@@ -178,4 +181,4 @@ create table tender (
 	price int,
 	tender_at datetime,
 	primary key (id)
-)
+);
