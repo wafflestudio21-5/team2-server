@@ -14,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+import org.springframework.security.web.firewall.DefaultHttpFirewall
+import org.springframework.security.web.firewall.HttpFirewall
 
 /**
  * Spring Security 설정.
@@ -30,7 +32,8 @@ class SecurityConfig {
 			csrf { disable() }
 			addFilterAfter<BasicAuthenticationFilter>(jwtHs256AuthFilter)
 			authorizeHttpRequests {
-				authorize("/auth/login", permitAll)
+				authorize("/auth/**", permitAll)
+				authorize("/signup/**", permitAll)
 				authorize("/swagger-ui/**", permitAll)
 				authorize("/v3/api-docs/**", permitAll)
 				authorize("/swagger-resources/**", permitAll)
@@ -54,6 +57,11 @@ class SecurityConfig {
 	@Bean
 	fun passwordEncoder(): PasswordEncoder {
 		return BCryptPasswordEncoder()
+	}
+
+	@Bean
+	fun httpFirewall(): HttpFirewall {
+		return DefaultHttpFirewall()
 	}
 
 }
