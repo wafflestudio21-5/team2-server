@@ -57,4 +57,4 @@ jobs:
             FILENAME="team2server_$(date +%y%m%d_%H_%M)"
             scp -i private_key.pem *.jar $USER@$HOST:~/$FILENAME.jar
             ssh -i private_key.pem $USER@$HOST "sudo fuser -k 8080/tcp"
-            ssh -i private_key.pem $USER@$HOST "sudo nohup java -jar ~/$FILENAME.jar > ~/nohup.out 2>&1 &"
+            ssh -i private_key.pem $USER@$HOST "sudo nohup java -jar ~/$FILENAME.jar --spring.profiles.active=prod >> ~/nohup.out 2>&1 &"
