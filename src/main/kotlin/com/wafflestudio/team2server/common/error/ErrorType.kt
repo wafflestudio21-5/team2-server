@@ -16,6 +16,7 @@ enum class ErrorType(
 	// 403
 
 	// 404
+	USER_NOT_FOUND(14001, HttpStatus.NOT_FOUND),
 
 	// 409
 	EMAIL_ALREADY_EXISTS(19001, HttpStatus.CONFLICT),

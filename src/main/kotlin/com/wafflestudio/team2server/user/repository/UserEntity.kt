@@ -14,10 +14,10 @@ class UserEntity(
 	@Enumerated(value = EnumType.ORDINAL)
 	val provider: AuthProvider,
 	val email: String? = null,
-	val password: String? = null,
-	val role: User.Role = User.Role.USER,
-	val profileImg: String?,
-	val nickname: String,
+	var password: String? = null,
+	var role: User.Role = User.Role.USER,
+	var profileImg: String?,
+	var nickname: String,
 	val sub: String? = null,
 	var mannerTemperature: Double = 36.5,
 

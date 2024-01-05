@@ -6,7 +6,7 @@ open class BaniException(val errorType: ErrorType) : RuntimeException(errorType.
 
 object EmailBlankException : BaniException(ErrorType.EMAIL_BLANK)
 
-object UserNotFoundException : BaniException(ErrorType.UNAUTHORIZED)
+object UserNotFoundException : BaniException(ErrorType.USER_NOT_FOUND)
 
 object EmailAlreadyExistsException : BaniException(ErrorType.EMAIL_ALREADY_EXISTS)
 
