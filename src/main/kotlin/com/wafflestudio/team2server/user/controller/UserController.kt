@@ -3,10 +3,8 @@ package com.wafflestudio.team2server.user.controller
 import com.wafflestudio.team2server.user.model.AuthProvider
 import com.wafflestudio.team2server.user.service.UserService
 import jakarta.validation.constraints.Pattern
-import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -16,25 +14,25 @@ class UserController(
 ) {
 
 	@PostMapping("/signup")
-	fun signup(@RequestBody @Validated request: SignupRequest): ResponseEntity<SignupResponse> {
+	fun signup(@RequestBody @Validated request: SignupRequest): SignupResponse {
 		val user = userService.signup(
 			request.email,
 			passwordEncoder.encode(request.password),
 			request.nickname,
 			request.profileImage,
 		)
-		return ResponseEntity.ok().body(SignupResponse(user.id))
+		return SignupResponse(user.id)
 	}
 
 	@PostMapping("/signup/{provider}")
-	fun signupWithProvider(@RequestBody @Validated request: ProviderSignupRequest, @PathVariable provider: String): ResponseEntity<SignupResponse> {
+	fun signupWithProvider(@RequestBody @Validated request: ProviderSignupRequest, @PathVariable provider: String): SignupResponse {
 		val user = userService.signupWithProvider(
 			AuthProvider.valueOf(provider),
 			request.nickname,
 			request.profileImage,
 			request.sub,
 		)
-		return ResponseEntity.ok().body(SignupResponse(user.id))
+		return SignupResponse(user.id)
 	}
 
 	@PutMapping("/user")
@@ -70,10 +68,5 @@ class UserController(
 	)
 
 	data class SignupResponse(val id: Long)
-
-	@ExceptionHandler(MethodArgumentNotValidException::class)
-	fun handleConstraintViolationException(e: MethodArgumentNotValidException): ResponseEntity<Map<String, String?>> {
-		return ResponseEntity.badRequest().body(mapOf("message" to e.bindingResult.fieldError?.defaultMessage))
-	}
 
 }
