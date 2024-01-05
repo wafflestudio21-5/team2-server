@@ -3,9 +3,8 @@ package com.wafflestudio.team2server.auth
 import com.wafflestudio.team2server.common.auth.TokenGenerator
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.http.HttpStatusCode
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.http.converter.HttpMessageConversionException
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.AuthenticationException
@@ -21,14 +20,14 @@ class AuthController(
 ) {
 
 	@PostMapping("/login")
-	fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<TokenResponse> {
+	fun login(@RequestBody loginRequest: LoginRequest): TokenResponse {
 		val authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.email, loginRequest.password)
 		val authenticationResponse = authenticationManager.authenticate(authenticationRequest)
 
 		val uid = authenticationResponse.name.toLong()
 		val rawRefAreaIds = authenticationResponse.authorities.map { it.authority }
 		val token = tokenGenerator.create(uid, rawRefAreaIds)
-		return ResponseEntity.ok().body(TokenResponse(uid, rawRefAreaIds, token))
+		return TokenResponse(uid, rawRefAreaIds, token)
 	}
 
 	data class LoginRequest(
@@ -47,13 +46,8 @@ class AuthController(
 	}
 
 	@ExceptionHandler(AuthenticationException::class)
-	fun handleAuthenticationException(e: AuthenticationException): ResponseEntity<Unit> {
-		return ResponseEntity.status(HttpStatusCode.valueOf(403)).build()
-	}
-
-	@ExceptionHandler(HttpMessageConversionException::class)
-	fun handleHttpMessageConversionException(e: HttpMessageConversionException): ResponseEntity<Unit> {
-		return ResponseEntity.badRequest().build()
+	fun handleAuthenticationException(e: AuthenticationException): ResponseEntity<Any> {
+		return ResponseEntity(HttpStatus.UNAUTHORIZED)
 	}
 
 }
