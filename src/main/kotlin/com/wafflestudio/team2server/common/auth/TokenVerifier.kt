@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
+import com.wafflestudio.team2server.common.error.NoUIDException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.Base64
@@ -30,7 +31,7 @@ class TokenVerifier(
 	}
 
 	private fun createAuthUserInfo(token: DecodedJWT): AuthUserInfo {
-		val uid = token.getClaim("uid")?.asLong()
+		val uid = token.getClaim("uid")?.asLong()?: throw NoUIDException
 		val rawRefAreaIds = token.audience
 		val issuedAt = token.issuedAtAsInstant?.toEpochMilli()
 		val expiredAt = token.expiresAtAsInstant?.toEpochMilli()

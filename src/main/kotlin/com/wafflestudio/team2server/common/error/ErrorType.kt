@@ -11,6 +11,7 @@ enum class ErrorType(
 
 	// 401
 	UNAUTHORIZED(11001, HttpStatus.UNAUTHORIZED),
+	NO_UID(11002, HttpStatus.UNAUTHORIZED),
 
 	// 403
 

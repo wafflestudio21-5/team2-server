@@ -25,7 +25,7 @@ create table user (
 	profile_img varchar(255),
 	nickname varchar(255) not null,
 	sub varchar(255),
-	manner_temperature decimal(3,1),
+	manner_temperature decimal(3,1) default 36.5,
 	created_at datetime,
 	rep_badge_id bigint,
 	primary key (id),
@@ -37,7 +37,7 @@ create table channel (
 	id bigint auto_increment,
 	post_id bigint not null,
 	last_msg varchar(500),
-	msg_updated_at datetime,
+	msg_updated_at datetime not null default now(),
 	created_at datetime not null default now(),
 	primary key (id)
 );
@@ -70,6 +70,7 @@ create table channel_user (
 	user_id bigint not null,
 	channel_id bigint not null,
 	pinned_at datetime,
+	exit_yn boolean not null default 0,
 	primary key (user_id, channel_id)
 );
 

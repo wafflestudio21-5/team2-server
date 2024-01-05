@@ -13,3 +13,5 @@ object EmailAlreadyExistsException : BaniException(ErrorType.EMAIL_ALREADY_EXIST
 object NicknameAlreadyExistsException : BaniException(ErrorType.NICKNAME_ALREADY_EXISTS)
 
 object ProviderKeyAlreadyExistsException : BaniException(ErrorType.PROVIDER_KEY_ALREAY_EXISTS)
+
+object NoUIDException : BaniException(ErrorType.NO_UID)
