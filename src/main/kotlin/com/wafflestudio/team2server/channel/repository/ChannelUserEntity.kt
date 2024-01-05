@@ -12,16 +12,16 @@ class ChannelUserEntity(
 	private val id: ChannelUserId,
 
 	@MapsId("channelId")
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "channel_id")
 	val channel: ChannelEntity,
 
 	@MapsId("userId")
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	val user: UserEntity,
 
-	var pinnedAt: LocalDateTime?,
+	var pinnedAt: LocalDateTime? = null,
 
 	)
 

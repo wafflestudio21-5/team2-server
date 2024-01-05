@@ -1,17 +1,21 @@
 package com.wafflestudio.team2server.channel.controller
 
+import com.wafflestudio.team2server.channel.service.*
 import com.wafflestudio.team2server.common.auth.AuthUserInfo
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/channels")
-class ChannelController {
+class ChannelController(
+	private val channelService: ChannelService,
+) {
 
 	@GetMapping("")
-	fun getMyChannels() {
-		TODO()
-
+	fun getMyChannels(
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
+	): ChannelListResponse {
+		return channelService.getList(authUserInfo.uid)
 	}
 
 	@GetMapping("/{channelId}")
@@ -27,27 +31,38 @@ class ChannelController {
 
 	@PostMapping("")
 	fun createChannel(
-		@AuthenticationPrincipal authUserInfo: AuthUserInfo
-	) {
-		TODO()
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
+		@RequestBody req: CreateChannelRequest
+	): CreateChannelResponse {
+		return channelService.createChannel(authUserInfo.uid, req.postId)
 	}
 
 	@PostMapping("/{channelId}/pin")
 	fun pin(
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
 		@PathVariable channelId: Long,
-	) {
-		TODO()
+	): PinResponse {
+		return channelService.pin(authUserInfo.uid, channelId)
 	}
 
 	@DeleteMapping("/{channelId}/pin")
 	fun unpin(
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
 		@PathVariable channelId: Long,
+	): UnpinResponse {
+		return channelService.unpin(authUserInfo.uid, channelId)
+	}
+
+	@DeleteMapping("/{channelId}")
+	fun exit(
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
+		@PathVariable channelId: Long,
 	) {
 		TODO()
 	}
 
-//	@ExceptionHandler
-//	fun handleException(e: )
+	data class CreateChannelRequest(
+		val postId: Long
+	)
 }
+

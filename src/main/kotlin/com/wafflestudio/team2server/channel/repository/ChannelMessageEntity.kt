@@ -10,11 +10,11 @@ class ChannelMessageEntity(
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0L,
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "channel_id")
 	val channel: ChannelEntity,
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	val sender: UserEntity,
 
