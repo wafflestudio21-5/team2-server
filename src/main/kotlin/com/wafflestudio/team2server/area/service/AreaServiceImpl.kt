@@ -11,7 +11,7 @@ class AreaServiceImpl(
 	private val areaAdjRepository: AreaAdjRepository
 ) : AreaService {
 	override fun getAdjAreas(id: Int, distance: Int): List<Int> {
-		return areaAdjRepository.getAreaAdjEntityByAreaIdAndDistanceIsLessThanEqual(id, distance)
+		return listOf(id) + areaAdjRepository.getAreaAdjEntityByAreaIdAndDistanceIsLessThanEqual(id, distance)
 			.map { it -> it.targetId }
 	}
 
