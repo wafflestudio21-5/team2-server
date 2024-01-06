@@ -16,9 +16,20 @@ object EmailAlreadyExistsException : BaniException(ErrorType.EMAIL_ALREADY_EXIST
 
 object NicknameAlreadyExistsException : BaniException(ErrorType.NICKNAME_ALREADY_EXISTS)
 
-object ProviderKeyAlreadyExistsException : BaniException(ErrorType.PROVIDER_KEY_ALREAY_EXISTS)
+object ProviderKeyAlreadyExistsException : BaniException(ErrorType.PROVIDER_KEY_ALREADY_EXISTS)
+
+object NoUIDException : BaniException(ErrorType.NO_UID)
+
+object PostIdNotFoundException : BaniException(ErrorType.POST_ID_NOT_FOUND)
+
+object ChannelUserIdNotFoundException : BaniException(ErrorType.CHANNEL_USER_ID_NOT_FOUND)
+
+object AlreadyPinnedException : BaniException(ErrorType.ALREADY_PINNED)
+
+object NotPinnedException : BaniException(ErrorType.NOT_PINNED)
+
+object SelfTransactionException : BaniException(ErrorType.SELF_TRANSACTION)
 
 object PostNotFoundException : BaniException(ErrorType.POST_NOT_FOUND)
 
 object PermissionDeniedException : BaniException(ErrorType.PERMISSION_DENIED)
-

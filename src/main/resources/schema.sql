@@ -41,7 +41,7 @@ create table channel
 	id             bigint auto_increment,
 	post_id        bigint   not null,
 	last_msg       varchar(500),
-	msg_updated_at datetime,
+	msg_updated_at datetime not null default now(),
 	created_at     datetime not null default now(),
 	primary key (id)
 );
@@ -74,7 +74,9 @@ create table channel_user
 (
 	user_id    bigint not null,
 	channel_id bigint not null,
-	pinned_at  datetime,
+	pinned_at datetime,
+	exit_yn boolean not null default 0,
+	created_at datetime,
 	primary key (user_id, channel_id)
 );
 
