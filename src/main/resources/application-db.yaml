@@ -41,5 +41,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
   config:
     import: file:./etc/mysql.yml

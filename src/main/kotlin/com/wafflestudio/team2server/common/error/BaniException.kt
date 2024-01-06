@@ -1,12 +1,16 @@
 package com.wafflestudio.team2server.common.error
 
-import java.lang.RuntimeException
-
 open class BaniException(val errorType: ErrorType) : RuntimeException(errorType.name)
+
+object BadRequestException : BaniException(ErrorType.INVALID_PARAMETER)
+
+object InvalidAreaCountException : BaniException(ErrorType.INVALID_AREA_COUNT)
 
 object EmailBlankException : BaniException(ErrorType.EMAIL_BLANK)
 
-object UserNotFoundException : BaniException(ErrorType.UNAUTHORIZED)
+object UserNotFoundException : BaniException(ErrorType.USER_NOT_FOUND)
+
+object AreaNotFoundException : BaniException(ErrorType.AREA_NOT_FOUND)
 
 object EmailAlreadyExistsException : BaniException(ErrorType.EMAIL_ALREADY_EXISTS)
 
@@ -25,3 +29,7 @@ object AlreadyPinnedException : BaniException(ErrorType.ALREADY_PINNED)
 object NotPinnedException : BaniException(ErrorType.NOT_PINNED)
 
 object SelfTransactionException : BaniException(ErrorType.SELF_TRANSACTION)
+
+object PostNotFoundException : BaniException(ErrorType.POST_NOT_FOUND)
+
+object PermissionDeniedException : BaniException(ErrorType.PERMISSION_DENIED)

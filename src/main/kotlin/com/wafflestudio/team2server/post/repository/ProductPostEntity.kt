@@ -1,33 +1,41 @@
 package com.wafflestudio.team2server.post.repository
 
+import com.wafflestudio.team2server.area.model.AreaEntity
+import com.wafflestudio.team2server.post.model.ProductPost.ProductPostStatus
+import com.wafflestudio.team2server.post.model.ProductPost.ProductPostType
+import com.wafflestudio.team2server.user.repository.UserEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
-import com.wafflestudio.team2server.user.model.User
-import com.wafflestudio.team2server.post.model.ProductPost.*
 
 
-@Entity(name="product_post")
-class ProductPostEntity (
+@Entity(name = "product_post")
+class ProductPostEntity(
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long? = null,
-	val title: String = "",
+	var title: String = "",
+	var description: String = "",
 	@Enumerated(value = EnumType.ORDINAL)
-	val type: ProductPostType = ProductPostType.TRADE,
+	var type: ProductPostType = ProductPostType.TRADE,
 	@Enumerated(value = EnumType.ORDINAL)
-	val status: ProductPostStatus = ProductPostStatus.NEW,
-	val authorId: Long = 0,
-	val buyerId: Long = -1,
-	//val selling_area: AreaEntity,
-	val repImg: String = "",
+	var status: ProductPostStatus = ProductPostStatus.NEW,
+	@OneToOne
+	@JoinColumn(name = "user_id")
+	val author: UserEntity,
+	var buyerId: Long = -1,
+	var sellPrice: Int,
+	@OneToOne
+	@JoinColumn(name = "selling_area")
+	val sellingArea: AreaEntity,
+	var repImg: String = "",
 	// val trading_location: LocationPointEntity,
-	val viewCnt: Int = 0,
-	val offerYn: Boolean = false,
-	val refreshCnt: Int = 0,
-	val refreshedAt: LocalDateTime = LocalDateTime.now(),
+	var viewCnt: Int = 0,
+	var offerYn: Boolean = false,
+	var refreshCnt: Int = 0,
+	var refreshedAt: LocalDateTime = LocalDateTime.now(),
 	val createdAt: LocalDateTime = LocalDateTime.now(),
-	val deadline: LocalDateTime = LocalDateTime.now(),
-	val hiddenYn: Boolean = false,
-	val wishCnt: Int = 0,
-	val chatCnt: Int = 0,
+	var deadline: LocalDateTime = LocalDateTime.now(),
+	var hiddenYn: Boolean = false,
+	var wishCnt: Int = 0,
+	var chatCnt: Int = 0,
 )
