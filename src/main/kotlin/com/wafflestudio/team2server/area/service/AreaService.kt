@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service
 
 @Service
 interface AreaService {
-	fun getAdjAreas(id: Long, distance: Int): Set<Long>
-	fun getAreaById(id: Long): AreaEntity
+	fun getAdjAreas(id: Int, distance: Int): Set<Int>
+	fun getAreaById(id: Int): AreaEntity
+	fun getAreaByCode(code: String): AreaEntity
+	fun searchArea(query: String, cursor: Int)
 }

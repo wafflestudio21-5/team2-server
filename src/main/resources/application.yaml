@@ -2,9 +2,9 @@ server:
   port: 8080
 spring:
   profiles:
-    active: local
+    active: my
   config:
-    import: classpath:application-db.yaml
+    import: classpath:application-db.yaml, file:./etc/key.yml
 
 cache:
   ttl: 10s
@@ -23,7 +23,6 @@ springdoc:
     display-request-duration: true
   paths-to-exclude:
   - /channel/**
-  - /user/**
   - /test/**
 
 logging:

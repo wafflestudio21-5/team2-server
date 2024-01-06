@@ -6,8 +6,8 @@ import jakarta.persistence.Id
 @Entity(name = "area_adj")
 class AreaAdjEntity(
 	@Id
-	val id: Long,
-	val areaId: Long,
-	val targetId: Long,
+	val id: Int,
+	val areaId: Int,
+	val targetId: Int,
 	val distance: Int
 )
