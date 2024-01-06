@@ -12,5 +12,5 @@ import java.time.LocalDateTime
 abstract class BaseCreatedDateEntity(
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
-	var createdAt: LocalDateTime = LocalDateTime.now()
+	var createdAt: LocalDateTime? = null
 )

@@ -1,5 +1,6 @@
 package com.wafflestudio.team2server.channel.repository
 
+import com.wafflestudio.team2server.common.util.BaseCreatedDateEntity
 import com.wafflestudio.team2server.user.repository.UserEntity
 import jakarta.persistence.*
 import org.springframework.data.domain.Persistable
@@ -23,14 +24,14 @@ class ChannelUserEntity(
 	val user: UserEntity,
 
 	var pinnedAt: LocalDateTime? = null,
-	) : Persistable<ChannelUserId> {
+	) : Persistable<ChannelUserId>, BaseCreatedDateEntity() {
 
 	override fun getId(): ChannelUserId {
 		return id
 	}
 
 	override fun isNew(): Boolean {
-		return pinnedAt == null
+		return createdAt == null
 	}
 
 }

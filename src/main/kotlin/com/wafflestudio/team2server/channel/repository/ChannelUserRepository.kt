@@ -8,12 +8,12 @@ import org.springframework.stereotype.Repository
 interface ChannelUserRepository: JpaRepository<ChannelUserEntity, ChannelUserId> {
 
 	@Query("""
-		SELECT c.id FROM channel c
-		JOIN c.channelUsers cu
+		SELECT cu FROM channel_user cu
+		JOIN FETCH cu.channel c
 		JOIN cu.user u
 		WHERE u.id = :userId
 	""")
-	fun findChannelIdsByUserId(userId: Long): List<Long>
+	fun findChannelIdsByUserId(userId: Long): List<ChannelUserEntity>
 
 	@Query("""
 		SELECT cu FROM channel_user cu
@@ -22,7 +22,7 @@ interface ChannelUserRepository: JpaRepository<ChannelUserEntity, ChannelUserId>
 		JOIN FETCH c.productPost p
 		WHERE c.id IN :channelIds AND u.id != :myUserId
 	""")
-	fun findChannelInfosByChannelIds(channelIds: List<Long>, myUserId: Long): List<ChannelUserEntity>
+	fun findChannelInfosByChannelIds(channelIds: Set<Long>, myUserId: Long): List<ChannelUserEntity>
 
 	fun findAllByIdChannelId(channelId: Long): List<ChannelUserEntity>
 

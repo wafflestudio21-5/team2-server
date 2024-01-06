@@ -71,6 +71,7 @@ create table channel_user (
 	channel_id bigint not null,
 	pinned_at datetime,
 	exit_yn boolean not null default 0,
+	created_at datetime,
 	primary key (user_id, channel_id)
 );
 

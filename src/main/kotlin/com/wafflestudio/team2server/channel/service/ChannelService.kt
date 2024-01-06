@@ -19,10 +19,9 @@ class ChannelService(
 ) {
 
 	fun getList(userId: Long):ChannelListResponse {
-		//TODO pin 을 했을 때, DB엔 있는데 조회로는 안나옴
-
 		// 내가 포함된 채팅창 ID들 리스트 가져오기
-		val channelIds = channelUserRepository.findChannelIdsByUserId(userId)
+		val myChannelUsers = channelUserRepository.findChannelIdsByUserId(userId).associateBy { it.channel.id }
+		val channelIds = myChannelUsers.keys
 
 		// 채팅창 ID 들을 기준으로 채팅방 정보, 채팅중인 상대방의 정보 가져오기
 		val channelInfos = channelUserRepository.findChannelInfosByChannelIds(channelIds, userId)
@@ -35,7 +34,7 @@ class ChannelService(
 				activeArea = "추후 수정", // TODO 추후 수정
 				lastMsg = it.channel.lastMsg,
 				msgUpdatedAt = it.channel.msgUpdatedAt,
-				pinnedAt = it.pinnedAt
+				pinnedAt = myChannelUsers[it.channel.id]!!.pinnedAt
 			)
 		}
 
@@ -124,13 +123,13 @@ class ChannelService(
 
 	private fun saveChannelUser(userId: Long, channel: ChannelEntity) {
 
-		// TODO("getReferenceById를 쓰는데도 user 쪽에 SELECT 쿼리가 자꾸 나감")
+//		// TODO("getReferenceById를 쓰는데도 user 쪽에 SELECT 쿼리가 자꾸 나감")
 		val user = userRepository.getReferenceById(userId)
-		// TODO("channelUserId 쪽도 저장 전에 자꾸 SELECT 쿼리가 나감")
 		val channelUserId = ChannelUserId(
 			channelId = channel.id,
 			userId = userId
 		)
+
 		channelUserRepository.save(
 			ChannelUserEntity(
 				id = channelUserId,
@@ -139,7 +138,6 @@ class ChannelService(
 			)
 		)
 	}
-
 }
 
 data class ChannelBrief(
