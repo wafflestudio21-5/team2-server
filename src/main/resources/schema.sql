@@ -16,6 +16,8 @@ drop table if exists community_like cascade;
 drop table if exists post_category cascade;
 drop table if exists active_area cascade;
 drop table if exists tender cascade;
+#drop table if exists area cascade;
+#drop table if exists area_adj cascade;
 create table user (
 	id bigint auto_increment,
 	provider int,
@@ -41,31 +43,31 @@ create table channel (
 	created_at datetime not null default now(),
 	primary key (id)
 );
-create table product_post (
-	id bigint auto_increment,
-	author_id bigint not null,
-	buyer_id bigint not null,
-	selling_area_id bigint,
-	category_id bigint,
-	type int,
-	status int,
-	title varchar(255),
-	rep_img varchar(255),
-	description text,
-	sell_price int,
+create table product_post
+(
+	id               bigint auto_increment,
+	author_id        bigint not null,
+	buyer_id         bigint not null,
+	selling_area_id  bigint,
+	category_id      bigint,
+	type             int,
+	status           int,
+	title            varchar(255),
+	rep_img          varchar(255),
+	description      text,
+	sell_price       int,
 	trading_location point,
-	view_cnt int,
-	refresh_cnt int,
-	refreshed_at datetime,
-	created_at datetime,
-	deadline datetime,
-	hidden_yn boolean,
-	offer_yn boolean,
-	wish_cnt int,
-	chat_cnt int,
+	view_cnt         int,
+	refresh_cnt      int,
+	refreshed_at     datetime,
+	created_at       datetime,
+	deadline         datetime,
+	hidden_yn        boolean,
+	offer_yn         boolean,
+	wish_cnt         int,
+	chat_cnt         int,
 	primary key (id)
 );
-
 create table channel_user (
 	user_id bigint not null,
 	channel_id bigint not null,
@@ -88,97 +90,128 @@ create table message_sequence (
 	next_msg_no bigint not null default 0,
 	primary key (channel_id)
 );
-create table product_img (
-	id bigint auto_increment,
-	post_id bigint,
-	url varchar(255),
+create table product_img
+(
+	id         bigint auto_increment,
+	post_id    bigint,
+	url        varchar(255),
 	created_at datetime,
 	primary key (id)
 );
-create table wish_list (
-	id bigint auto_increment,
-	user_id bigint,
-	post_id bigint,
+create table wish_list
+(
+	id         bigint auto_increment,
+	user_id    bigint,
+	post_id    bigint,
 	created_at datetime,
 	primary key (id)
 );
-create table trade_review (
-	id bigint auto_increment,
-	post_id bigint,
-	type int,
+create table trade_review
+(
+	id          bigint auto_increment,
+	post_id     bigint,
+	type        int,
 	description varchar(255),
-	hide_yn boolean,
+	hide_yn     boolean,
+	created_at  datetime,
+	primary key (id)
+);
+create table hide_post
+(
+	id         bigint auto_increment,
+	user_id    bigint,
+	post_id    bigint,
 	created_at datetime,
 	primary key (id)
 );
-create table hide_post (
-	id bigint auto_increment,
-	user_id bigint,
-	post_id bigint,
-	created_at datetime,
-	primary key (id)
-);
-create table community (
-	id bigint auto_increment,
-	author_id bigint,
-	area_id int,
-	created_at datetime,
-	title varchar(255),
+create table community
+(
+	id          bigint auto_increment,
+	author_id   bigint,
+	area_id     int,
+	created_at  datetime,
+	title       varchar(255),
 	description text,
-	view_cnt int,
-	like_cnt int,
-	rep_img varchar(255),
-    primary key (id)
-);
-create table community_save (
-	id bigint auto_increment,
-	user_id bigint,
-	community_id bigint,
-	created_at datetime,
+	view_cnt    int,
+	like_cnt    int,
+	rep_img     varchar(255),
 	primary key (id)
 );
-create table community_like (
-	id bigint auto_increment,
-	user_id bigint,
+create table community_save
+(
+	id           bigint auto_increment,
+	user_id      bigint,
 	community_id bigint,
-	created_at datetime,
+	created_at   datetime,
 	primary key (id)
 );
-create table community_img (
-	id bigint auto_increment,
+create table community_like
+(
+	id           bigint auto_increment,
+	user_id      bigint,
 	community_id bigint,
-	url varchar(255),
-	created_at datetime,
+	created_at   datetime,
 	primary key (id)
 );
-create table community_comment (
-	id bigint auto_increment,
-	author_id bigint not null,
+create table community_img
+(
+	id           bigint auto_increment,
+	community_id bigint,
+	url          varchar(255),
+	created_at   datetime,
+	primary key (id)
+);
+create table community_comment
+(
+	id           bigint auto_increment,
+	author_id    bigint not null,
 	community_id bigint not null,
-	comment text,
-	parent_id bigint,
-	img_url varchar(255),
-	like_cnt int,
-	created_at datetime,
-	updated_at datetime,
+	comment      text,
+	parent_id    bigint,
+	img_url      varchar(255),
+	like_cnt     int,
+	created_at   datetime,
+	updated_at   datetime,
 	primary key (id)
 );
-create table post_category (
-	id bigint,
+create table post_category
+(
+	id   bigint,
 	name varchar(20),
 	primary key (id)
 );
-create table active_area (
-	user_id bigint,
+create table active_area
+(
+	user_id           bigint,
 	reference_area_id int,
-	authenticated_at datetime,
-	count int
+	authenticated_at  datetime,
+	count             int
 );
-create table tender (
-	id bigint auto_increment,
-	user_id bigint,
-	post_id bigint,
-	price int,
+create table tender
+(
+	id        bigint auto_increment,
+	user_id   bigint,
+	post_id   bigint,
+	price     int,
 	tender_at datetime,
 	primary key (id)
 );
+/*create table area
+(
+	id        bigint,
+	code      varchar(50),
+	full_name varchar(50),
+	name      varchar(50),
+	sgg_name  varchar(50),
+	sd_name   varchar(50),
+	primary key (id)
+);
+create table area_adj
+(
+	id        bigint auto_increment,
+	area_id   varchar(50),
+	target_id varchar(50),
+	distance  int,
+	primary key (id)
+);
+*/
