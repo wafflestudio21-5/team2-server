@@ -106,7 +106,7 @@ class ProductPostServiceImpl(
 
 	override fun likePost(userId: Long, id: Long) {
 		if (!wishListRepository.existsByUserIdAndPostId(userId, id)) {
-			val wishListEntity = WishListEntity(userId = userId, postId = id)
+			val wishListEntity = WishListEntity(userId = userId, postId = id, createdAt = LocalDateTime.now())
 			wishListRepository.save(wishListEntity)
 		}
 	}
@@ -143,9 +143,9 @@ class ProductPostServiceImpl(
 			title = it.title,
 			viewCnt = it.viewCnt,
 			wishCnt = it.wishCnt,
-			type = it.type,
-			status = it.status,
-			sellingArea = it.sellingArea
+			type = it.type.name,
+			status = it.status.name,
+			sellingArea = it.sellingArea.name
 		)
 	}
 }

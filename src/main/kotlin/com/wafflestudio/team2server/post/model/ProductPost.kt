@@ -1,16 +1,15 @@
 package com.wafflestudio.team2server.post.model
 
-import com.wafflestudio.team2server.area.model.AreaEntity
 import java.time.LocalDateTime
 
 data class ProductPost(
 	val id: Long? = null,
 	val title: String,
-	val type: ProductPostType = ProductPostType.TRADE,
-	val status: ProductPostStatus = ProductPostStatus.NEW,
+	val type: String,
+	val status: String,
 	val authorId: Long,
 	val buyerId: Long,
-	val sellingArea: AreaEntity,
+	val sellingArea: String,
 	val sellPrice: Int,
 	val repImg: String,
 	// val trading_location: LocationPointEntity,
