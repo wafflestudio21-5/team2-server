@@ -11,7 +11,7 @@ data class User(
 	val profileImageUrl: String?,
 	val nickname: String,
 	val mannerTemp: Double,
-	val createdAt: LocalDateTime,
+	val createdAt: LocalDateTime?,
 	val refAreaIds: List<Int>,
 ) {
 

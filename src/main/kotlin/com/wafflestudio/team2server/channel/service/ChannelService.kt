@@ -99,7 +99,7 @@ class ChannelService(
 	}
 
 	private fun createChannel(productPost: ProductPostEntity, userId: Long): ChannelCreateResponse {
-		val authorId = productPost.authorId
+		val authorId = productPost.author.id
 		if (userId == authorId) {
 			throw SelfTransactionException
 		}
