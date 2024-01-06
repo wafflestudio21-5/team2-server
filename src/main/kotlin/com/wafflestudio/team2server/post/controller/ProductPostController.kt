@@ -85,6 +85,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		val offerYn: Boolean = false,
 		val deadline: LocalDateTime = LocalDateTime.now().plusDays(7),
 		val hiddenYn: Boolean = false,
+		val sellPrice: Int
 	)
 
 	data class PostUpdateRequest(
@@ -95,5 +96,6 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		val offerYn: Boolean?,
 		val deadline: LocalDateTime?,
 		val hiddenYn: Boolean?,
+		val sellPrice: Int?,
 	)
 }

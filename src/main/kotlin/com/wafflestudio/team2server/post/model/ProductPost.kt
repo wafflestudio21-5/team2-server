@@ -11,6 +11,7 @@ data class ProductPost(
 	val authorId: Long,
 	val buyerId: Long,
 	val sellingArea: AreaEntity,
+	val sellPrice: Int,
 	val repImg: String,
 	// val trading_location: LocationPointEntity,
 	val viewCnt: Int,

@@ -18,29 +18,31 @@ drop table if exists active_area cascade;
 drop table if exists tender cascade;
 #drop table if exists area cascade;
 #drop table if exists area_adj cascade;
-create table user (
-	id bigint auto_increment,
-	provider int,
-	email varchar(255),
-	password varchar(255),
-	role int,
-	profile_img varchar(255),
-	nickname varchar(255) not null,
-	sub varchar(255),
-	manner_temperature decimal(3,1),
-	created_at datetime,
-	rep_badge_id bigint,
+create table user
+(
+	id                 bigint auto_increment,
+	provider           int,
+	email              varchar(255),
+	password           varchar(255),
+	role               int,
+	profile_img        varchar(255),
+	nickname           varchar(255) not null,
+	sub                varchar(255),
+	manner_temperature decimal(3, 1),
+	created_at         datetime,
+	rep_badge_id       bigint,
 	primary key (id),
 	unique key email (email),
 	unique key nickname (nickname),
 	unique key provide_sub (provider, sub)
 );
-create table channel (
-	id bigint auto_increment,
-	post_id bigint not null,
-	last_msg varchar(500),
+create table channel
+(
+	id             bigint auto_increment,
+	post_id        bigint   not null,
+	last_msg       varchar(500),
 	msg_updated_at datetime,
-	created_at datetime not null default now(),
+	created_at     datetime not null default now(),
 	primary key (id)
 );
 create table product_post
@@ -68,25 +70,28 @@ create table product_post
 	chat_cnt         int,
 	primary key (id)
 );
-create table channel_user (
-	user_id bigint not null,
+create table channel_user
+(
+	user_id    bigint not null,
 	channel_id bigint not null,
-	pinned_at datetime,
+	pinned_at  datetime,
 	primary key (user_id, channel_id)
 );
 
-create table channel_message (
-	id bigint auto_increment,
-	channel_id bigint not null,
-	sender_id bigint not null,
-	message varchar(500),
-	read_yn boolean not null default 0,
+create table channel_message
+(
+	id         bigint auto_increment,
+	channel_id bigint   not null,
+	sender_id  bigint   not null,
+	message    varchar(500),
+	read_yn    boolean  not null default 0,
 	created_at datetime not null default now(),
-	msg_no bigint not null,
+	msg_no     bigint   not null,
 	primary key (id)
 );
-create table message_sequence (
-	channel_id bigint,
+create table message_sequence
+(
+	channel_id  bigint,
 	next_msg_no bigint not null default 0,
 	primary key (channel_id)
 );

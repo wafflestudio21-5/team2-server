@@ -52,6 +52,7 @@ class ProductPostServiceImpl(
 				refreshedAt = LocalDateTime.now(),
 				wishCnt = 0,
 				chatCnt = 0,
+				sellPrice = postCreateRequest.sellPrice
 			)
 		productPostRepository.save(postEntity)
 	}
@@ -83,6 +84,7 @@ class ProductPostServiceImpl(
 			else -> target.status
 		}
 		target.offerYn = postUpdateRequest.offerYn ?: target.offerYn
+		target.sellPrice = postUpdateRequest.sellPrice ?: target.sellPrice
 		productPostRepository.save(target)
 	}
 
@@ -102,7 +104,7 @@ class ProductPostServiceImpl(
 
 	override fun likePost(id: Long, userId: Long) {
 		if (wishListRepository.existsByUserIdAndPostId(userId, id)) {
-			
+
 		}
 	}
 
@@ -112,6 +114,7 @@ class ProductPostServiceImpl(
 			authorId = it.author.id,
 			buyerId = it.buyerId,
 			chatCnt = it.chatCnt,
+			sellPrice = it.sellPrice,
 			createdAt = it.createdAt,
 			deadline = it.deadline,
 			hiddenYn = it.hiddenYn,

@@ -23,6 +23,7 @@ class ProductPostEntity(
 	@JoinColumn(name = "user_id")
 	val author: UserEntity,
 	var buyerId: Long = -1,
+	var sellPrice: Int,
 	@OneToOne
 	@JoinColumn(name = "selling_area")
 	val sellingArea: AreaEntity,
