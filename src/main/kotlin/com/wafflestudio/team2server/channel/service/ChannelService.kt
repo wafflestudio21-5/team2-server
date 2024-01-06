@@ -4,8 +4,8 @@ import com.wafflestudio.team2server.channel.repository.*
 import com.wafflestudio.team2server.common.error.*
 import com.wafflestudio.team2server.post.repository.ProductPostEntity
 import com.wafflestudio.team2server.post.repository.ProductPostRepository
-import com.wafflestudio.team2server.user.repository.UserEntity
 import com.wafflestudio.team2server.user.repository.UserRepository
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -46,28 +46,25 @@ class ChannelService(
 	}
 
 	@Transactional
-	fun createChannel(userId: Long, postId: Long): CreateChannelResponse {
+	fun createChannel(userId: Long, postId: Long): ChannelCreateResponse {
 
-		println("단계 1")
 		// 1. postId로 해당 postEntity 가져오기
 		val productPost = productPostRepository.findById(postId)
 			.orElseThrow { PostIdNotFoundException }
-		println("단계 2")
 		// 2. channel 존재여부 확인
 		val channelO = channelRepository.findChannelByPostIdAndUserId(postId, userId)
 
 		return if (channelO.isEmpty) {
-			println("단계 3")
 			// 2-1. 존재하지 않는다면 -> channel_user 에 두 유저 추가
 			createChannel(productPost, userId)
 		} else {
 			// 2-2. 존재한다면 -> 기존 채널 ID 반환
-			CreateChannelResponse(channelO.get().id)
+			ChannelCreateResponse(channelO.get().id)
 		}
 	}
 
 	@Transactional
-	fun pin(userId: Long, channelId: Long): PinResponse {
+	fun pin(userId: Long, channelId: Long): ChannelPinResponse {
 		val channelUserId = ChannelUserId(
 			channelId = channelId,
 			userId = userId,
@@ -82,11 +79,11 @@ class ChannelService(
 		}
 		channelUser.pinnedAt = now
 
-		return PinResponse(channelId, now)
+		return ChannelPinResponse(channelId, now)
 	}
 
 	@Transactional
-	fun unpin(userId: Long, channelId: Long): UnpinResponse {
+	fun unpin(userId: Long, channelId: Long): ChannelUnpinResponse {
 		val channelUserId = ChannelUserId(
 			channelId = channelId,
 			userId = userId,
@@ -98,10 +95,10 @@ class ChannelService(
 			throw NotPinnedException
 		}
 		channelUser.pinnedAt = null
-		return UnpinResponse(channelId)
+		return ChannelUnpinResponse(channelId)
 	}
 
-	private fun createChannel(productPost: ProductPostEntity, userId: Long): CreateChannelResponse {
+	private fun createChannel(productPost: ProductPostEntity, userId: Long): ChannelCreateResponse {
 		val authorId = productPost.authorId
 		if (userId == authorId) {
 			throw SelfTransactionException
@@ -117,7 +114,7 @@ class ChannelService(
 		saveChannelUser(userId, channel)
 		saveChannelUser(authorId, channel)
 
-		return CreateChannelResponse(channel.id)
+		return ChannelCreateResponse(channel.id)
 	}
 
 
@@ -140,31 +137,48 @@ class ChannelService(
 	}
 }
 
+@Schema(description = "채팅방 요약 정보")
 data class ChannelBrief(
+	@Schema(description = "채팅방 식별자(ID)")
 	val channelId: Long,
+	@Schema(description = "채팅방 이미지(채팅 상대방의 프로필 이미지)")
 	val profileImg: String?,
+	@Schema(description = "채팅 상대방의 닉네임")
 	val nickname: String,
+	@Schema(description = "채팅 상대방의 활동 지역")
 	val activeArea: String,
+	@Schema(description = "해당 채팅방에 마지막으로 전송된 메시지 내용")
 	val lastMsg: String?,
+	@Schema(description = "해당 채팅방에 마지막으로 메시지가 전송된 시각")
 	val msgUpdatedAt: LocalDateTime,
+	@Schema(description = "채팅방이 고정된 시각. 고정되지 않았다면 null")
 	val pinnedAt: LocalDateTime?
 )
 
+@Schema(description = "채팅 목록 응답 DTO")
 data class ChannelListResponse(
+	@Schema(description = "상단 고정된 채팅방들")
 	val pinned: List<ChannelBrief>,
+	@Schema(description = "고정되지 않은 일반 채팅방들")
 	val normal: List<ChannelBrief>
 )
 
-
-data class CreateChannelResponse(
+@Schema(description = "채팅방 생성 응답 DTO")
+data class ChannelCreateResponse(
+	@Schema(description = "채팅방 식별자(ID)")
 	val channelId: Long
 )
 
-data class PinResponse(
+@Schema(description = "채팅방 상단 고정 응답 DTO")
+data class ChannelPinResponse(
+	@Schema(description = "채팅방 식별자(ID)")
 	val channelId: Long,
+	@Schema(description = "채팅방 상단 고정 시각")
 	val pinnedAt: LocalDateTime
 )
 
-data class UnpinResponse(
+@Schema(description = "채팅방 상단 고정 해제 응답 DTO")
+data class ChannelUnpinResponse(
+	@Schema(description = "채팅방 식별자(ID)")
 	val channelId: Long
 )
