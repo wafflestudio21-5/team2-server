@@ -10,13 +10,13 @@ class AreaServiceImpl(
 	private val areaRepository: AreaRepository,
 	private val areaAdjRepository: AreaAdjRepository
 ) : AreaService {
-	override fun getAdjAreas(id: Long, distance: Int): Set<Long> {
+	override fun getAdjAreas(id: Int, distance: Int): Set<Int> {
 		return areaAdjRepository.getAreaAdjEntityByAreaIdAndDistanceIsLessThanEqual(id, distance)
 			.map { it -> it.targetId }
 			.toSet()
 	}
 
-	override fun getAreaById(id: Long): AreaEntity {
+	override fun getAreaById(id: Int): AreaEntity {
 		return areaRepository.findById(id).get()
 	}
 }

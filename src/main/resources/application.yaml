@@ -2,7 +2,7 @@ server:
   port: 8080
 spring:
   profiles:
-    active: local
+    active: my
   config:
     import: classpath:application-db.yaml
 

@@ -1,9 +1,10 @@
 package com.wafflestudio.team2server.user.service
 
-import com.wafflestudio.team2server.common.error.EmailAlreadyExistsException
-import com.wafflestudio.team2server.common.error.NicknameAlreadyExistsException
-import com.wafflestudio.team2server.common.error.ProviderKeyAlreadyExistsException
-import com.wafflestudio.team2server.common.error.UserNotFoundException
+import com.wafflestudio.team2server.area.model.AreaUserEntity
+import com.wafflestudio.team2server.area.model.AreaUserId
+import com.wafflestudio.team2server.area.repository.AreaRepository
+import com.wafflestudio.team2server.area.repository.AreaUserRepository
+import com.wafflestudio.team2server.common.error.*
 import com.wafflestudio.team2server.user.controller.UserController
 import com.wafflestudio.team2server.user.model.AuthProvider
 import com.wafflestudio.team2server.user.model.User
@@ -17,15 +18,22 @@ import kotlin.jvm.optionals.getOrElse
 @Service
 class UserService(
 	private val userRepository: UserRepository,
+	private val areaUserRepository: AreaUserRepository,
+	private val areaRepository: AreaRepository,
 	private val passwordEncoder: PasswordEncoder,
 ) {
 
-	fun signup(email: String, password: String, nickname: String, profileImage: String?): User {
+	@Transactional
+	fun signup(email: String, password: String, nickname: String, profileImage: String?, refAreaIds: List<Int>): User {
 		if (userRepository.existsByEmail(email)) {
 			throw EmailAlreadyExistsException
 		}
 		if (userRepository.existsByNickname(nickname)) {
 			throw NicknameAlreadyExistsException
+		}
+		val areas = areaRepository.findAllById(refAreaIds)
+		if (areas.size != refAreaIds.size) {
+			throw AreaNotFoundException
 		}
 		val user = userRepository.save(
 			UserEntity(
@@ -36,15 +44,21 @@ class UserService(
 				nickname = nickname,
 			)
 		) // DB 유니크 키 제약으로 email, nickname 중복 방지.
+		val areaUsers = areas.map { AreaUserEntity(AreaUserId(userId = user.id, areaId = it.id), it, user, count = 1) }
+		areaUserRepository.saveAll(areaUsers)
 		return user.toUser()
 	}
 
-	fun signupWithProvider(provider: AuthProvider, nickname: String, profileImage: String?, sub: String): User {
+	fun signupWithProvider(provider: AuthProvider, nickname: String, profileImage: String?, sub: String, refAreaIds: List<Int>): User {
 		if (userRepository.existsByProviderAndSub(provider, sub)) {
 			throw ProviderKeyAlreadyExistsException
 		}
 		if (userRepository.existsByNickname(nickname)) {
 			throw NicknameAlreadyExistsException
+		}
+		val areas = areaRepository.findAllById(refAreaIds)
+		if (areas.size != refAreaIds.size) {
+			throw AreaNotFoundException
 		}
 		val user = userRepository.save(
 			UserEntity(
@@ -54,6 +68,8 @@ class UserService(
 				sub = sub,
 			)
 		) // DB 유니크 키 제약으로 sub, nickname 중복 방지. Provider 사이에 sub 충돌 방지를 위해 (provider, sub)로 유니크 키 제약 필요할듯.
+		val areaUsers = areas.map { AreaUserEntity(AreaUserId(userId = user.id, areaId = it.id), it, user, count = 1) }
+		areaUserRepository.saveAll(areaUsers)
 		return user.toUser()
 	}
 

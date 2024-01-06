@@ -1,16 +1,17 @@
 package com.wafflestudio.team2server.user.controller
 
 import com.wafflestudio.team2server.common.auth.AuthUserInfo
-import com.wafflestudio.team2server.common.error.ErrorInfo
-import com.wafflestudio.team2server.common.error.ErrorResponse
-import com.wafflestudio.team2server.common.error.ErrorType
+import com.wafflestudio.team2server.common.error.*
 import com.wafflestudio.team2server.user.model.AuthProvider
 import com.wafflestudio.team2server.user.model.User
 import com.wafflestudio.team2server.user.service.UserService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.constraints.Pattern
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.http.ResponseEntity
-import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.*
@@ -20,24 +21,46 @@ class UserController(
 	private val userService: UserService,
 ) {
 
+	@Operation(
+		responses = [
+			ApiResponse(responseCode = "200"),
+			ApiResponse(responseCode = "400", description = "10001 INVALID_PARAMTER", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
+			ApiResponse(responseCode = "409", description = "19000 CONFLICT", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
+		]
+	)
 	@PostMapping("/signup")
 	fun signup(@RequestBody @Validated request: SignupRequest): SignupResponse {
+		if (request.refAreaIds.size !in 1..2) {
+			throw InvalidAreaCountException
+		}
 		val user = userService.signup(
 			request.email,
 			request.password,
 			request.nickname,
 			request.profileImage,
+			request.refAreaIds,
 		)
 		return SignupResponse(user)
 	}
 
+	@Operation(
+		responses = [
+			ApiResponse(responseCode = "200"),
+			ApiResponse(responseCode = "400", description = "10001 INVALID_PARAMTER", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
+			ApiResponse(responseCode = "409", description = "19000 CONFLICT", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
+		]
+	)
 	@PostMapping("/signup/{provider}")
 	fun signupWithProvider(@RequestBody @Validated request: ProviderSignupRequest, @PathVariable provider: String): SignupResponse {
+		if (request.refAreaIds.size !in 1..2) {
+			throw InvalidAreaCountException
+		}
 		val user = userService.signupWithProvider(
 			AuthProvider.valueOf(provider),
 			request.nickname,
 			request.profileImage,
 			request.sub,
+			request.refAreaIds,
 		)
 		return SignupResponse(user)
 	}
@@ -65,6 +88,7 @@ class UserController(
 		@field:Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{2,10}$", message = "닉네임은 특수문자를 제외한 2~10자리여야 합니다.")
 		val nickname: String,
 		val profileImage: String?,
+		val refAreaIds: List<Int>,
 	)
 
 	data class ProviderSignupRequest(
@@ -72,6 +96,7 @@ class UserController(
 		val nickname: String,
 		val profileImage: String,
 		val sub: String,
+		val refAreaIds: List<Int>,
 	)
 
 	data class UpdateUserRequest(
