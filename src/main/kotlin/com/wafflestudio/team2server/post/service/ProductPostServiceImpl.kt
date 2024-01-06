@@ -7,7 +7,9 @@ import com.wafflestudio.team2server.post.controller.ProductPostController
 import com.wafflestudio.team2server.post.model.ProductPost
 import com.wafflestudio.team2server.post.repository.ProductPostEntity
 import com.wafflestudio.team2server.post.repository.ProductPostRepository
+import com.wafflestudio.team2server.post.repository.WishListEntity
 import com.wafflestudio.team2server.post.repository.WishListRepository
+import com.wafflestudio.team2server.user.repository.UserEntity
 import com.wafflestudio.team2server.user.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -102,10 +104,26 @@ class ProductPostServiceImpl(
 		productPostRepository.deleteById(id)
 	}
 
-	override fun likePost(id: Long, userId: Long) {
-		if (wishListRepository.existsByUserIdAndPostId(userId, id)) {
-
+	override fun likePost(userId: Long, id: Long) {
+		if (!wishListRepository.existsByUserIdAndPostId(userId, id)) {
+			val wishListEntity = WishListEntity(userId = userId, postId = id)
+			wishListRepository.save(wishListEntity)
 		}
+	}
+
+	override fun unlikePost(userId: Long, id: Long) {
+		if (wishListRepository.existsByUserIdAndPostId(userId, id)) {
+			val wishListEntity = wishListRepository.findByUserIdAndPostId(userId = userId, postId = id)
+			wishListRepository.delete(wishListEntity)
+		}
+	}
+
+	override fun getLikedPosts(userId: Long): List<ProductPostEntity> {
+		return wishListRepository.findByUserId(userId).mapNotNull { productPostRepository.findById(it.postId).getOrNull() }
+	}
+
+	override fun getLikedUsers(postId: Long): List<UserEntity> {
+		return wishListRepository.findByPostId(postId).mapNotNull { userRepository.findById(it.userId).getOrNull() }
 	}
 
 	fun ProductPost(it: ProductPostEntity): ProductPost {
