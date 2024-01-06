@@ -17,6 +17,8 @@ spring:
   sql:
     init:
       mode: always
+  config:
+    import: file:./etc/key.yml
 ---
 spring.config.activate.on-profile: prod
 
@@ -45,4 +47,4 @@ spring:
         format_sql: true
         use_sql_comments: true
   config:
-    import: file:./etc/mysql.yml
+    import: file:./etc/mysql.yml, file:./etc/key.yml
