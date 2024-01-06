@@ -7,6 +7,7 @@ enum class ErrorType(
 	val httpStatus: HttpStatus,
 ) {
 	// 400
+	INVALID_PARAMETER(10001, HttpStatus.BAD_REQUEST),
 	EMAIL_BLANK(10004, HttpStatus.BAD_REQUEST),
 
 	// 401

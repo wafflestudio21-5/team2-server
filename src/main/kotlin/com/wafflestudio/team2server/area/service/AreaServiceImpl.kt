@@ -9,14 +9,14 @@ import org.springframework.stereotype.Service
 class AreaServiceImpl(
 	private val areaRepository: AreaRepository,
 	private val areaAdjRepository: AreaAdjRepository
-) {
-	fun getAdjAreas(id: Long, distance: Int): Set<Long> {
+) : AreaService {
+	override fun getAdjAreas(id: Long, distance: Int): Set<Long> {
 		return areaAdjRepository.getAreaAdjEntityByAreaIdAndDistanceIsLessThanEqual(id, distance)
 			.map { it -> it.targetId }
 			.toSet()
 	}
 
-	fun getAreaById(id: Long): AreaEntity {
+	override fun getAreaById(id: Long): AreaEntity {
 		return areaRepository.findById(id).get()
 	}
 }

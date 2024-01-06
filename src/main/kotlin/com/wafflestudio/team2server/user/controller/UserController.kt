@@ -1,10 +1,15 @@
 package com.wafflestudio.team2server.user.controller
 
+import com.wafflestudio.team2server.common.error.ErrorInfo
+import com.wafflestudio.team2server.common.error.ErrorResponse
+import com.wafflestudio.team2server.common.error.ErrorType
 import com.wafflestudio.team2server.user.model.AuthProvider
 import com.wafflestudio.team2server.user.service.UserService
 import jakarta.validation.constraints.Pattern
+import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -68,5 +73,13 @@ class UserController(
 	)
 
 	data class SignupResponse(val id: Long)
+
+	@ExceptionHandler(MethodArgumentNotValidException::class)
+	fun handleConstraintViolationException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
+		return ResponseEntity(
+			ErrorResponse(ErrorInfo(ErrorType.INVALID_PARAMETER.code, e.bindingResult.fieldError?.defaultMessage ?: "")),
+			ErrorType.INVALID_PARAMETER.httpStatus,
+		)
+	}
 
 }
