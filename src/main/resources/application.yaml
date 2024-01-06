@@ -4,7 +4,7 @@ spring:
   profiles:
     active: local
   config:
-    import: classpath:application-db.yaml
+    import: classpath:application-db.yaml, classpath:application-key.yaml
 
 cache:
   ttl: 10s
