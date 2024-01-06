@@ -5,11 +5,12 @@ import java.time.LocalDateTime
 data class ProductPost(
 	val id: Long? = null,
 	val title: String,
-	val type: ProductPostType = ProductPostType.TRADE,
-	val status: ProductPostStatus = ProductPostStatus.NEW,
+	val type: String,
+	val status: String,
 	val authorId: Long,
 	val buyerId: Long,
-	//val selling_area: AreaEntity,
+	val sellingArea: String,
+	val sellPrice: Int,
 	val repImg: String,
 	// val trading_location: LocationPointEntity,
 	val viewCnt: Int,
@@ -27,6 +28,7 @@ data class ProductPost(
 		RESERVED,
 		SOLDOUT,
 	}
+
 	enum class ProductPostType {
 		TRADE,
 		SHARE,

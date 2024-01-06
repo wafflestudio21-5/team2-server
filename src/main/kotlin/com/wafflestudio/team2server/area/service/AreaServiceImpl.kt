@@ -13,10 +13,9 @@ class AreaServiceImpl(
 	private val areaAdjRepository: AreaAdjRepository,
 	private val kakaoApi: KakaoApi,
 ) : AreaService {
-	override fun getAdjAreas(id: Int, distance: Int): Set<Int> {
-		return areaAdjRepository.getAreaAdjEntityByAreaIdAndDistanceIsLessThanEqual(id, distance)
+	override fun getAdjAreas(id: Int, distance: Int): List<Int> {
+		return listOf(id) + areaAdjRepository.getAreaAdjEntityByAreaIdAndDistanceIsLessThanEqual(id, distance)
 			.map { it -> it.targetId }
-			.toSet()
 	}
 
 	override fun getAreaById(id: Int): AreaEntity {
