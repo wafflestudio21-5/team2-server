@@ -32,4 +32,6 @@ object SelfTransactionException : BaniException(ErrorType.SELF_TRANSACTION)
 
 object PostNotFoundException : BaniException(ErrorType.POST_NOT_FOUND)
 
+object CommunityNotFoundException : BaniException(ErrorType.COMMUNITY_NOT_FOUND)
+
 object PermissionDeniedException : BaniException(ErrorType.PERMISSION_DENIED)
