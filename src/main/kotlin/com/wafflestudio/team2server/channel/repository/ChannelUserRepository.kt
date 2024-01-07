@@ -1,6 +1,5 @@
 package com.wafflestudio.team2server.channel.repository
 
-import com.wafflestudio.team2server.user.repository.UserEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -11,17 +10,20 @@ interface ChannelUserRepository: JpaRepository<ChannelUserEntity, ChannelUserId>
 	@Query("""
 		SELECT cu FROM channel_user cu
 		JOIN FETCH cu.channel c
-		JOIN FETCH c.productPost p
-		WHERE cu.user.id = :userId
+		JOIN cu.user u
+		WHERE u.id = :userId
 	""")
-	fun findAllByUserIdWithJoinFetch(userId: Long): List<ChannelUserEntity>
+	fun findChannelIdsByUserId(userId: Long): List<ChannelUserEntity>
 
 	@Query("""
-		SELECT u FROM user u
-		JOIN FETCH u.channelUsers cu
+		SELECT cu FROM channel_user cu
+		JOIN FETCH cu.user u
 		JOIN FETCH cu.channel c
+		JOIN FETCH c.productPost p
 		WHERE c.id IN :channelIds AND u.id != :myUserId
 	""")
-	fun findUserInfosByChannelId(channelIds: Set<Long>, myUserId: Long): List<UserEntity>
+	fun findChannelInfosByChannelIds(channelIds: Set<Long>, myUserId: Long): List<ChannelUserEntity>
+
+	fun findAllByIdChannelId(channelId: Long): List<ChannelUserEntity>
 
 }

@@ -54,7 +54,6 @@ jobs:
             ssh-keyscan $HOST >> ~/.ssh/known_hosts
             echo "$PRIVATE_KEY" > private_key.pem
             chmod 600 private_key.pem
-            FILENAME="team2server_$(date +%y%m%d_%H_%M)"
-            scp -i private_key.pem *.jar $USER@$HOST:~/$FILENAME.jar
-            ssh -i private_key.pem $USER@$HOST "sudo fuser -k 8080/tcp"
-            ssh -i private_key.pem $USER@$HOST "sudo nohup java -jar ~/$FILENAME.jar --spring.profiles.active=prod >> ~/nohup.out 2>&1 &"
+            FILENAME="team2server_$(date +%y%m%d_%H_%M).jar"
+            scp -i private_key.pem *.jar $USER@$HOST:~/build/$FILENAME
+            ssh -i private_key.pem $USER@$HOST "./scripts/start.sh $FILENAME"

@@ -14,11 +14,11 @@ class ChannelEntity(
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "post_id")
 	val productPost: ProductPostEntity,
-	var lastMsg: String?,
-	var msgUpdatedAt: LocalDateTime?,
+	var lastMsg: String? = null,
+	var msgUpdatedAt: LocalDateTime = LocalDateTime.now(),
 
 	@OneToMany(mappedBy = "channel")
-	val channelUsers: List<ChannelUserEntity>
+	val channelUsers: List<ChannelUserEntity> = mutableListOf()
 
 ): BaseCreatedDateEntity() {
 

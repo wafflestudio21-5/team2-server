@@ -1,0 +1,12 @@
+spring.config.activate.on-profile: local
+
+spring:
+  config:
+    import: file:./etc/key.yml
+
+---
+spring.config.activate.on-profile: my
+
+spring:
+  config:
+    import: file:./etc/key.yml
