@@ -7,4 +7,5 @@ interface CommunityService {
 	fun exist(id: Long): Boolean
 	fun findCommunityById(id: Long): Community
 	fun create(communityRequest: CommunityController.CommunityRequest, userId: Long)
+	fun update(communityRequest: CommunityController.CommunityUpdateRequest, userId: Long, id:Long)
 }

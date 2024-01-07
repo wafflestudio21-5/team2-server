@@ -22,7 +22,7 @@ class CommunityController(private val communityService: CommunityService) {
 		@RequestBody communityRequest: CommunityRequest,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		TODO("authUserInfo.uid")
+		communityService.create(communityRequest, authUserInfo.uid)
 	}
 
 	@GetMapping("/{postId}")
@@ -31,8 +31,12 @@ class CommunityController(private val communityService: CommunityService) {
 	}
 
 	@PutMapping("/{postId}")
-	fun updateCommunity(@PathVariable postId: Long) {
-		TODO("구현")
+	fun updateCommunity(
+		@PathVariable postId: Long,
+		@RequestBody communityRequest: CommunityUpdateRequest,
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
+	) {
+		communityService.update(communityRequest, authUserInfo.uid, postId)
 	}
 
 	@DeleteMapping("/{postId}")
@@ -47,5 +51,8 @@ class CommunityController(private val communityService: CommunityService) {
 		val title: String = "",
 		val description: String = "",
 	)
-
+	data class CommunityUpdateRequest(
+		val title: String?,
+		val description: String?,
+	)
 }

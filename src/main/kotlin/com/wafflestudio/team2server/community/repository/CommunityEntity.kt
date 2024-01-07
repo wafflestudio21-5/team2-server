@@ -15,11 +15,11 @@ class CommunityEntity (
 	val author: UserEntity,
 	val areaId: Long = -1,
 	val createdAt: LocalDateTime = LocalDateTime.now(),
-	val title: String = "",
-	val description: String = "",
-	val viewCnt: Int = 0,
-	val likeCnt: Int = 0,
-	val repImg: String = "",
+	var title: String = "",
+	var description: String = "",
+	var viewCnt: Int = 0,
+	var likeCnt: Int = 0,
+	var repImg: String = "",
 	@Enumerated(value = EnumType.ORDINAL)
-	val status: CommunityStatus = CommunityStatus.CREATED,
+	var status: CommunityStatus = CommunityStatus.CREATED,
 )

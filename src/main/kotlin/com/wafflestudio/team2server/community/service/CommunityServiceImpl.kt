@@ -23,7 +23,7 @@ class CommunityServiceImpl(
 	}
 
 	override fun findCommunityById(id: Long): Community {
-		val communityEntity : CommunityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
+		val communityEntity: CommunityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
 		return Community(communityEntity)
 	}
 
@@ -42,6 +42,15 @@ class CommunityServiceImpl(
 			repImg = "",
 			status = Community.CommunityStatus.CREATED
 		)
+		communityRepository.save(communityEntity)
+	}
+
+	@Transactional
+	override fun update(communityRequest: CommunityController.CommunityUpdateRequest, userId: Long, id: Long) {
+		val communityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
+		if (communityEntity.author.id != userId) { throw BaniException(ErrorType.UNAUTHORIZED) }
+		communityEntity.title = communityRequest.title ?: communityEntity.title
+		communityEntity.description = communityRequest.description ?: communityEntity.description
 		communityRepository.save(communityEntity)
 	}
 
