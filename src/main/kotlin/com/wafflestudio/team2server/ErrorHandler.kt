@@ -3,6 +3,8 @@ package com.wafflestudio.team2server
 import com.wafflestudio.team2server.common.error.BaniException
 import com.wafflestudio.team2server.common.error.ErrorInfo
 import com.wafflestudio.team2server.common.error.ErrorResponse
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.ConstraintViolationException
@@ -17,6 +19,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+
+private val logger: KLogger = KotlinLogging.logger {}
 
 @RestControllerAdvice
 class ErrorHandler {
@@ -51,6 +55,7 @@ class ErrorHandler {
 
 	@ExceptionHandler(Exception::class)
 	fun handlerException(e: Exception): ResponseEntity<Any> {
+		e.printStackTrace()
 		return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
 	}
 
