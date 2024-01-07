@@ -1,6 +1,7 @@
 package com.wafflestudio.team2server.community.controller
 
 import com.wafflestudio.team2server.common.auth.AuthUserInfo
+import com.wafflestudio.team2server.community.model.Community
 import com.wafflestudio.team2server.community.service.CommunityService
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -25,8 +26,8 @@ class CommunityController(private val communityService: CommunityService) {
 	}
 
 	@GetMapping("/{postId}")
-	fun getCommunity(@PathVariable postId: Long) {
-		TODO()
+	fun getCommunity(@PathVariable postId: Long): Community {
+		return communityService.findCommunityById(postId)
 	}
 
 	@PutMapping("/{postId}")
