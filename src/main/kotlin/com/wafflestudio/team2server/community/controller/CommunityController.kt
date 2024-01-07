@@ -19,7 +19,7 @@ class CommunityController(private val communityService: CommunityService) {
 
 	@PostMapping("")
 	fun postCommunity(
-//		@RequestBody
+		@RequestBody communityRequest: CommunityRequest,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
 		TODO("authUserInfo.uid")
@@ -43,15 +43,9 @@ class CommunityController(private val communityService: CommunityService) {
 		TODO("구현")
 	}
 
-	data class PostCreateRequest(
+	data class CommunityRequest(
 		val title: String = "",
 		val description: String = "",
-	)
-
-	data class PostUpdateRequest(
-		val title: String?,
-		val description: String?,
-		val status: String?,
 	)
 
 }
