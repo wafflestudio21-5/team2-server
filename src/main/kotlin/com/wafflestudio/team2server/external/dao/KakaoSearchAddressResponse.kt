@@ -37,8 +37,8 @@ data class Address(
 	val hCode: String,
 ) {
 	fun isHArea(): Boolean {
-		val hCodeNum = hCode.toIntOrNull()
-		if (hCodeNum == null || hCodeNum % 100 != 0 || region3DepthHName.isBlank()) {
+		val hCodeNum = hCode.toLongOrNull()
+		if (hCodeNum == null || hCodeNum % 100L != 0L || region3DepthHName.isBlank()) {
 			return false
 		}
 		return true
