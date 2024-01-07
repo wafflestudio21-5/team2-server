@@ -18,7 +18,10 @@ class ChannelEntity(
 	var msgUpdatedAt: Instant = Instant.now(),
 
 	@OneToMany(mappedBy = "channel")
-	val channelUsers: List<ChannelUserEntity> = mutableListOf()
+	val channelUsers: List<ChannelUserEntity> = mutableListOf(),
+
+	@OneToMany(mappedBy = "channel_message")
+	val channelMessages: List<ChannelMessageEntity> = mutableListOf(),
 
 ) : BaseCreatedDateEntity() {
 

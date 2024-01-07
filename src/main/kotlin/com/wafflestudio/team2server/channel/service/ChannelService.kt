@@ -2,6 +2,7 @@ package com.wafflestudio.team2server.channel.service
 
 import com.wafflestudio.team2server.channel.repository.*
 import com.wafflestudio.team2server.common.error.*
+import com.wafflestudio.team2server.post.model.ProductPost
 import com.wafflestudio.team2server.post.repository.ProductPostEntity
 import com.wafflestudio.team2server.post.repository.ProductPostRepository
 import com.wafflestudio.team2server.user.repository.UserRepository
@@ -20,7 +21,7 @@ class ChannelService(
 
 	fun getList(userId: Long): ChannelListResponse {
 		// 내가 포함된 채팅창 ID들 리스트 가져오기
-		val myChannelUsers = channelUserRepository.findChannelIdsByUserId(userId).associateBy { it.channel.id }
+		val myChannelUsers = channelUserRepository.findChannelsByUserId(userId).associateBy { it.channel.id }
 		val channelIds = myChannelUsers.keys
 
 		// 채팅창 ID 들을 기준으로 채팅방 정보, 채팅중인 상대방의 정보 가져오기
@@ -44,6 +45,42 @@ class ChannelService(
 		return ChannelListResponse(pinned = pinned, normal = normal)
 
 	}
+
+	fun getDetailWithFirstNo(channelId: Long, size: Int, firstNo: Long, containsInfo: Boolean, userId: Long): ChannelDetailResponse {
+
+		// 1. containsInfo = true 일 경우, 관련 정보 가져오기
+		var channelInfo: ChannelInfo? = null
+		if (containsInfo) {
+			channelInfo = getChannelInfo(channelId, userId)
+		}
+//		return ChannelDetailResponse(
+//			messages = ,
+//			isFirstMessage = ,
+//			firstNo = ,
+//			channelInfo = channelInfo
+//		)
+		TODO()
+	}
+
+	fun getDetailWithoutFirstNo(channelId: Long, size: Int, containsInfo: Boolean, userId: Long): ChannelDetailResponse {
+		// 1. containsInfo = true 일 경우, 관련 정보 가져오기
+		var channelInfo: ChannelInfo? = null
+		if (containsInfo) {
+			channelInfo = getChannelInfo(channelId, userId)
+		}
+//		return ChannelDetailResponse(
+//			messages = ,
+//			isFirstMessage = ,
+//			firstNo = ,
+//			channelInfo = channelInfo
+//		)
+		TODO()
+	}
+
+	private fun getChannelInfo(channelId: Long, userId: Long): ChannelInfo {
+		return ChannelInfo(channelUserRepository.findChannelInfo(channelId, userId))
+	}
+
 
 	@Transactional
 	fun createChannel(userId: Long, postId: Long): ChannelCreateResponse {
@@ -181,4 +218,54 @@ data class ChannelPinResponse(
 data class ChannelUnpinResponse(
 	@Schema(description = "채팅방 식별자(ID)")
 	val channelId: Long
+)
+
+data class ChannelDetailResponse(
+	@Schema(description = "메시지 내용")
+	val messages: List<ChannelMessage>,
+	@Schema(description = "가장 오래된 메시지를 포함하고 있는지 여부(true 면, 그보다 오래된 메시지는 더 이상 없음)")
+	val isFirstMessage: Boolean,
+	@Schema(description = "메시지 번호 중 가장 작은 번호")
+	val firstNo: Long,
+	@Schema(description = "채팅방 정보")
+	val channelInfo: ChannelInfo?
+)
+
+@Schema(description = "채팅방 정보")
+data class ChannelInfo(
+	@Schema(description = "채팅 상대방 닉네임")
+	val nickname: String,
+	@Schema(description = "채팅 상대방 프로필 사진")
+	val profileImg: String?,
+	@Schema(description = "판매 물품 사진")
+	val repImg: String,
+	@Schema(description = "게시글 제목")
+	val title: String,
+	@Schema(description = "판매 가격")
+	val sellPrice: Int,
+	@Schema(description = "물품 상태 - NEW(신규), RESERVED(예약), SOLDOUT(판매완료)")
+	val status: ProductPost.ProductPostStatus
+)
+
+private fun ChannelInfo(entity: ChannelUserEntity): ChannelInfo {
+	return ChannelInfo(
+		nickname = entity.user.nickname,
+		profileImg = entity.user.profileImg,
+		repImg = entity.channel.productPost.repImg,
+		title = entity.channel.productPost.title,
+		sellPrice = entity.channel.productPost.sellPrice,
+		status = entity.channel.productPost.status,
+	)
+}
+
+@Schema(description = "채팅 메시지")
+data class ChannelMessage(
+	@Schema(description = "메시지 번호")
+	val msgNo: Long,
+	@Schema(description = "누가 보낸 메시지인지를 표시. true: 내 메시지, false: 상대방 메시지")
+	val isMine: Long,
+	@Schema(description = "메시지 내용")
+	val message: String,
+	@Schema(description = "메시지 발송 시각")
+	val createdAt: LocalDateTime
 )
