@@ -19,8 +19,8 @@ class ChannelMessageEntity(
 	val sender: UserEntity,
 
 	val message: String,
-	var readYn: Boolean,
-	val msgNo: Long,
+	var readYn: Boolean = false,
+	val msgNo: Long = 0L,
 
 	):BaseCreatedDateEntity() {
 }
