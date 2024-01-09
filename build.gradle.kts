@@ -30,6 +30,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+	// websocket
+	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	// json
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	// db
