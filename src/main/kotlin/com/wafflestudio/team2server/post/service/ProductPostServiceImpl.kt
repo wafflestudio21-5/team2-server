@@ -91,9 +91,30 @@ class ProductPostServiceImpl(
 		productPostRepository.save(target)
 	}
 
-	override fun searchPostByTitleAndArea(title: String, refAreaId: List<Int>, distance: Int): List<ProductPost> {
+	override fun searchPostByTitle(cur: Long, title: String, refAreaId: List<Int>, distance: Int): ProductPostController.ListResponse {
 		val adjAreaIdList = areaService.getAdjAreas(refAreaId[0], distance)
-		return productPostRepository.findByTitleAndSellingArea(title, adjAreaIdList).map { it -> ProductPost(it) }
+		val fetch = productPostRepository.findByTitleIgnoreCaseAndSellingArea(cur, title, adjAreaIdList)
+		return ProductPostController.ListResponse(
+			fetch.subList(0, min(15, fetch.size)).map {
+				ProductPostController.PostSummary(
+					id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
+					title = it.title,
+					repImg = it.repImg,
+					createdAt = it.createdAt,
+					refreshedAt = it.refreshedAt,
+					chatCnt = it.chatCnt,
+					wishCnt = it.wishCnt,
+					sellPrice = it.sellPrice,
+					sellingArea = areaService.getAreaById(it.sellingArea.id).name,
+					deadline = it.deadline,
+					type = it.type.name,
+					status = it.status.name,
+				)
+			},
+			fetch.getOrNull(fetch.size - 2)?.id ?: 0L,
+			null,
+			fetch.size != 16
+		)
 	}
 
 	override fun findPostById(id: Long): ProductPost {
@@ -157,7 +178,7 @@ class ProductPostServiceImpl(
 
 	fun ProductPost(it: ProductPostEntity): ProductPost {
 		return ProductPost(
-			id = it.id,
+			id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
 			authorId = it.author.id,
 			buyerId = it.buyerId,
 			chatCnt = it.chatCnt,
