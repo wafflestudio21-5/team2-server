@@ -5,8 +5,8 @@ import java.time.LocalDateTime
 data class ProductPost(
 	val id: Long? = null,
 	val title: String,
-	val type: String,
-	val status: String,
+	val type: Int,
+	val status: Int,
 	val authorId: Long,
 	val buyerId: Long,
 	val sellingArea: String,

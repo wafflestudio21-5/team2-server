@@ -8,12 +8,24 @@ import com.wafflestudio.team2server.post.service.ProductPostService
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 @RestController
 class ProductPostController(private val productPostService: ProductPostService) {
 	@GetMapping("/posts")
-	fun postList() {
-		TODO("페이지네이션 구현 필요")
+	fun postList(
+		@RequestParam(required = false, defaultValue = Long.MAX_VALUE.toString()) cur: Long,
+		@RequestParam(required = false, defaultValue = "0") seed: Int,
+		@RequestParam(required = false, defaultValue = "1") distance: Int,
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo
+	): ListResponse {
+		val seed = when (seed) {
+			0 -> Random.nextInt().absoluteValue
+			else -> seed
+		}
+		val res = productPostService.getPostListRandom(cur, seed, authUserInfo.refAreaIds[0], distance)
+		return res
 	}
 
 	@PostMapping("/posts")
@@ -21,7 +33,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@RequestBody postCreateRequest: PostCreateRequest,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		val userId: Long = authUserInfo.uid ?: throw BaniException(ErrorType.UNAUTHORIZED)
+		val userId: Long = authUserInfo.uid
 		productPostService.create(postCreateRequest, userId)
 	}
 
@@ -97,5 +109,27 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		val deadline: LocalDateTime?,
 		val hiddenYn: Boolean?,
 		val sellPrice: Int?,
+	)
+
+	data class PostSummary(
+		val id: Long,
+		val title: String,
+		val repImg: String?,
+		val createdAt: LocalDateTime,
+		val refreshedAt: LocalDateTime?,
+		val chatCnt: Int,
+		val wishCnt: Int,
+		val sellPrice: Int,
+		val sellingArea: String?,
+		val deadline: LocalDateTime,
+		val type: Int,
+		val status: Int,
+	)
+
+	data class ListResponse(
+		val data: List<PostSummary>,
+		val cur: Long?,
+		val seed: Int,
+		val isLast: Boolean
 	)
 }

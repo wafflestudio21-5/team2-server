@@ -20,12 +20,12 @@ class ProductPostEntity(
 	@Enumerated(value = EnumType.ORDINAL)
 	var status: ProductPostStatus = ProductPostStatus.NEW,
 	@OneToOne
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "author_id")
 	val author: UserEntity,
 	var buyerId: Long = -1,
 	var sellPrice: Int,
 	@OneToOne
-	@JoinColumn(name = "selling_area")
+	@JoinColumn(name = "selling_area_id")
 	val sellingArea: AreaEntity,
 	var repImg: String = "",
 	// val trading_location: LocationPointEntity,

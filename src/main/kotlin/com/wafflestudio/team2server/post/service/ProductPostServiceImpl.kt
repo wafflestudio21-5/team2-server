@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import kotlin.jvm.optionals.getOrNull
+import kotlin.math.min
 
 @Service
 class ProductPostServiceImpl(
@@ -100,10 +101,12 @@ class ProductPostServiceImpl(
 		return ProductPost(postEntity)
 	}
 
+	@Transactional
 	override fun deleteById(id: Long) {
 		productPostRepository.deleteById(id)
 	}
 
+	@Transactional
 	override fun likePost(userId: Long, id: Long) {
 		if (!wishListRepository.existsByUserIdAndPostId(userId, id)) {
 			val wishListEntity = WishListEntity(userId = userId, postId = id, createdAt = LocalDateTime.now())
@@ -111,6 +114,7 @@ class ProductPostServiceImpl(
 		}
 	}
 
+	@Transactional
 	override fun unlikePost(userId: Long, id: Long) {
 		if (wishListRepository.existsByUserIdAndPostId(userId, id)) {
 			val wishListEntity = wishListRepository.findByUserIdAndPostId(userId = userId, postId = id)
@@ -126,8 +130,33 @@ class ProductPostServiceImpl(
 		return wishListRepository.findByPostId(postId).mapNotNull { userRepository.findById(it.userId).getOrNull() }
 	}
 
+	override fun getPostListRandom(cur: Long, seed: Int, areaId: Int, distance: Int): ProductPostController.ListResponse {
+		val fetch = productPostRepository.findRandom(cur, seed, areaService.getAdjAreas(areaId, distance))
+		return ProductPostController.ListResponse(
+			fetch.subList(0, min(15, fetch.size)).map {
+				ProductPostController.PostSummary(
+					it.getId(),
+					it.getTitle(),
+					it.getRep_img(),
+					it.getCreated_at(),
+					it.getRefreshed_at(),
+					it.getChat_cnt(),
+					it.getWish_cnt(),
+					it.getSell_price(),
+					areaService.getAreaById(it.getSelling_area_id()).name,
+					it.getDeadline(),
+					it.getType(),
+					it.getStatus(),
+				)
+			},
+			fetch.getOrNull(fetch.size - 2)?.getEnd() ?: 0L,
+			seed,
+			fetch.size != 16
+		)
+	}
+
 	fun ProductPost(it: ProductPostEntity): ProductPost {
-		return com.wafflestudio.team2server.post.model.ProductPost(
+		return ProductPost(
 			id = it.id,
 			authorId = it.author.id,
 			buyerId = it.buyerId,
@@ -143,8 +172,8 @@ class ProductPostServiceImpl(
 			title = it.title,
 			viewCnt = it.viewCnt,
 			wishCnt = it.wishCnt,
-			type = it.type.name,
-			status = it.status.name,
+			type = it.type.ordinal,
+			status = it.status.ordinal,
 			sellingArea = it.sellingArea.name
 		)
 	}
