@@ -48,7 +48,7 @@ class ProductPostServiceImpl(
 				createdAt = LocalDateTime.now(),
 				hiddenYn = postCreateRequest.hiddenYn,
 				status = ProductPost.ProductPostStatus.NEW,
-				sellingArea = areaService.getAreaById(0),
+				sellingArea = areaService.getAreaById(user.areaUsers[0].area.id),
 				repImg = "",
 				offerYn = postCreateRequest.offerYn,
 				refreshCnt = 0,
@@ -177,7 +177,7 @@ class ProductPostServiceImpl(
 	}
 
 	fun ProductPost(it: ProductPostEntity): ProductPost {
-		return ProductPost(
+		return com.wafflestudio.team2server.post.model.ProductPost(
 			id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
 			authorId = it.author.id,
 			buyerId = it.buyerId,
@@ -195,7 +195,9 @@ class ProductPostServiceImpl(
 			wishCnt = it.wishCnt,
 			type = it.type.ordinal,
 			status = it.status.ordinal,
-			sellingArea = it.sellingArea.name
+			sellingArea = it.sellingArea.name,
+			description = it.description,
+			images = listOf(),
 		)
 	}
 }

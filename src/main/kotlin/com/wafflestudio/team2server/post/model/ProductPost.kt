@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 data class ProductPost(
 	val id: Long,
 	val title: String,
+	val description: String,
 	val type: Int,
 	val status: Int,
 	val authorId: Long,
@@ -12,7 +13,7 @@ data class ProductPost(
 	val sellingArea: String,
 	val sellPrice: Int,
 	val repImg: String,
-	// val trading_location: LocationPointEntity,
+	val images: List<String>,
 	val viewCnt: Int,
 	val offerYn: Boolean,
 	val refreshCnt: Int,
@@ -22,6 +23,7 @@ data class ProductPost(
 	val hiddenYn: Boolean,
 	val wishCnt: Int,
 	val chatCnt: Int,
+	// val trading_location: LocationPointEntity,
 ) {
 	enum class ProductPostStatus {
 		NEW,
