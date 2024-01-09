@@ -5,11 +5,13 @@ import org.springframework.data.jpa.repository.Query
 
 interface ProductPostRepository : JpaRepository<ProductPostEntity, Long> {
 	@Query(
-		"""select p from product_post p where upper(p.title) like concat('%',upper(:title),'%')
+		"""select p from product_post p
+			where upper(p.title) like concat('%',upper(:keyword),'%')
+			or upper(p.description) like concat('%',upper(:keyword),'%')
 			and p.sellingArea.id in (:adjAreaIdList) and p.id<:cur
 			order by p.id desc limit 16"""
 	)
-	fun findByTitleIgnoreCaseAndSellingArea(cur: Long, title: String, adjAreaIdList: List<Int>): List<ProductPostEntity>
+	fun findByKeywordIgnoreCaseAndSellingArea(cur: Long, keyword: String, adjAreaIdList: List<Int>): List<ProductPostEntity>
 
 	@Query(
 		"""select /*+no_merge(t)*/ * from product_post

@@ -88,7 +88,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@RequestParam distance: Int,
 		@RequestParam cur: Long
 	): ListResponse {
-		return productPostService.searchPostByTitle(cur, keyword, authUserInfo.refAreaIds, distance)
+		return productPostService.searchPostByKeyword(cur, keyword, authUserInfo.refAreaIds, distance)
 	}
 
 	data class PostCreateRequest(

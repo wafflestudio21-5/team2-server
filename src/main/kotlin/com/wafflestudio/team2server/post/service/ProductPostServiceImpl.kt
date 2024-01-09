@@ -25,7 +25,7 @@ class ProductPostServiceImpl(
 	private val wishListRepository: WishListRepository
 ) : ProductPostService {
 	override fun exists(id: Long): Boolean {
-		return productPostRepository.findById(id).getOrNull() != null;
+		return productPostRepository.findById(id).getOrNull() != null
 	}
 
 	@Transactional
@@ -91,9 +91,9 @@ class ProductPostServiceImpl(
 		productPostRepository.save(target)
 	}
 
-	override fun searchPostByTitle(cur: Long, title: String, refAreaId: List<Int>, distance: Int): ProductPostController.ListResponse {
+	override fun searchPostByKeyword(cur: Long, keyword: String, refAreaId: List<Int>, distance: Int): ProductPostController.ListResponse {
 		val adjAreaIdList = areaService.getAdjAreas(refAreaId[0], distance)
-		val fetch = productPostRepository.findByTitleIgnoreCaseAndSellingArea(cur, title, adjAreaIdList)
+		val fetch = productPostRepository.findByKeywordIgnoreCaseAndSellingArea(cur, keyword, adjAreaIdList)
 		return ProductPostController.ListResponse(
 			fetch.subList(0, min(15, fetch.size)).map {
 				ProductPostController.PostSummary(
