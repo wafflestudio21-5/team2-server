@@ -15,9 +15,9 @@ class ProductPostEntity(
 	val id: Long? = null,
 	var title: String = "",
 	var description: String = "",
-	@Enumerated(value = EnumType.ORDINAL)
+	@Enumerated(value = EnumType.STRING)
 	var type: ProductPostType = ProductPostType.TRADE,
-	@Enumerated(value = EnumType.ORDINAL)
+	@Enumerated(value = EnumType.STRING)
 	var status: ProductPostStatus = ProductPostStatus.NEW,
 	@OneToOne
 	@JoinColumn(name = "author_id")

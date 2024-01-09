@@ -13,7 +13,7 @@ interface PostListSummary {
 	fun getSell_price(): Int
 	fun getSelling_area_id(): Int
 	fun getDeadline(): LocalDateTime
-	fun getType(): Int
-	fun getStatus(): Int
+	fun getType(): String
+	fun getStatus(): String
 	fun getEnd(): Long?
 }

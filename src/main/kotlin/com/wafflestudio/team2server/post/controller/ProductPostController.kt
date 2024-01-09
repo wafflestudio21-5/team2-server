@@ -59,7 +59,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 	) {
 		productPostService.update(
 			postUpdateRequest,
-			authUserInfo.uid ?: throw BaniException(ErrorType.UNAUTHORIZED),
+			authUserInfo.uid,
 			id,
 			refresh = refresh
 		)
@@ -120,15 +120,15 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		val chatCnt: Int,
 		val wishCnt: Int,
 		val sellPrice: Int,
-		val sellingArea: String?,
+		val sellingArea: String,
 		val deadline: LocalDateTime,
-		val type: Int,
-		val status: Int,
+		val type: String,
+		val status: String,
 	)
 
 	data class ListResponse(
 		val data: List<PostSummary>,
-		val cur: Long?,
+		val cur: Long,
 		val seed: Int,
 		val isLast: Boolean
 	)
