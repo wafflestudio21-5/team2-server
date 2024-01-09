@@ -1,7 +1,6 @@
 package com.wafflestudio.team2server.storage.service
 
 import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.model.CannedAccessControlList
 import com.amazonaws.services.s3.model.DeleteObjectRequest
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.PutObjectRequest
@@ -22,22 +21,30 @@ class StorageService(
 	@Value("\${cloud.aws.s3.bucket}")
 	private val bucket: String? = null
 
+
 	fun uploadFile(multipartFiles: List<MultipartFile>): List<String> {
-		val fileNameList: MutableList<String> = mutableListOf()
-		multipartFiles.forEach { file ->
+		return multipartFiles.map { file ->
 			val fileName = createFileName(file.originalFilename ?: "")
 			val objectMetadata = ObjectMetadata()
 			objectMetadata.contentLength = file.size
 			objectMetadata.contentType = file.contentType
-			val inputStream = file.inputStream
 			amazonS3.putObject(
-				PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
-					.withCannedAcl(CannedAccessControlList.PublicRead)
+				PutObjectRequest(bucket, fileName, file.inputStream, objectMetadata)
 			)
-			fileNameList.add(fileName);
+			amazonS3.getUrl(bucket, fileName).toString()
 		}
-		return fileNameList
 	}
+	/*
+	fun uploadFile(multipartFile: MultipartFile): String {
+		val fileName = createFileName(multipartFile.originalFilename ?: "")
+		val objectMetadata = ObjectMetadata()
+		objectMetadata.contentLength = multipartFile.size
+		objectMetadata.contentType = multipartFile.contentType
+		amazonS3.putObject(
+			PutObjectRequest(bucket, fileName, multipartFile.inputStream, objectMetadata)
+		)
+		return amazonS3.getUrl(bucket, fileName).toString()
+	}*/
 
 	fun getFileExtension(fileName: String): String {
 		val ext = try {
@@ -57,6 +64,5 @@ class StorageService(
 
 	fun deleteFile(fileName: String?) {
 		amazonS3.deleteObject(DeleteObjectRequest(bucket, fileName))
-		println(bucket)
 	}
 }
