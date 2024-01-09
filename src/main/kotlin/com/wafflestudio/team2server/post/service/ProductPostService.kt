@@ -16,5 +16,5 @@ interface ProductPostService {
 	fun unlikePost(userId: Long, id: Long)
 	fun getLikedPosts(userId: Long): List<ProductPostEntity>
 	fun getLikedUsers(postId: Long): List<UserEntity>
-
+	fun getPostListRandom(cur: Long, seed: Int, areaId: Int, distance: Int): ProductPostController.ListResponse
 }

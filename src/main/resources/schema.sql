@@ -52,8 +52,8 @@ create table product_post
 	buyer_id         bigint not null,
 	selling_area_id  bigint,
 	category_id      bigint,
-	type             int,
-	status           int,
+	type             varchar(255),
+	status           varchar(255),
 	title            varchar(255),
 	rep_img          varchar(255),
 	description      text,
@@ -72,10 +72,10 @@ create table product_post
 );
 create table channel_user
 (
-	user_id    bigint not null,
-	channel_id bigint not null,
-	pinned_at datetime,
-	exit_yn boolean not null default 0,
+	user_id    bigint  not null,
+	channel_id bigint  not null,
+	pinned_at  datetime,
+	exit_yn    boolean not null default 0,
 	created_at datetime,
 	primary key (user_id, channel_id)
 );
