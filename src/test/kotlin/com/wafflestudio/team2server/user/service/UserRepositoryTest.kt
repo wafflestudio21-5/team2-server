@@ -12,7 +12,7 @@ class UserRepositoryTest @Autowired constructor(
 
 	@Test
 	fun findByEmail() {
-		val user = userRepository.findByEmail("youngin4@naver.com")
+		val user = userRepository.findByEmailWithJoinFetch("youngin4@naver.com")
 	}
 
 }

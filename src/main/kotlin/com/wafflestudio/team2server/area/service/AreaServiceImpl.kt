@@ -1,6 +1,6 @@
 package com.wafflestudio.team2server.area.service
 
-import com.wafflestudio.team2server.area.model.AreaEntity
+import com.wafflestudio.team2server.area.repository.AreaEntity
 import com.wafflestudio.team2server.area.repository.AreaAdjRepository
 import com.wafflestudio.team2server.area.repository.AreaRepository
 import com.wafflestudio.team2server.common.error.AreaNotFoundException

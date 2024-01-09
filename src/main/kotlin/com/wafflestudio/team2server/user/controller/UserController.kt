@@ -67,17 +67,17 @@ class UserController(
 
 	@PutMapping("/user")
 	fun updateUser(@RequestBody @Validated request: UpdateUserRequest, @AuthenticationPrincipal user: AuthUserInfo): User {
-		return userService.updateUser(user.uid!!, request)
+		return userService.updateUser(user.uid, request)
 	}
 
 	@DeleteMapping("/user")
 	fun deleteUser(@AuthenticationPrincipal user: AuthUserInfo) {
-		userService.deleteUser(user.uid!!)
+		userService.deleteUser(user.uid)
 	}
 
 	@GetMapping("/user")
 	fun getUser(@AuthenticationPrincipal user: AuthUserInfo): User {
-		return userService.getUser(user.uid!!)
+		return userService.getUser(user.uid)
 	}
 
 	data class SignupRequest(

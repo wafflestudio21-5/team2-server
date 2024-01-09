@@ -1,6 +1,6 @@
 package com.wafflestudio.team2server.user.repository
 
-import com.wafflestudio.team2server.area.model.AreaUserEntity
+import com.wafflestudio.team2server.area.repository.AreaUserEntity
 import com.wafflestudio.team2server.channel.repository.ChannelUserEntity
 import com.wafflestudio.team2server.common.util.BaseCreatedDateEntity
 import com.wafflestudio.team2server.user.model.AuthProvider
