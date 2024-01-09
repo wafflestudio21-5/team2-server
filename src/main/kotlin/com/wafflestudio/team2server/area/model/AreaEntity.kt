@@ -1,13 +1,12 @@
 package com.wafflestudio.team2server.area.model
 
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.OneToMany
+import jakarta.persistence.*
 
 @Entity(name = "area")
 class AreaEntity(
 	@Id
-	val id: Int,
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	val id: Int = 0,
 	val code: String,
 	val fullName: String,
 	val name: String,

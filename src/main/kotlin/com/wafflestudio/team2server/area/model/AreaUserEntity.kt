@@ -22,7 +22,8 @@ class AreaUserEntity(
 	@JoinColumn(name = "user_id")
 	val user: UserEntity,
 
-	val authenticatedAt: LocalDateTime? = null,
+	@JoinColumn(name = "authenticated_at")
+	var authenticatedAt: LocalDateTime? = null,
 
 	val count: Int
 ) : Persistable<AreaUserId> {
@@ -32,6 +33,11 @@ class AreaUserEntity(
 
 	override fun isNew(): Boolean {
 		return authenticatedAt == null
+	}
+
+	@PrePersist
+	fun touchForSave() {
+		authenticatedAt = LocalDateTime.now()
 	}
 }
 

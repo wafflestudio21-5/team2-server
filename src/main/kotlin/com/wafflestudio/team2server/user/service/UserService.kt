@@ -46,6 +46,7 @@ class UserService(
 		) // DB 유니크 키 제약으로 email, nickname 중복 방지.
 		val areaUsers = areas.map { AreaUserEntity(AreaUserId(userId = user.id, areaId = it.id), it, user, count = 1) }
 		areaUserRepository.saveAll(areaUsers)
+		user.areaUsers.addAll(areaUsers)
 		return user.toUser()
 	}
 
@@ -108,7 +109,7 @@ class UserService(
 		nickname = nickname,
 		mannerTemp = mannerTemperature,
 		createdAt = createdAt,
-		refAreaIds = emptyList(),
+		refAreaIds = areaUsers.map { it.area.id },
 	)
 
 }
