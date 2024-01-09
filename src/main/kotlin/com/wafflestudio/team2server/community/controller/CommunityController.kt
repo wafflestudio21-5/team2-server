@@ -6,7 +6,6 @@ import com.wafflestudio.team2server.community.service.CommunityService
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/community")
@@ -44,7 +43,7 @@ class CommunityController(private val communityService: CommunityService) {
 		@PathVariable postId: Long,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		TODO("구현")
+		communityService.delete(authUserInfo.uid, postId)
 	}
 
 	data class CommunityRequest(

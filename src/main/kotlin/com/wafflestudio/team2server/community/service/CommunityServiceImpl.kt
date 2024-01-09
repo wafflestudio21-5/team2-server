@@ -17,11 +17,11 @@ class CommunityServiceImpl(
 	private val communityRepository: CommunityRepository,
 	private val userRepository: UserRepository,
 ): CommunityService {
-
-	override fun exist(id: Long): Boolean {
-		return communityRepository.findById(id).getOrNull() != null;
-	}
-
+//
+//	override fun exist(id: Long): Boolean {
+//		return communityRepository.findById(id).getOrNull() != null;
+//	}
+//
 	override fun findCommunityById(id: Long): Community {
 		val communityEntity: CommunityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
 		return Community(communityEntity)
@@ -47,25 +47,17 @@ class CommunityServiceImpl(
 
 	@Transactional
 	override fun update(communityRequest: CommunityController.CommunityUpdateRequest, userId: Long, id: Long) {
-		val communityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
+		val communityEntity = communityRepository.findById(id).getOrNull()?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
 		if (communityEntity.author.id != userId) { throw BaniException(ErrorType.UNAUTHORIZED) }
 		communityEntity.title = communityRequest.title ?: communityEntity.title
 		communityEntity.description = communityRequest.description ?: communityEntity.description
 		communityRepository.save(communityEntity)
 	}
 
-//	fun Community(it: CommunityEntity): Community {
-//		return Community(
-//			id = it.id,
-//			authorId = it.author.id,
-//			areaId = it.areaId,
-//			createdAt = it.createdAt,
-//			title = it.title,
-//			description = it.description,
-//			viewCnt = it.viewCnt,
-//			likeCnt = it.likeCnt,
-//			repImg = it.repImg,
-//			status = it.status.name
-//		)
-//	}
+	override fun delete(userId: Long, id: Long) {
+		val communityEntity = communityRepository.findById(id).getOrNull()?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
+		if (communityEntity.author.id != userId) {
+			throw BaniException(ErrorType.UNAUTHORIZED)
+		} else (communityRepository.deleteById(id))
+	}
 	}
