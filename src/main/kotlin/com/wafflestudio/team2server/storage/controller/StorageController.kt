@@ -6,12 +6,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.multipart.MultipartFile
 
 @Controller
+@RequestMapping("/image")
 class StorageController(private val storageService: StorageService) {
-	@PostMapping("/storage/upload")
+	@PostMapping("/upload")
 	fun uploadFile(
 		multipartFiles: List<MultipartFile>,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
@@ -19,7 +21,7 @@ class StorageController(private val storageService: StorageService) {
 		return storageService.uploadFile(multipartFiles)
 	}
 
-	@DeleteMapping("/storage/delete")
+	@DeleteMapping("/delete")
 	fun deleteFile(
 		@RequestParam fileName: String,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,

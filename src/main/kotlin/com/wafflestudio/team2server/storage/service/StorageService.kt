@@ -23,8 +23,7 @@ class StorageService(
 	private val bucket: String? = null
 
 	fun uploadFile(multipartFiles: List<MultipartFile>): List<String> {
-		val fileNameList: MutableList<String> = mutableListOf()
-		multipartFiles.forEach { file ->
+		return multipartFiles.map { file ->
 			val fileName = createFileName(file.originalFilename ?: "")
 			val objectMetadata = ObjectMetadata()
 			objectMetadata.contentLength = file.size
@@ -34,9 +33,8 @@ class StorageService(
 				PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
 					.withCannedAcl(CannedAccessControlList.PublicRead)
 			)
-			fileNameList.add(fileName);
+			fileName
 		}
-		return fileNameList
 	}
 
 	fun getFileExtension(fileName: String): String {
@@ -57,6 +55,5 @@ class StorageService(
 
 	fun deleteFile(fileName: String?) {
 		amazonS3.deleteObject(DeleteObjectRequest(bucket, fileName))
-		println(bucket)
 	}
 }
