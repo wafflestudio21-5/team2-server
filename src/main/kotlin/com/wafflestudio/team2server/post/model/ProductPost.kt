@@ -3,7 +3,7 @@ package com.wafflestudio.team2server.post.model
 import java.time.LocalDateTime
 
 data class ProductPost(
-	val id: Long? = null,
+	val id: Long,
 	val title: String,
 	val type: Int,
 	val status: Int,

@@ -7,7 +7,7 @@ import com.wafflestudio.team2server.user.repository.UserEntity
 
 interface ProductPostService {
 	fun exists(id: Long): Boolean
-	fun searchPostByTitleAndArea(title: String, refAreaId: List<Int>, distance: Int): List<ProductPost>
+	fun searchPostByKeyword(cur: Long, title: String, refAreaId: List<Int>, distance: Int): ProductPostController.ListResponse
 	fun create(postCreateRequest: ProductPostController.PostCreateRequest, userId: Long)
 	fun update(postUpdateRequest: ProductPostController.PostUpdateRequest, userId: Long, id: Long, refresh: Boolean)
 	fun findPostById(id: Long): ProductPost

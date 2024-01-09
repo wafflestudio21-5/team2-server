@@ -85,9 +85,10 @@ class ProductPostController(private val productPostService: ProductPostService) 
 	fun searchPost(
 		@RequestParam keyword: String,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
-		@RequestParam distance: Int
-	): List<ProductPost> {
-		return productPostService.searchPostByTitleAndArea(keyword, authUserInfo.refAreaIds, distance)
+		@RequestParam distance: Int,
+		@RequestParam cur: Long
+	): ListResponse {
+		return productPostService.searchPostByKeyword(cur, keyword, authUserInfo.refAreaIds, distance)
 	}
 
 	data class PostCreateRequest(
@@ -129,7 +130,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 	data class ListResponse(
 		val data: List<PostSummary>,
 		val cur: Long,
-		val seed: Int,
+		val seed: Int?,
 		val isLast: Boolean
 	)
 }
