@@ -27,7 +27,15 @@ class AreaServiceImpl(
 		return area
 	}
 
-	override fun searchArea(query: String, cursor: Int) {
-		kakaoApi.searchAddress(query, cursor)
+	override fun searchArea(query: String, cursor: Int): SearchAreaResponse {
+		val searchAddress = kakaoApi.searchAddress(query, cursor)
+		val hCodes = searchAddress.documents.filter { it.address.isHArea() }
+			.map { it.address.hCode }
+		val areas = areaRepository.findByCodeIn(hCodes)
+		return SearchAreaResponse(
+			Meta(searchAddress.meta.isEnd, cursor, areas.size),
+			areas.map { Area(it.id, it.code, it.name, it.fullName) }
+		)
 	}
+
 }
