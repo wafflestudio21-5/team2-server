@@ -8,8 +8,8 @@ interface UserRepository : JpaRepository<UserEntity, Long> {
 
 	@Query("""
 		SELECT u from user u
-		JOIN FETCH u.areaUsers au
-		JOIN FETCH au.area a
+		LEFT JOIN FETCH u.areaUsers au
+		LEFT JOIN FETCH au.area a
 		WHERE u.email = :email
 	""")
 	fun findByEmailWithJoinFetch(email: String): UserEntity?
