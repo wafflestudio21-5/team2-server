@@ -32,10 +32,11 @@ class TokenVerifier(
 
 	private fun createAuthUserInfo(token: DecodedJWT): AuthUserInfo {
 		val uid = token.getClaim("uid")?.asLong()?: throw NoUIDException
-		val rawRefAreaIds = token.audience
+		val rawRefAreaIds = token.getClaim("ra")?.asList(Int::class.java) ?: emptyList()
+		val isAdmin = token.getClaim("admin")?.asBoolean() ?: false
 		val issuedAt = token.issuedAtAsInstant?.toEpochMilli()
 		val expiredAt = token.expiresAtAsInstant?.toEpochMilli()
-		return AuthUserInfo(uid, rawRefAreaIds, issuedAt, expiredAt)
+		return AuthUserInfo(uid, rawRefAreaIds, isAdmin, issuedAt, expiredAt)
 	}
 
 	private fun initVerifier(): JWTVerifier {

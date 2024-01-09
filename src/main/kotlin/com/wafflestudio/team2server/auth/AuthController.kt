@@ -1,6 +1,9 @@
 package com.wafflestudio.team2server.auth
 
+import com.wafflestudio.team2server.common.auth.DatabaseUserDetailsService
 import com.wafflestudio.team2server.common.auth.TokenGenerator
+import com.wafflestudio.team2server.common.error.UserNotFoundException
+import com.wafflestudio.team2server.user.repository.UserRepository
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
@@ -17,6 +20,7 @@ private val logger: KLogger = KotlinLogging.logger {}
 class AuthController(
 	private val authenticationManager: AuthenticationManager,
 	private val tokenGenerator: TokenGenerator,
+	private val userRepository: UserRepository,
 ) {
 
 	@PostMapping("/login")
@@ -24,10 +28,13 @@ class AuthController(
 		val authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.email, loginRequest.password)
 		val authenticationResponse = authenticationManager.authenticate(authenticationRequest)
 
+		val user = (authenticationResponse.principal as? DatabaseUserDetailsService.UserWrapper)?.userEntity ?: throw UserNotFoundException
+
 		val uid = authenticationResponse.name.toLong()
-		val rawRefAreaIds = authenticationResponse.authorities.map { it.authority }
-		val token = tokenGenerator.create(uid, rawRefAreaIds)
-		return TokenResponse(uid, rawRefAreaIds, token)
+		val isAdmin = authenticationResponse.authorities.map { it.authority }.first() == "ADMIN"
+		val refAreaIds = user.areaUsers.map { it.area.id }
+		val token = tokenGenerator.create(uid, refAreaIds, isAdmin)
+		return TokenResponse(uid, refAreaIds, isAdmin, token)
 	}
 
 	data class LoginRequest(
@@ -35,15 +42,7 @@ class AuthController(
 		val password: String
 	)
 
-	data class TokenResponse(val uid: Long, private val rawRefAreaIds: List<String>, val token: String) {
-
-		val refAreaIds: List<Int>
-			get() = rawRefAreaIds.mapNotNull(String::toIntOrNull)
-
-		val isAdmin: Boolean
-			get() = rawRefAreaIds.any { it == "ADMIN" }
-
-	}
+	data class TokenResponse(val uid: Long, val refAreaIds: List<Int>, val isAdmin: Boolean, val token: String)
 
 	@ExceptionHandler(AuthenticationException::class)
 	fun handleAuthenticationException(e: AuthenticationException): ResponseEntity<Any> {

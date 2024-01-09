@@ -23,8 +23,8 @@ class UserEntity(
 	var mannerTemperature: Double = 36.5,
 
 	@OneToMany(mappedBy = "user", cascade = [CascadeType.REMOVE])
-	var areaUsers: List<AreaUserEntity> = mutableListOf(),
+	var areaUsers: MutableList<AreaUserEntity> = mutableListOf(),
 	@OneToMany(mappedBy = "user")
-	val channelUsers: List<ChannelUserEntity> = mutableListOf(),
+	val channelUsers: MutableList<ChannelUserEntity> = mutableListOf(),
 ):  BaseCreatedDateEntity()
 

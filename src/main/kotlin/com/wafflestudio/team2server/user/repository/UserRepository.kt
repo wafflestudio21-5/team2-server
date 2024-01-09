@@ -2,8 +2,17 @@ package com.wafflestudio.team2server.user.repository
 
 import com.wafflestudio.team2server.user.model.AuthProvider
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
 
 interface UserRepository : JpaRepository<UserEntity, Long> {
+
+	@Query("""
+		SELECT u from user u
+		LEFT JOIN FETCH u.areaUsers au
+		LEFT JOIN FETCH au.area a
+		WHERE u.email = :email
+	""")
+	fun findByEmailWithJoinFetch(email: String): UserEntity?
 
 	fun findByEmail(email: String): UserEntity?
 
