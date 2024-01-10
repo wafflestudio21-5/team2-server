@@ -77,6 +77,7 @@ class UserController(
 
 	@GetMapping("/user")
 	fun getUser(@AuthenticationPrincipal user: AuthUserInfo): User {
+		"hello.x".substringAfterLast(".", "")
 		return userService.getUser(user.uid)
 	}
 

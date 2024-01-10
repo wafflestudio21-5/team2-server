@@ -1,7 +1,6 @@
 package com.wafflestudio.team2server.user.model
 
 import com.wafflestudio.team2server.area.model.Area
-import java.time.LocalDateTime
 
 data class User(
 	val id: Long? = null,
@@ -12,7 +11,7 @@ data class User(
 	val profileImageUrl: String?,
 	val nickname: String,
 	val mannerTemp: Double,
-	val createdAt: LocalDateTime?,
+	val createdAt: Long?,
 	val refAreaIds: List<Area>,
 ) {
 

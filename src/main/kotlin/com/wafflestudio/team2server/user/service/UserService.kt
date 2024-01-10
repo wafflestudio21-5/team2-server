@@ -3,6 +3,7 @@ package com.wafflestudio.team2server.user.service
 import com.wafflestudio.team2server.area.model.Area
 import com.wafflestudio.team2server.area.repository.*
 import com.wafflestudio.team2server.common.error.*
+import com.wafflestudio.team2server.common.util.toEpochMillis
 import com.wafflestudio.team2server.user.controller.UserController
 import com.wafflestudio.team2server.user.model.AuthProvider
 import com.wafflestudio.team2server.user.model.User
@@ -107,12 +108,12 @@ class UserService(
 		profileImageUrl = profileImg,
 		nickname = nickname,
 		mannerTemp = mannerTemperature,
-		createdAt = createdAt,
+		createdAt = createdAt?.toEpochMillis(),
 		refAreaIds = areaUsers.map { Area(it.area, it.authenticatedAt, it.count) },
 	)
 
 	private fun Area(entity: AreaEntity, authenticatedAt: LocalDateTime?, count: Int): Area = Area(
-		entity.id, entity.code, entity.fullName, entity.name, entity.sggName, entity.sdName, authenticatedAt, count
+		entity.id, entity.code, entity.fullName, entity.name, entity.sggName, entity.sdName, authenticatedAt?.toEpochMillis(), count
 	)
 
 }
