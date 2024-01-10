@@ -24,8 +24,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 			0 -> Random.nextInt().absoluteValue
 			else -> seed
 		}
-		val res = productPostService.getPostListRandom(cur, seed, authUserInfo.refAreaIds[0], distance)
-		return res
+		return productPostService.getPostListRandom(cur, seed, authUserInfo.refAreaIds[0], distance)
 	}
 
 	@PostMapping("/posts")
@@ -47,7 +46,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@PathVariable id: Long,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-
+		productPostService.likePost(id, authUserInfo.uid)
 	}
 
 	@PutMapping("/posts/{id}")

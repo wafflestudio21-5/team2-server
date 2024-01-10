@@ -9,8 +9,9 @@ import com.wafflestudio.team2server.post.repository.ProductPostEntity
 import com.wafflestudio.team2server.post.repository.ProductPostRepository
 import com.wafflestudio.team2server.post.repository.WishListEntity
 import com.wafflestudio.team2server.post.repository.WishListRepository
-import com.wafflestudio.team2server.user.repository.UserEntity
+import com.wafflestudio.team2server.user.model.User
 import com.wafflestudio.team2server.user.repository.UserRepository
+import com.wafflestudio.team2server.user.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -21,6 +22,7 @@ import kotlin.math.min
 class ProductPostServiceImpl(
 	private val productPostRepository: ProductPostRepository,
 	private val areaService: AreaService,
+	private val userService: UserService,
 	private val userRepository: UserRepository,
 	private val wishListRepository: WishListRepository
 ) : ProductPostService {
@@ -30,7 +32,7 @@ class ProductPostServiceImpl(
 
 	@Transactional
 	override fun create(postCreateRequest: ProductPostController.PostCreateRequest, userId: Long) {
-		val user = userRepository.findById(userId).getOrNull() ?: throw BaniException(ErrorType.UNAUTHORIZED)
+		val user = userService.getUser(userId)
 		// upload images and get repimg urls...
 		val postEntity =
 			ProductPostEntity(
@@ -43,12 +45,12 @@ class ProductPostServiceImpl(
 					else -> throw BaniException(ErrorType.INVALID_PARAMETER)
 				},
 				deadline = postCreateRequest.deadline,
-				author = user,
+				author = userRepository.findById(userId).getOrNull() ?: throw BaniException(ErrorType.USER_NOT_FOUND),
 				buyerId = -1,
 				createdAt = LocalDateTime.now(),
 				hiddenYn = postCreateRequest.hiddenYn,
 				status = ProductPost.ProductPostStatus.NEW,
-				sellingArea = areaService.getAreaById(0),
+				sellingArea = areaService.getAreaById(user.refAreaIds[0].id),
 				repImg = "",
 				offerYn = postCreateRequest.offerYn,
 				refreshCnt = 0,
@@ -119,7 +121,7 @@ class ProductPostServiceImpl(
 
 	override fun findPostById(id: Long): ProductPost {
 		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
-		return ProductPost(postEntity)
+		return ProductPost(postEntity) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
 	}
 
 	@Transactional
@@ -143,12 +145,14 @@ class ProductPostServiceImpl(
 		}
 	}
 
-	override fun getLikedPosts(userId: Long): List<ProductPostEntity> {
-		return wishListRepository.findByUserId(userId).mapNotNull { productPostRepository.findById(it.postId).getOrNull() }
+	override fun getLikedPosts(userId: Long): List<ProductPost> {
+		return wishListRepository.findByUserId(userId).mapNotNull {
+			ProductPost(productPostRepository.findById(it.postId).getOrNull())
+		}
 	}
 
-	override fun getLikedUsers(postId: Long): List<UserEntity> {
-		return wishListRepository.findByPostId(postId).mapNotNull { userRepository.findById(it.userId).getOrNull() }
+	override fun getLikedUsers(postId: Long): List<User> {
+		return wishListRepository.findByPostId(postId).mapNotNull { userService.getUser(it.userId) }
 	}
 
 	override fun getPostListRandom(cur: Long, seed: Int, areaId: Int, distance: Int): ProductPostController.ListResponse {
@@ -176,7 +180,8 @@ class ProductPostServiceImpl(
 		)
 	}
 
-	fun ProductPost(it: ProductPostEntity): ProductPost {
+	fun ProductPost(it: ProductPostEntity?): ProductPost? {
+		if (it == null) return null
 		return ProductPost(
 			id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
 			authorId = it.author.id,
@@ -195,7 +200,9 @@ class ProductPostServiceImpl(
 			wishCnt = it.wishCnt,
 			type = it.type.ordinal,
 			status = it.status.ordinal,
-			sellingArea = it.sellingArea.name
+			sellingArea = it.sellingArea.name,
+			description = it.description,
+			images = listOf(),
 		)
 	}
 }

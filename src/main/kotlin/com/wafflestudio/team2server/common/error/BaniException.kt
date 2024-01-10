@@ -35,3 +35,7 @@ object PostNotFoundException : BaniException(ErrorType.POST_NOT_FOUND)
 object CommunityNotFoundException : BaniException(ErrorType.COMMUNITY_NOT_FOUND)
 
 object PermissionDeniedException : BaniException(ErrorType.PERMISSION_DENIED)
+
+object FileNotAvailableException : BaniException(ErrorType.FILE_NOT_AVAILABLE)
+
+object BadFileFormatException : BaniException(ErrorType.BAD_FILE_FORMAT)

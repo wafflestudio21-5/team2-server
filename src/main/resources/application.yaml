@@ -5,6 +5,10 @@ spring:
     active: local
   config:
     import: classpath:application-db.yaml, classpath:application-key.yaml
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 cache:
   ttl: 10s
@@ -18,11 +22,11 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
-#    tags-sorter: alpha
-#    operations-sorter: alpha
+    #    tags-sorter: alpha
+    #    operations-sorter: alpha
     display-request-duration: true
   paths-to-exclude:
-  - /test/**
+    - /test/**
 
 logging:
   level:
@@ -31,3 +35,12 @@ logging:
         type:
           descriptor:
             sql: trace
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    s3:
+      bucket: team2-server-s3

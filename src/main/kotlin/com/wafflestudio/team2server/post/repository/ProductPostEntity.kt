@@ -38,4 +38,6 @@ class ProductPostEntity(
 	var hiddenYn: Boolean = false,
 	var wishCnt: Int = 0,
 	var chatCnt: Int = 0,
+	@OneToMany(mappedBy = "productPost")
+	val images: List<ProductPostImageEntity> = mutableListOf(),
 )

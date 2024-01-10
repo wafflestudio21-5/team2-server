@@ -191,7 +191,7 @@ create table active_area
 (
 	user_id           bigint,
 	reference_area_id int,
-	authenticated_at  datetime CURRENT_TIMESTAMP,
+	authenticated_at  datetime,
 	count             int
 );
 create table tender
