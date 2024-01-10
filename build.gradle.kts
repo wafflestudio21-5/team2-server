@@ -42,10 +42,11 @@ dependencies {
 	implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
 	//swagger
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
+	// aws
+	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 	// test
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
-	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 }
 
 tasks.withType<KotlinCompile> {

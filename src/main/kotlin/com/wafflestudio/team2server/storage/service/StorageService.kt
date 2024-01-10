@@ -21,7 +21,6 @@ class StorageService(
 	@Value("\${cloud.aws.s3.bucket}")
 	private val bucket: String? = null
 
-
 	fun uploadFile(multipartFiles: List<MultipartFile>): List<String> {
 		return multipartFiles.map { file ->
 			val fileName = createFileName(file.originalFilename ?: "")
@@ -34,28 +33,13 @@ class StorageService(
 			amazonS3.getUrl(bucket, fileName).toString()
 		}
 	}
-	/*
-	fun uploadFile(multipartFile: MultipartFile): String {
-		val fileName = createFileName(multipartFile.originalFilename ?: "")
-		val objectMetadata = ObjectMetadata()
-		objectMetadata.contentLength = multipartFile.size
-		objectMetadata.contentType = multipartFile.contentType
-		amazonS3.putObject(
-			PutObjectRequest(bucket, fileName, multipartFile.inputStream, objectMetadata)
-		)
-		return amazonS3.getUrl(bucket, fileName).toString()
-	}*/
 
 	fun getFileExtension(fileName: String): String {
-		val ext = try {
-			fileName.substring(fileName.lastIndexOf("."))
-		} catch (e: StringIndexOutOfBoundsException) {
+		val ext = fileName.substringAfterLast(".", "")
+		if (ext != ".jpg" && ext != ".jpeg" && ext != ".png") { // 업로드 가능 확장자
 			throw BaniException(ErrorType.BAD_FILE_FORMAT)
 		}
-		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png") { // 업로드 가능 확장자
-			return ext
-		}
-		throw BaniException(ErrorType.BAD_FILE_FORMAT)
+		return ext
 	}
 
 	fun createFileName(fileName: String): String {

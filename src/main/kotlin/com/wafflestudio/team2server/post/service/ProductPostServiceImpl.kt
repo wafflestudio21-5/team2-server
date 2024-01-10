@@ -48,7 +48,7 @@ class ProductPostServiceImpl(
 				createdAt = LocalDateTime.now(),
 				hiddenYn = postCreateRequest.hiddenYn,
 				status = ProductPost.ProductPostStatus.NEW,
-				sellingArea = areaService.getAreaById(user.areaUsers[0].area.id),
+				sellingArea = areaService.getAreaById(user.areaUsers[0].area.id), // TODO: 활성화된 area 가져오기
 				repImg = "",
 				offerYn = postCreateRequest.offerYn,
 				refreshCnt = 0,
