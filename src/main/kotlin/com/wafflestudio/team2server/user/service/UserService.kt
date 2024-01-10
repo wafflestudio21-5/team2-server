@@ -1,9 +1,7 @@
 package com.wafflestudio.team2server.user.service
 
-import com.wafflestudio.team2server.area.model.AreaUserEntity
-import com.wafflestudio.team2server.area.model.AreaUserId
-import com.wafflestudio.team2server.area.repository.AreaRepository
-import com.wafflestudio.team2server.area.repository.AreaUserRepository
+import com.wafflestudio.team2server.area.model.Area
+import com.wafflestudio.team2server.area.repository.*
 import com.wafflestudio.team2server.common.error.*
 import com.wafflestudio.team2server.user.controller.UserController
 import com.wafflestudio.team2server.user.model.AuthProvider
@@ -13,7 +11,7 @@ import com.wafflestudio.team2server.user.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import kotlin.jvm.optionals.getOrElse
+import java.time.LocalDateTime
 
 @Service
 class UserService(
@@ -71,17 +69,18 @@ class UserService(
 		) // DB 유니크 키 제약으로 sub, nickname 중복 방지. Provider 사이에 sub 충돌 방지를 위해 (provider, sub)로 유니크 키 제약 필요할듯.
 		val areaUsers = areas.map { AreaUserEntity(AreaUserId(userId = user.id, areaId = it.id), it, user, count = 1) }
 		areaUserRepository.saveAll(areaUsers)
+		user.areaUsers.addAll(areaUsers)
 		return user.toUser()
 	}
 
 	fun getUser(uid: Long): User {
-		val user = userRepository.findById(uid).getOrElse { throw UserNotFoundException }
+		val user = userRepository.findByIdWithJoinFetch(uid) ?: throw UserNotFoundException
 		return user.toUser()
 	}
 
 	@Transactional
 	fun updateUser(uid: Long, request: UserController.UpdateUserRequest): User {
-		val user = userRepository.findById(uid).getOrElse { throw UserNotFoundException }
+		val user = userRepository.findByIdWithJoinFetch(uid) ?: throw UserNotFoundException
 		request.run {
 			nickname?.let {
 				if (userRepository.existsByNickname(nickname)) {
@@ -109,7 +108,11 @@ class UserService(
 		nickname = nickname,
 		mannerTemp = mannerTemperature,
 		createdAt = createdAt,
-		refAreaIds = areaUsers.map { it.area.id },
+		refAreaIds = areaUsers.map { Area(it.area, it.authenticatedAt, it.count) },
+	)
+
+	private fun Area(entity: AreaEntity, authenticatedAt: LocalDateTime?, count: Int): Area = Area(
+		entity.id, entity.code, entity.fullName, entity.name, entity.sggName, entity.sdName, authenticatedAt, count
 	)
 
 }

@@ -1,4 +1,4 @@
-package com.wafflestudio.team2server.area.model
+package com.wafflestudio.team2server.area.repository
 
 import com.wafflestudio.team2server.user.repository.UserEntity
 import jakarta.persistence.*

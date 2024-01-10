@@ -1,6 +1,6 @@
 package com.wafflestudio.team2server.post.repository
 
-import com.wafflestudio.team2server.area.model.AreaEntity
+import com.wafflestudio.team2server.area.repository.AreaEntity
 import com.wafflestudio.team2server.post.model.ProductPost.ProductPostStatus
 import com.wafflestudio.team2server.post.model.ProductPost.ProductPostType
 import com.wafflestudio.team2server.user.repository.UserEntity
