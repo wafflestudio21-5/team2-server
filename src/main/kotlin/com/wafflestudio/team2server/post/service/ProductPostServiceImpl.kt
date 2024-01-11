@@ -14,7 +14,7 @@ import com.wafflestudio.team2server.user.repository.UserRepository
 import com.wafflestudio.team2server.user.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
+import java.time.Instant
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.min
 
@@ -44,17 +44,17 @@ class ProductPostServiceImpl(
 					"AUCTION" -> ProductPost.ProductPostType.AUCTION
 					else -> throw BaniException(ErrorType.INVALID_PARAMETER)
 				},
-				deadline = postCreateRequest.deadline,
+				deadline = Instant.ofEpochMilli(postCreateRequest.deadline ?: 0),
 				author = userRepository.findById(userId).getOrNull() ?: throw BaniException(ErrorType.USER_NOT_FOUND),
 				buyerId = -1,
-				createdAt = LocalDateTime.now(),
+				createdAt = Instant.now(),
 				hiddenYn = postCreateRequest.hiddenYn,
 				status = ProductPost.ProductPostStatus.NEW,
 				sellingArea = areaService.getAreaById(user.refAreaIds[0].id),
 				repImg = "",
 				offerYn = postCreateRequest.offerYn,
 				refreshCnt = 0,
-				refreshedAt = LocalDateTime.now(),
+				refreshedAt = Instant.now(),
 				wishCnt = 0,
 				chatCnt = 0,
 				sellPrice = postCreateRequest.sellPrice
@@ -69,7 +69,7 @@ class ProductPostServiceImpl(
 			throw BaniException(ErrorType.UNAUTHORIZED)
 		}
 		if (refresh) {
-			target.refreshedAt = LocalDateTime.now()
+			target.refreshedAt = Instant.now()
 			target.refreshCnt += 1
 		}
 		target.title = postUpdateRequest.title ?: target.title
@@ -79,7 +79,7 @@ class ProductPostServiceImpl(
 			"AUCTION" -> ProductPost.ProductPostType.AUCTION
 			else -> target.type
 		}
-		target.deadline = postUpdateRequest.deadline ?: target.deadline
+		target.deadline = Instant.ofEpochMilli(postUpdateRequest.deadline ?: 0) ?: target.deadline
 		target.description = postUpdateRequest.description ?: target.description
 		target.hiddenYn = postUpdateRequest.hiddenYn ?: target.hiddenYn
 		target.status = when (postUpdateRequest.status) {
@@ -102,13 +102,13 @@ class ProductPostServiceImpl(
 					id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
 					title = it.title,
 					repImg = it.repImg,
-					createdAt = it.createdAt,
-					refreshedAt = it.refreshedAt,
+					createdAt = it.createdAt.toEpochMilli(),
+					refreshedAt = it.refreshedAt.toEpochMilli(),
 					chatCnt = it.chatCnt,
 					wishCnt = it.wishCnt,
 					sellPrice = it.sellPrice,
 					sellingArea = areaService.getAreaById(it.sellingArea.id).name,
-					deadline = it.deadline,
+					deadline = it.deadline.toEpochMilli(),
 					type = it.type.name,
 					status = it.status.name,
 				)
@@ -132,7 +132,7 @@ class ProductPostServiceImpl(
 	@Transactional
 	override fun likePost(userId: Long, id: Long) {
 		if (!wishListRepository.existsByUserIdAndPostId(userId, id)) {
-			val wishListEntity = WishListEntity(userId = userId, postId = id, createdAt = LocalDateTime.now())
+			val wishListEntity = WishListEntity(userId = userId, postId = id)
 			wishListRepository.save(wishListEntity)
 		}
 	}
@@ -163,13 +163,13 @@ class ProductPostServiceImpl(
 					it.getId(),
 					it.getTitle(),
 					it.getRep_img(),
-					it.getCreated_at(),
-					it.getRefreshed_at(),
+					it.getCreated_at().toEpochMilli(),
+					it.getRefreshed_at()?.toEpochMilli() ?: 0L,
 					it.getChat_cnt(),
 					it.getWish_cnt(),
 					it.getSell_price(),
 					areaService.getAreaById(it.getSelling_area_id()).name,
-					it.getDeadline(),
+					it.getDeadline().toEpochMilli(),
 					it.getType(),
 					it.getStatus(),
 				)
@@ -188,12 +188,12 @@ class ProductPostServiceImpl(
 			buyerId = it.buyerId,
 			chatCnt = it.chatCnt,
 			sellPrice = it.sellPrice,
-			createdAt = it.createdAt,
-			deadline = it.deadline,
+			createdAt = it.createdAt.toEpochMilli(),
+			deadline = it.deadline.toEpochMilli(),
 			hiddenYn = it.hiddenYn,
 			offerYn = it.offerYn,
 			refreshCnt = it.refreshCnt,
-			refreshedAt = it.refreshedAt,
+			refreshedAt = it.refreshedAt.toEpochMilli(),
 			repImg = it.repImg,
 			title = it.title,
 			viewCnt = it.viewCnt,

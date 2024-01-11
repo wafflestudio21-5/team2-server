@@ -7,7 +7,6 @@ import com.wafflestudio.team2server.post.model.ProductPost
 import com.wafflestudio.team2server.post.service.ProductPostService
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import java.time.LocalDateTime
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
@@ -95,7 +94,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		val description: String = "",
 		val type: String = "NEW",
 		val offerYn: Boolean = false,
-		val deadline: LocalDateTime = LocalDateTime.now().plusDays(7),
+		val deadline: Long?,
 		val hiddenYn: Boolean = false,
 		val sellPrice: Int
 	)
@@ -106,7 +105,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		val type: String?,
 		val status: String?,
 		val offerYn: Boolean?,
-		val deadline: LocalDateTime?,
+		val deadline: Long?,
 		val hiddenYn: Boolean?,
 		val sellPrice: Int?,
 	)
@@ -115,13 +114,13 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		val id: Long,
 		val title: String,
 		val repImg: String?,
-		val createdAt: LocalDateTime,
-		val refreshedAt: LocalDateTime?,
+		val createdAt: Long?,
+		val refreshedAt: Long?,
 		val chatCnt: Int,
 		val wishCnt: Int,
 		val sellPrice: Int,
 		val sellingArea: String,
-		val deadline: LocalDateTime,
+		val deadline: Long?,
 		val type: String,
 		val status: String,
 	)

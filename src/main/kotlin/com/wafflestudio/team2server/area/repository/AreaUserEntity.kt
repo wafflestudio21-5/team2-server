@@ -4,7 +4,7 @@ import com.wafflestudio.team2server.user.repository.UserEntity
 import jakarta.persistence.*
 import org.springframework.data.domain.Persistable
 import java.io.Serializable
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity(name = "active_area")
 class AreaUserEntity(
@@ -23,7 +23,7 @@ class AreaUserEntity(
 	val user: UserEntity,
 
 	@JoinColumn(name = "authenticated_at")
-	var authenticatedAt: LocalDateTime? = null,
+	var authenticatedAt: Instant? = null,
 
 	val count: Int
 ) : Persistable<AreaUserId> {
@@ -37,7 +37,7 @@ class AreaUserEntity(
 
 	@PrePersist
 	fun touchForSave() {
-		authenticatedAt = LocalDateTime.now()
+		authenticatedAt = Instant.now()
 	}
 }
 

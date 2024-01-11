@@ -8,16 +8,16 @@ import com.wafflestudio.team2server.community.repository.CommunityEntity
 import com.wafflestudio.team2server.community.repository.CommunityRepository
 import com.wafflestudio.team2server.user.repository.UserRepository
 import jakarta.transaction.Transactional
-import org.springframework.stereotype.Service;
-import java.time.LocalDateTime
+import org.springframework.stereotype.Service
+import java.time.Instant
 import kotlin.jvm.optionals.getOrNull
 
 @Service
 class CommunityServiceImpl(
 	private val communityRepository: CommunityRepository,
 	private val userRepository: UserRepository,
-): CommunityService {
-//
+) : CommunityService {
+	//
 //	override fun exist(id: Long): Boolean {
 //		return communityRepository.findById(id).getOrNull() != null;
 //	}
@@ -34,7 +34,7 @@ class CommunityServiceImpl(
 		val communityEntity = CommunityEntity(
 			author = user,
 			areaId = 0,
-			createdAt = LocalDateTime.now(),
+			createdAt = Instant.now(),
 			title = communityRequest.title,
 			description = communityRequest.description,
 			viewCnt = 0,
@@ -47,17 +47,19 @@ class CommunityServiceImpl(
 
 	@Transactional
 	override fun update(communityRequest: CommunityController.CommunityUpdateRequest, userId: Long, id: Long) {
-		val communityEntity = communityRepository.findById(id).getOrNull()?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
-		if (communityEntity.author.id != userId) { throw BaniException(ErrorType.UNAUTHORIZED) }
+		val communityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
+		if (communityEntity.author.id != userId) {
+			throw BaniException(ErrorType.UNAUTHORIZED)
+		}
 		communityEntity.title = communityRequest.title ?: communityEntity.title
 		communityEntity.description = communityRequest.description ?: communityEntity.description
 		communityRepository.save(communityEntity)
 	}
 
 	override fun delete(userId: Long, id: Long) {
-		val communityEntity = communityRepository.findById(id).getOrNull()?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
+		val communityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
 		if (communityEntity.author.id != userId) {
 			throw BaniException(ErrorType.UNAUTHORIZED)
 		} else (communityRepository.deleteById(id))
 	}
-	}
+}
