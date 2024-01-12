@@ -1,23 +1,31 @@
 package com.wafflestudio.team2server.user.service
 
+import com.auth0.jwt.exceptions.JWTVerificationException
+import com.auth0.jwt.exceptions.TokenExpiredException
 import com.wafflestudio.team2server.area.model.Area
 import com.wafflestudio.team2server.area.repository.*
+import com.wafflestudio.team2server.common.auth.TokenVerifier
 import com.wafflestudio.team2server.common.error.*
 import com.wafflestudio.team2server.user.controller.UserController
 import com.wafflestudio.team2server.user.model.AuthProvider
 import com.wafflestudio.team2server.user.model.User
 import com.wafflestudio.team2server.user.repository.UserEntity
 import com.wafflestudio.team2server.user.repository.UserRepository
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+
+private val logger: KLogger = KotlinLogging.logger {}
 
 @Service
 class UserService(
 	private val userRepository: UserRepository,
 	private val areaUserRepository: AreaUserRepository,
 	private val areaRepository: AreaRepository,
+	private val tokenVerifier: TokenVerifier,
 	private val passwordEncoder: PasswordEncoder,
 ) {
 
@@ -48,7 +56,19 @@ class UserService(
 		return user.toUser()
 	}
 
-	fun signupWithProvider(provider: AuthProvider, nickname: String, profileImage: String?, sub: String, refAreaIds: List<Int>): User {
+	fun signupWithProvider(provider: AuthProvider, nickname: String, profileImage: String?, refAreaIds: List<Int>, idToken: String): User {
+		val (sub, _) = try {
+			tokenVerifier.verifyIdToken(provider, idToken)
+		} catch (e: TokenExpiredException) {
+			logger.warn { "open id token verifiation: expired: $e" }
+			throw OpenIdTokenExpiredException
+		} catch (e: JWTVerificationException) {
+			logger.warn { "open id token verification: failed: $e" }
+			throw OpenIdTokenVerificationException
+		} catch (e: Exception) {
+			logger.error { "open id token verification: error: $e" }
+			throw OpenIdTokenVerificationException
+		}
 		if (userRepository.existsByProviderAndSub(provider, sub)) {
 			throw ProviderKeyAlreadyExistsException
 		}

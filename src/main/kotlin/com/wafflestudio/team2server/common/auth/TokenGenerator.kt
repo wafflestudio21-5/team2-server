@@ -23,9 +23,9 @@ class TokenGenerator(
 	/**
 	 * 토큰 생성.
 	 */
-	fun create(uid: Long, rawRefAreaIds: List<Int>, isAdmin: Boolean): String {
+	fun create(uid: Long, rawRefAreaIds: List<Int>, isAdmin: Boolean, expiredAtEpochMillis: Long = 1000 * 3600 * 6): String {
 		val issuedAt = Instant.now()
-		val expiredAt = issuedAt.plusMillis(1000 * 3600 * 6) // 만료 시간: 6시간
+		val expiredAt = issuedAt.plusMillis(expiredAtEpochMillis) // default 만료 시간: 6시간
 		val jwt = try {
 			JWT.create()
 				.withClaim("v", 1)
