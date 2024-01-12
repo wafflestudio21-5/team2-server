@@ -35,7 +35,7 @@ class StorageService(
 	}
 
 	fun getFileExtension(fileName: String): String {
-		val ext = fileName.substringAfterLast(".", "")
+		val ext = "." + fileName.substringAfterLast(".", "")
 		if (ext != ".jpg" && ext != ".jpeg" && ext != ".png") { // 업로드 가능 확장자
 			throw BaniException(ErrorType.BAD_FILE_FORMAT)
 		}
