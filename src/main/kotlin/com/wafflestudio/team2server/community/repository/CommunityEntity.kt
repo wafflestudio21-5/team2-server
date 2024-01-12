@@ -1,12 +1,12 @@
 package com.wafflestudio.team2server.community.repository
 
-import com.wafflestudio.team2server.community.model.Community.*
+import com.wafflestudio.team2server.community.model.Community.CommunityStatus
 import com.wafflestudio.team2server.user.repository.UserEntity
 import jakarta.persistence.*
-import java.time.LocalDateTime
+import java.time.Instant
 
-@Entity(name="community")
-class CommunityEntity (
+@Entity(name = "community")
+class CommunityEntity(
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long? = null,
@@ -14,7 +14,7 @@ class CommunityEntity (
 	@JoinColumn(name = "user_id")
 	val author: UserEntity,
 	val areaId: Long = -1,
-	val createdAt: LocalDateTime = LocalDateTime.now(),
+	val createdAt: Instant = Instant.now(),
 	var title: String = "",
 	var description: String = "",
 	var viewCnt: Int = 0,

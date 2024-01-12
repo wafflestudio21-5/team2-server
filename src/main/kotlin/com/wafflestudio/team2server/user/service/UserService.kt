@@ -11,7 +11,7 @@ import com.wafflestudio.team2server.user.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Service
 class UserService(
@@ -111,7 +111,7 @@ class UserService(
 		refAreaIds = areaUsers.map { Area(it.area, it.authenticatedAt, it.count) },
 	)
 
-	private fun Area(entity: AreaEntity, authenticatedAt: LocalDateTime?, count: Int): Area = Area(
+	private fun Area(entity: AreaEntity, authenticatedAt: Instant?, count: Int): Area = Area(
 		entity.id, entity.code, entity.fullName, entity.name, entity.sggName, entity.sdName, authenticatedAt, count
 	)
 

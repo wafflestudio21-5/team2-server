@@ -5,7 +5,7 @@ import com.wafflestudio.team2server.post.model.ProductPost.ProductPostStatus
 import com.wafflestudio.team2server.post.model.ProductPost.ProductPostType
 import com.wafflestudio.team2server.user.repository.UserEntity
 import jakarta.persistence.*
-import java.time.LocalDateTime
+import java.time.Instant
 
 
 @Entity(name = "product_post")
@@ -32,9 +32,9 @@ class ProductPostEntity(
 	var viewCnt: Int = 0,
 	var offerYn: Boolean = false,
 	var refreshCnt: Int = 0,
-	var refreshedAt: LocalDateTime = LocalDateTime.now(),
-	val createdAt: LocalDateTime = LocalDateTime.now(),
-	var deadline: LocalDateTime = LocalDateTime.now(),
+	var refreshedAt: Instant,
+	val createdAt: Instant,
+	var deadline: Instant,
 	var hiddenYn: Boolean = false,
 	var wishCnt: Int = 0,
 	var chatCnt: Int = 0,

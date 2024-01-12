@@ -1,7 +1,7 @@
 package com.wafflestudio.team2server.post.repository
 
 import jakarta.persistence.*
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity(name = "product_img")
 class ProductPostImageEntity(
@@ -12,5 +12,5 @@ class ProductPostImageEntity(
 	@ManyToOne
 	@JoinColumn(name = "post_id")
 	val productPost: ProductPostEntity,
-	val createdAt: LocalDateTime = LocalDateTime.now(),
+	val createdAt: Instant = Instant.now(),
 )

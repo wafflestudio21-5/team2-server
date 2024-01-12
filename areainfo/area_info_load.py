@@ -5,7 +5,7 @@ adj = pd.read_csv('adj.csv')
 
 from sqlalchemy import create_engine
 import pymysql
-db_connection_str = 'mysql+pymysql://root:password@localhost:3306/team2_server'
+db_connection_str = 'mysql+pymysql://root:1234@localhost:3306/team2_server'
 db_connection = create_engine(db_connection_str)
 conn = db_connection.connect()
 u.to_sql(name='area',con=db_connection, if_exists='replace',index=False)

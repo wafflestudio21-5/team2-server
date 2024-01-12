@@ -5,7 +5,7 @@ import com.wafflestudio.team2server.user.repository.UserEntity
 import jakarta.persistence.*
 import org.springframework.data.domain.Persistable
 import java.io.Serializable
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity(name = "channel_user")
 class ChannelUserEntity(
@@ -23,8 +23,8 @@ class ChannelUserEntity(
 	@JoinColumn(name = "user_id")
 	val user: UserEntity,
 
-	var pinnedAt: LocalDateTime? = null,
-	) : Persistable<ChannelUserId>, BaseCreatedDateEntity() {
+	var pinnedAt: Instant? = null,
+) : Persistable<ChannelUserId>, BaseCreatedDateEntity() {
 
 	override fun getId(): ChannelUserId {
 		return id

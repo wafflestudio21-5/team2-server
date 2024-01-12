@@ -1,6 +1,6 @@
 package com.wafflestudio.team2server.area.model
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class Area(
 	val id: Int,
@@ -9,6 +9,6 @@ data class Area(
 	val name: String,
 	val sggName: String,
 	val sdName: String,
-	val authenticatedAt: LocalDateTime?,
+	val authenticatedAt: Instant?,
 	val count: Int,
 )

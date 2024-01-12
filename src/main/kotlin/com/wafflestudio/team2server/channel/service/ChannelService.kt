@@ -8,7 +8,7 @@ import com.wafflestudio.team2server.user.repository.UserRepository
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Service
 class ChannelService(
@@ -18,7 +18,7 @@ class ChannelService(
 	private val productPostRepository: ProductPostRepository,
 ) {
 
-	fun getList(userId: Long):ChannelListResponse {
+	fun getList(userId: Long): ChannelListResponse {
 		// 내가 포함된 채팅창 ID들 리스트 가져오기
 		val myChannelUsers = channelUserRepository.findChannelIdsByUserId(userId).associateBy { it.channel.id }
 		val channelIds = myChannelUsers.keys
@@ -38,8 +38,8 @@ class ChannelService(
 			)
 		}
 
-		val pinned = channelFullList.filter { it.pinnedAt != null } .sortedBy { it.pinnedAt } .reversed()
-		val normal = channelFullList.filter { it.pinnedAt == null } .sortedBy { it.msgUpdatedAt } .reversed()
+		val pinned = channelFullList.filter { it.pinnedAt != null }.sortedBy { it.pinnedAt }.reversed()
+		val normal = channelFullList.filter { it.pinnedAt == null }.sortedBy { it.msgUpdatedAt }.reversed()
 
 		return ChannelListResponse(pinned = pinned, normal = normal)
 
@@ -72,7 +72,7 @@ class ChannelService(
 		val channelUser = channelUserRepository.findById(channelUserId)
 			.orElseThrow { ChannelUserIdNotFoundException }
 
-		val now = LocalDateTime.now()
+		val now = Instant.now()
 
 		if (channelUser.pinnedAt != null) {
 			throw AlreadyPinnedException
@@ -150,9 +150,9 @@ data class ChannelBrief(
 	@Schema(description = "해당 채팅방에 마지막으로 전송된 메시지 내용")
 	val lastMsg: String?,
 	@Schema(description = "해당 채팅방에 마지막으로 메시지가 전송된 시각")
-	val msgUpdatedAt: LocalDateTime,
+	val msgUpdatedAt: Instant,
 	@Schema(description = "채팅방이 고정된 시각. 고정되지 않았다면 null")
-	val pinnedAt: LocalDateTime?
+	val pinnedAt: Instant?
 )
 
 @Schema(description = "채팅 목록 응답 DTO")
@@ -174,7 +174,7 @@ data class ChannelPinResponse(
 	@Schema(description = "채팅방 식별자(ID)")
 	val channelId: Long,
 	@Schema(description = "채팅방 상단 고정 시각")
-	val pinnedAt: LocalDateTime
+	val pinnedAt: Instant
 )
 
 @Schema(description = "채팅방 상단 고정 해제 응답 DTO")

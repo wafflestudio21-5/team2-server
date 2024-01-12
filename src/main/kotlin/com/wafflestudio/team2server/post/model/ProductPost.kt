@@ -1,7 +1,5 @@
 package com.wafflestudio.team2server.post.model
 
-import java.time.LocalDateTime
-
 data class ProductPost(
 	val id: Long,
 	val title: String,
@@ -17,9 +15,9 @@ data class ProductPost(
 	val viewCnt: Int,
 	val offerYn: Boolean,
 	val refreshCnt: Int,
-	val refreshedAt: LocalDateTime,
-	val createdAt: LocalDateTime,
-	val deadline: LocalDateTime,
+	val refreshedAt: Long,
+	val createdAt: Long,
+	val deadline: Long,
 	val hiddenYn: Boolean,
 	val wishCnt: Int,
 	val chatCnt: Int,
