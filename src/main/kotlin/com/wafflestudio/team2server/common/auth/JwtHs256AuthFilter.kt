@@ -33,7 +33,7 @@ class JwtHs256AuthFilter(
 				return null
 			}
 			val token = authHeader.substring(7)
-			val authUserInfo = tokenVerifier.createAuthUserInfo(token)
+			val authUserInfo = tokenVerifier.verifyJWT(token)
 			val authorities = mutableListOf(SimpleGrantedAuthority("user"))
 			if (authUserInfo.isAdmin) {
 				authorities.add(SimpleGrantedAuthority("admin"))

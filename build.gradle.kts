@@ -39,6 +39,7 @@ dependencies {
 	runtimeOnly("com.mysql:mysql-connector-j")
 	// jwt
 	implementation("com.auth0:java-jwt:4.4.0")
+	implementation("com.auth0:jwks-rsa:0.22.1")
 	// logging
 	implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
 	//swagger

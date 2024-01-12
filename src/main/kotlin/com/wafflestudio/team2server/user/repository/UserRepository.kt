@@ -22,6 +22,14 @@ interface UserRepository : JpaRepository<UserEntity, Long> {
 	""")
 	fun findByIdWithJoinFetch(id: Long): UserEntity?
 
+	@Query("""
+		SELECT u from user u
+		LEFT JOIN FETCH u.areaUsers au
+		LEFT JOIN FETCH au.area a
+		WHERE u.provider = :provider AND u.sub = :sub
+	""")
+	fun findByProviderAndSubWithJoinFetch(provider: AuthProvider, sub: String): UserEntity?
+
 	fun existsByEmail(email: String): Boolean
 
 	fun existsByNickname(nickname: String): Boolean

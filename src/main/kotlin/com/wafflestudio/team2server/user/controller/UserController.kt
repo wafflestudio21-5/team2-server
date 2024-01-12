@@ -56,11 +56,11 @@ class UserController(
 			throw InvalidAreaCountException
 		}
 		val user = userService.signupWithProvider(
-			AuthProvider.valueOf(provider),
+			AuthProvider.valueOf(provider.uppercase()),
 			request.nickname,
 			request.profileImage,
-			request.sub,
 			request.refAreaIds,
+			request.idToken
 		)
 		return SignupResponse(user)
 	}
@@ -95,7 +95,7 @@ class UserController(
 		@field:Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{2,10}$", message = "닉네임은 특수문자를 제외한 2~10자리여야 합니다.")
 		val nickname: String,
 		val profileImage: String,
-		val sub: String,
+		val idToken: String,
 		val refAreaIds: List<Int>,
 	)
 

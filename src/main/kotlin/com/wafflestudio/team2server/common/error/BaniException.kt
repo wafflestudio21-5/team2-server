@@ -16,6 +16,12 @@ object EmailAlreadyExistsException : BaniException(ErrorType.EMAIL_ALREADY_EXIST
 
 object NicknameAlreadyExistsException : BaniException(ErrorType.NICKNAME_ALREADY_EXISTS)
 
+object OpenIdTokenVerificationException : BaniException(ErrorType.UNAUTHORIZED)
+
+object OpenIdTokenExpiredException : BaniException(ErrorType.EXPIRED_TOKEN)
+
+object InvalidProviderException : BaniException(ErrorType.INVALID_PROVIDER)
+
 object ProviderKeyAlreadyExistsException : BaniException(ErrorType.PROVIDER_KEY_ALREADY_EXISTS)
 
 object NoUIDException : BaniException(ErrorType.NO_UID)
