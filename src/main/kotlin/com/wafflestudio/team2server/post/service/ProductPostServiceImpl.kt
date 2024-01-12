@@ -5,10 +5,7 @@ import com.wafflestudio.team2server.common.error.BaniException
 import com.wafflestudio.team2server.common.error.ErrorType
 import com.wafflestudio.team2server.post.controller.ProductPostController
 import com.wafflestudio.team2server.post.model.ProductPost
-import com.wafflestudio.team2server.post.repository.ProductPostEntity
-import com.wafflestudio.team2server.post.repository.ProductPostRepository
-import com.wafflestudio.team2server.post.repository.WishListEntity
-import com.wafflestudio.team2server.post.repository.WishListRepository
+import com.wafflestudio.team2server.post.repository.*
 import com.wafflestudio.team2server.user.model.User
 import com.wafflestudio.team2server.user.repository.UserRepository
 import com.wafflestudio.team2server.user.service.UserService
@@ -24,7 +21,8 @@ class ProductPostServiceImpl(
 	private val areaService: AreaService,
 	private val userService: UserService,
 	private val userRepository: UserRepository,
-	private val wishListRepository: WishListRepository
+	private val wishListRepository: WishListRepository,
+	private val productPostImageRepository: ProductPostImageRepository,
 ) : ProductPostService {
 	override fun exists(id: Long): Boolean {
 		return productPostRepository.findById(id).getOrNull() != null
@@ -51,7 +49,7 @@ class ProductPostServiceImpl(
 				hiddenYn = postCreateRequest.hiddenYn,
 				status = ProductPost.ProductPostStatus.NEW,
 				sellingArea = areaService.getAreaById(user.refAreaIds[0].id),
-				repImg = "",
+				repImg = postCreateRequest.repImg,
 				offerYn = postCreateRequest.offerYn,
 				refreshCnt = 0,
 				refreshedAt = Instant.now(),
@@ -59,6 +57,11 @@ class ProductPostServiceImpl(
 				chatCnt = 0,
 				sellPrice = postCreateRequest.sellPrice
 			)
+		val postImageEntityList = postCreateRequest.images.map {
+			ProductPostImageEntity(url = it, productPost = postEntity)
+		}
+		postEntity.images = postImageEntityList
+		productPostImageRepository.saveAll(postImageEntityList)
 		productPostRepository.save(postEntity)
 	}
 
@@ -90,6 +93,12 @@ class ProductPostServiceImpl(
 		}
 		target.offerYn = postUpdateRequest.offerYn ?: target.offerYn
 		target.sellPrice = postUpdateRequest.sellPrice ?: target.sellPrice
+		target.repImg = postUpdateRequest.repImg ?: target.repImg
+		target.images = postUpdateRequest.images?.map {
+			val image = ProductPostImageEntity(url = it, productPost = target)
+			productPostImageRepository.save(image)
+			image
+		} ?: target.images
 		productPostRepository.save(target)
 	}
 
@@ -127,6 +136,7 @@ class ProductPostServiceImpl(
 	@Transactional
 	override fun deleteById(id: Long) {
 		productPostRepository.deleteById(id)
+		wishListRepository.findByPostId(id).forEach(wishListRepository::delete)
 	}
 
 	@Transactional
@@ -202,7 +212,7 @@ class ProductPostServiceImpl(
 			status = it.status.ordinal,
 			sellingArea = it.sellingArea.name,
 			description = it.description,
-			images = listOf(),
+			images = it.images.map { it.url }
 		)
 	}
 }

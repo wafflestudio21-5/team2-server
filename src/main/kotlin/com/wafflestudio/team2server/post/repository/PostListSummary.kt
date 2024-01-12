@@ -5,7 +5,7 @@ import java.time.Instant
 interface PostListSummary {
 	fun getId(): Long
 	fun getTitle(): String
-	fun getRep_img(): String?
+	fun getRep_img(): String
 	fun getCreated_at(): Instant
 	fun getRefreshed_at(): Instant?
 	fun getChat_cnt(): Int
