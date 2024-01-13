@@ -66,7 +66,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@PathVariable id: Long,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
 		@RequestBody postUpdateRequest: PostUpdateRequest,
-		@RequestParam refresh: Boolean
+		@RequestParam(required = false, defaultValue = "false") refresh: Boolean
 	) {
 		productPostService.update(
 			postUpdateRequest,
