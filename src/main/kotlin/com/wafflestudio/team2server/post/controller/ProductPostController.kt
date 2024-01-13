@@ -17,13 +17,14 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@RequestParam(required = false, defaultValue = Long.MAX_VALUE.toString()) cur: Long,
 		@RequestParam(required = false, defaultValue = "0") seed: Int,
 		@RequestParam(required = false, defaultValue = "1") distance: Int,
+		@RequestParam(required = false, defaultValue = "0") count: Int,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	): ListResponse {
 		val seed = when (seed) {
 			0 -> Random.nextInt().absoluteValue
 			else -> seed
 		}
-		return productPostService.getPostListRandom(cur, seed, authUserInfo.refAreaIds[0], distance)
+		return productPostService.getPostListRandom(cur, seed, authUserInfo.refAreaIds[0], distance, count)
 	}
 
 	@PostMapping("/posts")
@@ -36,16 +37,28 @@ class ProductPostController(private val productPostService: ProductPostService) 
 	}
 
 	@GetMapping("/posts/{id}")
-	fun getPost(@PathVariable id: Long): ProductPost {
-		return productPostService.findPostById(id)
-	}
-
-	@PostMapping("/posts/{id}")
-	fun likePost(
+	fun getPost(
 		@PathVariable id: Long,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
+	): ProductPost {
+		return productPostService.getPostById(id, authUserInfo.uid)
+	}
+
+	@PostMapping("/posts/wish/{id}")
+	fun wishPost(
+		@PathVariable id: Long,
+		@RequestParam(required = false, defaultValue = "true") enable: Boolean,
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		productPostService.likePost(id, authUserInfo.uid)
+		if (enable) productPostService.likePost(id, authUserInfo.uid)
+		else productPostService.unlikePost(id, authUserInfo.uid)
+	}
+
+	@GetMapping("/posts/wish")
+	fun getWishList(
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo
+	): List<PostSummary> {
+		return productPostService.getLikedPosts(authUserInfo.uid)
 	}
 
 	@PutMapping("/posts/{id}")
@@ -69,7 +82,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@PathVariable id: Long,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		val target = productPostService.findPostById(id)
+		val target = productPostService.getPostById(id, authUserInfo.uid)
 		if (authUserInfo.uid != target.authorId) {
 			throw BaniException(ErrorType.PERMISSION_DENIED)
 		} else if (!productPostService.exists(id)) {
@@ -83,10 +96,11 @@ class ProductPostController(private val productPostService: ProductPostService) 
 	fun searchPost(
 		@RequestParam keyword: String,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
-		@RequestParam distance: Int,
-		@RequestParam cur: Long
+		@RequestParam(required = false, defaultValue = "1") distance: Int,
+		@RequestParam(required = false, defaultValue = Long.MAX_VALUE.toString()) cur: Long,
+		@RequestParam(required = false, defaultValue = "0") count: Int,
 	): ListResponse {
-		return productPostService.searchPostByKeyword(cur, keyword, authUserInfo.refAreaIds, distance)
+		return productPostService.searchPostByKeyword(cur, keyword, authUserInfo.refAreaIds, distance, count)
 	}
 
 	data class PostCreateRequest(
@@ -96,22 +110,22 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		val repImg: String = "",
 		val images: List<String> = listOf(),
 		val offerYn: Boolean = false,
-		val deadline: Long?,
-		val hiddenYn: Boolean = false,
+		val deadline: Long? = null,
 		val sellPrice: Int
 	)
 
+
 	data class PostUpdateRequest(
-		val title: String?,
-		val description: String?,
-		val type: String?,
-		val repImg: String?,
-		val images: List<String>? = listOf(),
-		val status: String?,
-		val offerYn: Boolean?,
-		val deadline: Long?,
-		val hiddenYn: Boolean?,
-		val sellPrice: Int?,
+		val title: String? = null,
+		val description: String? = null,
+		val type: String? = null,
+		val repImg: String? = null,
+		val images: List<String>? = null,
+		val status: String? = null,
+		val offerYn: Boolean? = null,
+		val deadline: Long? = null,
+		val hiddenYn: Boolean? = null,
+		val sellPrice: Int? = null,
 	)
 
 	data class PostSummary(
@@ -133,6 +147,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		val data: List<PostSummary>,
 		val cur: Long,
 		val seed: Int?,
-		val isLast: Boolean
+		val isLast: Boolean,
+		val count: Int,
 	)
 }
