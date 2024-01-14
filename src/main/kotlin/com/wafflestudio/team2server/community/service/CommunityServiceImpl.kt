@@ -4,10 +4,7 @@ import com.wafflestudio.team2server.common.error.BaniException
 import com.wafflestudio.team2server.common.error.ErrorType
 import com.wafflestudio.team2server.community.controller.CommunityController
 import com.wafflestudio.team2server.community.model.Community
-import com.wafflestudio.team2server.community.repository.CommunityEntity
-import com.wafflestudio.team2server.community.repository.CommunityLikeEntity
-import com.wafflestudio.team2server.community.repository.CommunityLikeRepository
-import com.wafflestudio.team2server.community.repository.CommunityRepository
+import com.wafflestudio.team2server.community.repository.*
 import com.wafflestudio.team2server.user.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -18,8 +15,12 @@ import kotlin.jvm.optionals.getOrNull
 class CommunityServiceImpl(
 	private val communityRepository: CommunityRepository,
 	private val userRepository: UserRepository,
-	private val communityLikeRepository: CommunityLikeRepository
+	private val communityLikeRepository: CommunityLikeRepository,
+	private val commentRepository: CommentRepository
 ) : CommunityService {
+	override fun getCommunityList(cur: Long, seed: Int, areaId: Int, distance: Int): CommunityController.ListResponse {
+		TODO("Not yet implemented")
+	}
 	override fun findCommunityById(id: Long): Community {
 		val community: CommunityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
 		return Community(community)
@@ -38,8 +39,8 @@ class CommunityServiceImpl(
 			description = communityRequest.description,
 			viewCnt = 0,
 			likeCnt = 0,
+			chatCnt = 0,
 			repImg = "",
-			status = Community.CommunityStatus.CREATED
 		)
 		communityRepository.save(community)
 	}
@@ -77,4 +78,45 @@ class CommunityServiceImpl(
 		}
 		communityRepository.save(community)
 	}
+
+	@Transactional
+	override fun createComment(commentRequest: CommunityController.CommentRequest, userId: Long, id: Long) {
+		val user = userRepository.findById(userId).getOrNull() ?: throw BaniException(ErrorType.UNAUTHORIZED)
+		val community = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
+		val comment = CommentEntity(
+			author = user,
+			community = community,
+			comment = commentRequest.comment,
+			parentId = commentRequest.parentId,
+			imgUrl = "",
+			likeCnt = 0,
+			createdAt = Instant.now(),
+			updatedAt = Instant.now(),
+		)
+		commentRepository.save(comment)
+	}
+
+	@Transactional
+	override fun updateComment(commentUpdateRequest: CommunityController.CommentUpdateRequest, userId: Long, id: Long, commentId: Long) {
+		val comment = commentRepository.findById(commentId).getOrNull() ?: throw BaniException(ErrorType.COMMENT_NOT_FOUND)
+		if (comment.author.id != userId) {
+			throw BaniException(ErrorType.UNAUTHORIZED)
+		}
+		if (comment.community.id != id) {
+			throw BaniException(ErrorType.COMEMNT_NOT_MATCHED)
+		}
+		comment.comment = commentUpdateRequest.comment ?: comment.comment
+		comment.updatedAt = Instant.now()
+		commentRepository.save(comment)
+	}
+
+	@Transactional
+	override fun deleteComment(userId: Long, id: Long, commentId: Long) {
+		val comment = commentRepository.findById(commentId).getOrNull() ?: throw BaniException(ErrorType.COMMENT_NOT_FOUND)
+		val community = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
+		commentRepository.delete(comment)
+		community.chatCnt--
+		communityRepository.save(community)
+	}
+
 }
