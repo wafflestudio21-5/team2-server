@@ -24,26 +24,34 @@ class CommunityController(private val communityService: CommunityService) {
 		communityService.create(communityRequest, authUserInfo.uid)
 	}
 
-	@GetMapping("/{postId}")
-	fun getCommunity(@PathVariable postId: Long): Community {
-		return communityService.findCommunityById(postId)
+	@GetMapping("/{communityId}")
+	fun getCommunity(@PathVariable communityId: Long): Community {
+		return communityService.findCommunityById(communityId)
 	}
 
-	@PutMapping("/{postId}")
+	@PutMapping("/{communityId}")
 	fun updateCommunity(
-		@PathVariable postId: Long,
+		@PathVariable communityId: Long,
 		@RequestBody communityRequest: CommunityUpdateRequest,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
 	) {
-		communityService.update(communityRequest, authUserInfo.uid, postId)
+		communityService.update(communityRequest, authUserInfo.uid, communityId)
 	}
 
-	@DeleteMapping("/{postId}")
+	@DeleteMapping("/{communityId}")
 	fun deleteCommunity(
-		@PathVariable postId: Long,
+		@PathVariable communityId: Long,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		communityService.delete(authUserInfo.uid, postId)
+		communityService.delete(authUserInfo.uid, communityId)
+	}
+
+	@PostMapping("/{communityId}")
+	fun likeCommunity (
+		@PathVariable communityId: Long,
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo
+	) {
+		communityService.likeCommunity(authUserInfo.uid, communityId)
 	}
 
 	data class CommunityRequest(
