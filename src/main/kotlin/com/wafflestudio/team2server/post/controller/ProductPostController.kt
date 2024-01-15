@@ -18,13 +18,14 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@RequestParam(required = false, defaultValue = "0") seed: Int,
 		@RequestParam(required = false, defaultValue = "1") distance: Int,
 		@RequestParam(required = false, defaultValue = "0") count: Int,
+		@RequestParam(required = true) areaId: Int,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	): ListResponse {
 		val seed = when (seed) {
 			0 -> Random.nextInt().absoluteValue
 			else -> seed
 		}
-		return productPostService.getPostListRandom(cur, seed, authUserInfo.refAreaIds[0], distance, count)
+		return productPostService.getPostListRandom(cur, seed, distance, count, areaId, authUserInfo.uid)
 	}
 
 	@PostMapping("/posts")
@@ -32,8 +33,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@RequestBody postCreateRequest: PostCreateRequest,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		val userId: Long = authUserInfo.uid
-		productPostService.create(postCreateRequest, userId)
+		productPostService.create(postCreateRequest, authUserInfo.uid)
 	}
 
 	@GetMapping("/posts/{id}")
@@ -95,15 +95,17 @@ class ProductPostController(private val productPostService: ProductPostService) 
 	@GetMapping("/posts/search")
 	fun searchPost(
 		@RequestParam keyword: String,
-		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
 		@RequestParam(required = false, defaultValue = "1") distance: Int,
 		@RequestParam(required = false, defaultValue = Long.MAX_VALUE.toString()) cur: Long,
 		@RequestParam(required = false, defaultValue = "0") count: Int,
+		@RequestParam(required = true) areaId: Int,
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
 	): ListResponse {
-		return productPostService.searchPostByKeyword(cur, keyword, authUserInfo.refAreaIds, distance, count)
+		return productPostService.searchPostByKeyword(cur, keyword, distance, count, areaId, authUserInfo.uid)
 	}
 
 	data class PostCreateRequest(
+		val areaId: Int,
 		val title: String = "",
 		val description: String = "",
 		val type: String = "NEW",

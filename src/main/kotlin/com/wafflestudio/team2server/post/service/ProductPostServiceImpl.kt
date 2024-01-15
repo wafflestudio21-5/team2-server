@@ -32,6 +32,10 @@ class ProductPostServiceImpl(
 	@Transactional
 	override fun create(postCreateRequest: ProductPostController.PostCreateRequest, userId: Long) {
 		val user = userService.getUser(userId)
+
+		if (postCreateRequest.areaId !in user.refAreaIds.map { it.id }) {
+			throw BaniException(ErrorType.INVALID_PARAMETER)
+		}
 		val postEntity =
 			ProductPostEntity(
 				title = postCreateRequest.title,
@@ -43,12 +47,13 @@ class ProductPostServiceImpl(
 					else -> throw BaniException(ErrorType.INVALID_PARAMETER)
 				},
 				deadline = Instant.ofEpochMilli(postCreateRequest.deadline ?: 0),
-				author = userRepository.findById(userId).getOrNull() ?: throw BaniException(ErrorType.USER_NOT_FOUND),
+				author = userRepository.findById(userId)
+					.getOrNull() ?: throw BaniException(ErrorType.USER_NOT_FOUND),
 				buyerId = -1,
 				createdAt = Instant.now(),
 				hiddenYn = false,
 				status = ProductPost.ProductPostStatus.NEW,
-				sellingArea = areaService.getAreaById(user.refAreaIds[0].id),
+				sellingArea = areaService.getAreaById(postCreateRequest.areaId),
 				repImg = postCreateRequest.repImg,
 				offerYn = postCreateRequest.offerYn,
 				refreshCnt = 0,
@@ -105,11 +110,16 @@ class ProductPostServiceImpl(
 	override fun searchPostByKeyword(
 		cur: Long,
 		keyword: String,
-		refAreaId: List<Int>,
 		distance: Int,
-		count: Int
+		count: Int,
+		areaId: Int,
+		userId: Long
 	): ProductPostController.ListResponse {
-		val adjAreaIdList = areaService.getAdjAreas(refAreaId[0], distance)
+		val user = userService.getUser(userId)
+		if (areaId !in user.refAreaIds.map { it.id }) {
+			throw BaniException(ErrorType.INVALID_PARAMETER)
+		}
+		val adjAreaIdList = areaService.getAdjAreas(areaId, distance)
 		val fetch = productPostRepository.findByKeywordIgnoreCaseAndSellingArea(cur, keyword, adjAreaIdList)
 		return ProductPostController.ListResponse(
 			fetch.subList(0, min(15, fetch.size)).map {
@@ -207,10 +217,15 @@ class ProductPostServiceImpl(
 	override fun getPostListRandom(
 		cur: Long,
 		seed: Int,
-		areaId: Int,
 		distance: Int,
-		count: Int
+		count: Int,
+		areaId: Int,
+		userId: Long
 	): ProductPostController.ListResponse {
+		val user = userService.getUser(userId)
+		if (areaId !in user.refAreaIds.map { it.id }) {
+			throw BaniException(ErrorType.INVALID_PARAMETER)
+		}
 		val cur = if (count % 300 == 0) Long.MAX_VALUE else cur
 		val fetch = productPostRepository.findRandom(cur, seed, areaService.getAdjAreas(areaId, distance), (count / 300) * 300)
 		return ProductPostController.ListResponse(
