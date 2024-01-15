@@ -85,11 +85,11 @@ class UserController(
 
 	@PostMapping("/user/refArea")
 	fun addRefArea(@AuthenticationPrincipal user: AuthUserInfo, request: RefAreaRequest): TokenResponse {
-		if (user.refAreaIds.size > 1) {
+		if (user.refAreaIds.size > 2) {
 			throw InvalidAreaCountException
 		}
 		val refAreaId = userService.addRefArea(user.uid, request.refAreaId)
-		val newRefAreaIds = user.refAreaIds + refAreaId
+		val newRefAreaIds = (user.refAreaIds + refAreaId).distinct()
 		val token = tokenGenerator.create(user.uid, newRefAreaIds, user.isAdmin)
 		return TokenResponse(user.uid, newRefAreaIds, user.isAdmin, token)
 	}
