@@ -150,9 +150,6 @@ class ProductPostServiceImpl(
 		if (postEntity.hiddenYn && postEntity.author.id != userId) {
 			throw BaniException(ErrorType.POST_NOT_FOUND)
 		}
-		if (postEntity.sellingArea.id !in userService.getUser(userId).refAreaIds.map { it.id }) {
-			throw BaniException(ErrorType.INVALID_PARAMETER)
-		}
 		return ProductPost(postEntity) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
 	}
 
