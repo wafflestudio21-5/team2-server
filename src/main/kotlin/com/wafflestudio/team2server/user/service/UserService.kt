@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import kotlin.jvm.optionals.getOrElse
 
 private val logger: KLogger = KotlinLogging.logger {}
 
@@ -116,6 +117,32 @@ class UserService(
 
 	fun deleteUser(uid: Long) {
 		userRepository.deleteById(uid)
+	}
+
+	@Transactional
+	fun addRefArea(uid: Long, refAreaId: Int): Int {
+		val user = userRepository.getReferenceById(uid)
+		val areaUsers = areaUserRepository.findByUser(user)
+		if (areaUsers.size > 1) {
+			throw InvalidAreaCountException
+		}
+		val area = areaRepository.findById(refAreaId).getOrElse { throw AreaNotFoundException }
+		val newAreaUser= AreaUserEntity(AreaUserId(userId = uid, areaId = refAreaId), area, user, count = 1)
+		areaUserRepository.save(newAreaUser)
+		return refAreaId
+	}
+
+	fun deleteRefArea(uid: Long, refAreaId: Int) {
+		val rows = areaUserRepository.deleteByUserIdAndAreaId(uid, refAreaId)
+		if (rows == 0L) {
+			throw AreaNotFoundException
+		}
+	}
+
+	@Transactional
+	fun updateMannerTemperature(uid: Long, delta: Double) {
+		val user = userRepository.findById(uid).getOrElse { throw UserNotFoundException }
+		user.mannerTemperature += delta
 	}
 
 	private fun UserEntity.toUser() = User(
