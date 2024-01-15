@@ -25,7 +25,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 			0 -> Random.nextInt().absoluteValue
 			else -> seed
 		}
-		return productPostService.getPostListRandom(cur, seed, distance, count, areaId, authUserInfo.uid)
+		return productPostService.getPostListRandom(cur, seed, distance, count, areaId, authUserInfo)
 	}
 
 	@PostMapping("/posts")
@@ -33,7 +33,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@RequestBody postCreateRequest: PostCreateRequest,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		productPostService.create(postCreateRequest, authUserInfo.uid)
+		productPostService.create(postCreateRequest, authUserInfo)
 	}
 
 	@GetMapping("/posts/{id}")
@@ -41,7 +41,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@PathVariable id: Long,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	): ProductPost {
-		return productPostService.getPostById(id, authUserInfo.uid)
+		return productPostService.getPostById(id, authUserInfo)
 	}
 
 	@PostMapping("/posts/wish/{id}")
@@ -82,7 +82,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@PathVariable id: Long,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		val target = productPostService.getPostById(id, authUserInfo.uid)
+		val target = productPostService.getPostById(id, authUserInfo)
 		if (authUserInfo.uid != target.authorId) {
 			throw BaniException(ErrorType.PERMISSION_DENIED)
 		} else if (!productPostService.exists(id)) {
@@ -101,7 +101,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@RequestParam(required = true) areaId: Int,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
 	): ListResponse {
-		return productPostService.searchPostByKeyword(cur, keyword, distance, count, areaId, authUserInfo.uid)
+		return productPostService.searchPostByKeyword(cur, keyword, distance, count, areaId, authUserInfo)
 	}
 
 	data class PostCreateRequest(

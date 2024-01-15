@@ -1,6 +1,7 @@
 package com.wafflestudio.team2server.post.service
 
 import com.wafflestudio.team2server.area.service.AreaService
+import com.wafflestudio.team2server.common.auth.AuthUserInfo
 import com.wafflestudio.team2server.common.error.BaniException
 import com.wafflestudio.team2server.common.error.ErrorType
 import com.wafflestudio.team2server.common.error.UserNotFoundException
@@ -30,10 +31,9 @@ class ProductPostServiceImpl(
 	}
 
 	@Transactional
-	override fun create(postCreateRequest: ProductPostController.PostCreateRequest, userId: Long) {
-		val user = userService.getUser(userId)
-
-		if (postCreateRequest.areaId !in user.refAreaIds.map { it.id }) {
+	override fun create(postCreateRequest: ProductPostController.PostCreateRequest, authUserInfo: AuthUserInfo) {
+		val userId = authUserInfo.uid
+		if (postCreateRequest.areaId !in authUserInfo.refAreaIds) {
 			throw BaniException(ErrorType.INVALID_PARAMETER)
 		}
 		val postEntity =
@@ -113,10 +113,9 @@ class ProductPostServiceImpl(
 		distance: Int,
 		count: Int,
 		areaId: Int,
-		userId: Long
+		authUserInfo: AuthUserInfo
 	): ProductPostController.ListResponse {
-		val user = userService.getUser(userId)
-		if (areaId !in user.refAreaIds.map { it.id }) {
+		if (areaId !in authUserInfo.refAreaIds) {
 			throw BaniException(ErrorType.INVALID_PARAMETER)
 		}
 		val adjAreaIdList = areaService.getAdjAreas(areaId, distance)
@@ -145,10 +144,14 @@ class ProductPostServiceImpl(
 		)
 	}
 
-	override fun getPostById(id: Long, userId: Long): ProductPost {
+	override fun getPostById(id: Long, authUserInfo: AuthUserInfo): ProductPost {
+		val userId = authUserInfo.uid
 		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
 		if (postEntity.hiddenYn && postEntity.author.id != userId) {
 			throw BaniException(ErrorType.POST_NOT_FOUND)
+		}
+		if (postEntity.sellingArea.id !in userService.getUser(userId).refAreaIds.map { it.id }) {
+			throw BaniException(ErrorType.INVALID_PARAMETER)
 		}
 		return ProductPost(postEntity) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
 	}
@@ -220,10 +223,9 @@ class ProductPostServiceImpl(
 		distance: Int,
 		count: Int,
 		areaId: Int,
-		userId: Long
+		authUserInfo: AuthUserInfo
 	): ProductPostController.ListResponse {
-		val user = userService.getUser(userId)
-		if (areaId !in user.refAreaIds.map { it.id }) {
+		if (areaId !in authUserInfo.refAreaIds) {
 			throw BaniException(ErrorType.INVALID_PARAMETER)
 		}
 		val cur = if (count % 300 == 0) Long.MAX_VALUE else cur
