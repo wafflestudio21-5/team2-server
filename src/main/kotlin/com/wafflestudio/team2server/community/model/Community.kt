@@ -12,8 +12,8 @@ data class Community(
 	val description: String,
 	val viewCnt: Int,
 	val likeCnt: Int,
+	val chatCnt: Int,
 	val repImg: String,
-	val status: String,
 ) {
 	constructor(communityEntity: CommunityEntity) : this(
 		id = communityEntity.id,
@@ -24,13 +24,8 @@ data class Community(
 		description = communityEntity.description,
 		viewCnt = communityEntity.viewCnt,
 		likeCnt = communityEntity.likeCnt,
+		chatCnt = communityEntity.chatCnt,
 		repImg = communityEntity.repImg,
-		status = communityEntity.status.name
-
 	)
 
-	enum class CommunityStatus {
-		CREATED,
-		DELETED
-	}
 }
