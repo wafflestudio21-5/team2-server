@@ -1,14 +1,12 @@
-package com.wafflestudio.team2server.auth
+package com.wafflestudio.team2server.user.controller
 
+import com.wafflestudio.team2server.user.service.AuthService
 import com.wafflestudio.team2server.user.model.AuthProvider
-import io.github.oshai.kotlinlogging.KLogger
-import io.github.oshai.kotlinlogging.KotlinLogging
+import com.wafflestudio.team2server.user.model.TokenResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.annotation.*
-
-private val logger: KLogger = KotlinLogging.logger {}
 
 @RestController
 @RequestMapping("/auth")
@@ -34,8 +32,6 @@ class AuthController(
 	data class SocialLoginRequest(
 		val idToken: String,
 	)
-
-	data class TokenResponse(val uid: Long, val refAreaIds: List<Int>, val isAdmin: Boolean, val token: String)
 
 	@ExceptionHandler(AuthenticationException::class)
 	fun handleAuthenticationException(e: AuthenticationException): ResponseEntity<Any> {

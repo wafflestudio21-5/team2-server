@@ -25,7 +25,7 @@ class AreaUserEntity(
 	@JoinColumn(name = "authenticated_at")
 	var authenticatedAt: Instant? = null,
 
-	val count: Int
+	var count: Int
 ) : Persistable<AreaUserId> {
 	override fun getId(): AreaUserId {
 		return id
