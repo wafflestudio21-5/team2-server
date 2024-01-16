@@ -35,7 +35,7 @@ logging:
         type:
           descriptor:
             sql: trace
-    root: trace
+    root: debug
 
 cloud:
   aws:
