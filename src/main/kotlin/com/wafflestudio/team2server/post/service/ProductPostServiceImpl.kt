@@ -150,7 +150,7 @@ class ProductPostServiceImpl(
 		if (postEntity.hiddenYn && postEntity.author.id != userId) {
 			throw BaniException(ErrorType.POST_NOT_FOUND)
 		}
-		return ProductPost(postEntity) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
+		return ProductPost(postEntity, authUserInfo) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
 	}
 
 	@Transactional
@@ -251,7 +251,7 @@ class ProductPostServiceImpl(
 		)
 	}
 
-	fun ProductPost(it: ProductPostEntity?): ProductPost? {
+	fun ProductPost(it: ProductPostEntity?, authUserInfo: AuthUserInfo): ProductPost? {
 		if (it == null) return null
 		return ProductPost(
 			id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
@@ -274,7 +274,7 @@ class ProductPostServiceImpl(
 			sellingArea = it.sellingArea.name,
 			description = it.description,
 			images = it.images.map { it.url },
-			isWish = wishListRepository.existsByUserIdAndPostId(it.author.id, it.id)
+			isWish = wishListRepository.existsByUserIdAndPostId(authUserInfo.uid, it.id)
 		)
 	}
 }
