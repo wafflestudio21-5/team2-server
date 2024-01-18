@@ -11,8 +11,8 @@ interface ProductPostService {
 	fun update(postUpdateRequest: PostUpdateRequest, userId: Long, id: Long, refresh: Boolean)
 	fun getPostById(id: Long, authUserInfo: AuthUserInfo): ProductPost
 	fun deleteById(id: Long)
-	fun likePost(userId: Long, id: Long)
-	fun unlikePost(userId: Long, id: Long)
+	fun likePost(userId: Long, postId: Long)
+	fun unlikePost(userId: Long, postId: Long)
 	fun getLikedPosts(userId: Long): List<PostSummary>
 	fun getLikedUsers(postId: Long): List<User>
 	fun getPostListRandom(cur: Long, seed: Int, distance: Int, count: Int, areaId: Int, authUserInfo: AuthUserInfo): ListResponse

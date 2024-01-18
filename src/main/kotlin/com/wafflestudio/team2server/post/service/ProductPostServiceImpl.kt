@@ -149,7 +149,7 @@ class ProductPostServiceImpl(
 		if (postEntity.hiddenYn && postEntity.author.id != userId) {
 			throw BaniException(ErrorType.POST_NOT_FOUND)
 		}
-		return ProductPost(postEntity) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
+		return ProductPost(postEntity, authUserInfo) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
 	}
 
 	@Transactional
@@ -160,17 +160,17 @@ class ProductPostServiceImpl(
 	}
 
 	@Transactional
-	override fun likePost(userId: Long, id: Long) {
-		if (!wishListRepository.existsByUserIdAndPostId(userId, id)) {
-			val wishListEntity = WishListEntity(userId = userId, postId = id)
+	override fun likePost(userId: Long, postId: Long) {
+		if (!wishListRepository.existsByUserIdAndPostId(userId, postId)) {
+			val wishListEntity = WishListEntity(userId = userId, postId = postId)
 			wishListRepository.save(wishListEntity)
 		}
 	}
 
 	@Transactional
-	override fun unlikePost(userId: Long, id: Long) {
-		if (wishListRepository.existsByUserIdAndPostId(userId, id)) {
-			val wishListEntity = wishListRepository.findByUserIdAndPostId(userId = userId, postId = id)
+	override fun unlikePost(userId: Long, postId: Long) {
+		if (wishListRepository.existsByUserIdAndPostId(userId, postId)) {
+			val wishListEntity = wishListRepository.findByUserIdAndPostId(userId = userId, postId = postId)
 			wishListRepository.delete(wishListEntity)
 		}
 	}
@@ -250,7 +250,7 @@ class ProductPostServiceImpl(
 		)
 	}
 
-	fun ProductPost(it: ProductPostEntity?): ProductPost? {
+	fun ProductPost(it: ProductPostEntity?, authUserInfo: AuthUserInfo): ProductPost? {
 		if (it == null) return null
 		return ProductPost(
 			id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
@@ -273,7 +273,7 @@ class ProductPostServiceImpl(
 			sellingArea = it.sellingArea.name,
 			description = it.description,
 			images = it.images.map { it.url },
-			isWish = wishListRepository.existsByUserIdAndPostId(it.author.id, it.id)
+			isWish = wishListRepository.existsByUserIdAndPostId(authUserInfo.uid, it.id)
 		)
 	}
 
