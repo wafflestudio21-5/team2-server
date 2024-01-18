@@ -273,7 +273,8 @@ class ProductPostServiceImpl(
 			sellingArea = it.sellingArea.name,
 			description = it.description,
 			images = it.images.map { it.url },
-			isWish = wishListRepository.existsByUserIdAndPostId(authUserInfo.uid, it.id)
+			isWish = wishListRepository.existsByUserIdAndPostId(authUserInfo.uid, it.id),
+			profileImg = userService.getUser(it.author.id).profileImageUrl ?: ""
 		)
 	}
 
