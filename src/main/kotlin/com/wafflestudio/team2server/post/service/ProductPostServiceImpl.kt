@@ -5,8 +5,7 @@ import com.wafflestudio.team2server.common.auth.AuthUserInfo
 import com.wafflestudio.team2server.common.error.BaniException
 import com.wafflestudio.team2server.common.error.ErrorType
 import com.wafflestudio.team2server.common.error.UserNotFoundException
-import com.wafflestudio.team2server.post.controller.ProductPostController
-import com.wafflestudio.team2server.post.model.ProductPost
+import com.wafflestudio.team2server.post.model.*
 import com.wafflestudio.team2server.post.repository.*
 import com.wafflestudio.team2server.user.model.User
 import com.wafflestudio.team2server.user.repository.UserRepository
@@ -31,7 +30,7 @@ class ProductPostServiceImpl(
 	}
 
 	@Transactional
-	override fun create(postCreateRequest: ProductPostController.PostCreateRequest, authUserInfo: AuthUserInfo) {
+	override fun create(postCreateRequest: PostCreateRequest, authUserInfo: AuthUserInfo) {
 		val userId = authUserInfo.uid
 		if (postCreateRequest.areaId !in authUserInfo.refAreaIds) {
 			throw BaniException(ErrorType.INVALID_PARAMETER)
@@ -71,7 +70,7 @@ class ProductPostServiceImpl(
 	}
 
 	@Transactional
-	override fun update(postUpdateRequest: ProductPostController.PostUpdateRequest, userId: Long, id: Long, refresh: Boolean) {
+	override fun update(postUpdateRequest: PostUpdateRequest, userId: Long, id: Long, refresh: Boolean) {
 		val target = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
 		if (target.author.id != userId) {
 			throw BaniException(ErrorType.UNAUTHORIZED)
@@ -114,15 +113,15 @@ class ProductPostServiceImpl(
 		count: Int,
 		areaId: Int,
 		authUserInfo: AuthUserInfo
-	): ProductPostController.ListResponse {
+	): ListResponse {
 		if (areaId !in authUserInfo.refAreaIds) {
 			throw BaniException(ErrorType.INVALID_PARAMETER)
 		}
 		val adjAreaIdList = areaService.getAdjAreas(areaId, distance)
 		val fetch = productPostRepository.findByKeywordIgnoreCaseAndSellingArea(cur, keyword, adjAreaIdList)
-		return ProductPostController.ListResponse(
+		return ListResponse(
 			fetch.subList(0, min(15, fetch.size)).map {
-				ProductPostController.PostSummary(
+				PostSummary(
 					id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
 					title = it.title,
 					repImg = it.repImg,
@@ -176,14 +175,14 @@ class ProductPostServiceImpl(
 		}
 	}
 
-	override fun getLikedPosts(userId: Long): List<ProductPostController.PostSummary> {
+	override fun getLikedPosts(userId: Long): List<PostSummary> {
 		return wishListRepository.findByUserId(userId).mapNotNull {
 			val post: ProductPostEntity? = productPostRepository.findById(it.postId).getOrNull()
 			if (post == null) {
 				wishListRepository.delete(it)
 				return@mapNotNull null
 			} else {
-				ProductPostController.PostSummary(
+				PostSummary(
 					id = post.id!!,
 					title = post.title,
 					repImg = post.repImg,
@@ -221,15 +220,15 @@ class ProductPostServiceImpl(
 		count: Int,
 		areaId: Int,
 		authUserInfo: AuthUserInfo
-	): ProductPostController.ListResponse {
+	): ListResponse {
 		if (areaId !in authUserInfo.refAreaIds) {
 			throw BaniException(ErrorType.INVALID_PARAMETER)
 		}
 		val cur = if (count % 300 == 0) Long.MAX_VALUE else cur
 		val fetch = productPostRepository.findRandom(cur, seed, areaService.getAdjAreas(areaId, distance), (count / 300) * 300)
-		return ProductPostController.ListResponse(
+		return ListResponse(
 			fetch.subList(0, min(15, fetch.size)).map {
-				ProductPostController.PostSummary(
+				PostSummary(
 					it.getId(),
 					it.getTitle(),
 					it.getRep_img(),
@@ -276,6 +275,14 @@ class ProductPostServiceImpl(
 			images = it.images.map { it.url },
 			isWish = wishListRepository.existsByUserIdAndPostId(it.author.id, it.id)
 		)
+	}
+
+	override fun bidList(postId: Long): List<BidSummary> {
+		TODO("Not yet implemented")
+	}
+
+	override fun placeBid(userId: Long, id: Long, bidPrice: Int) {
+		TODO("Not yet implemented")
 	}
 }
 
