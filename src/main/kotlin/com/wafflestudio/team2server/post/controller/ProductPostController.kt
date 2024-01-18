@@ -3,7 +3,7 @@ package com.wafflestudio.team2server.post.controller
 import com.wafflestudio.team2server.common.auth.AuthUserInfo
 import com.wafflestudio.team2server.common.error.BaniException
 import com.wafflestudio.team2server.common.error.ErrorType
-import com.wafflestudio.team2server.post.model.ProductPost
+import com.wafflestudio.team2server.post.model.*
 import com.wafflestudio.team2server.post.service.ProductPostService
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -104,52 +104,5 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		return productPostService.searchPostByKeyword(cur, keyword, distance, count, areaId, authUserInfo)
 	}
 
-	data class PostCreateRequest(
-		val areaId: Int,
-		val title: String = "",
-		val description: String = "",
-		val type: String = "NEW",
-		val repImg: String = "",
-		val images: List<String> = listOf(),
-		val offerYn: Boolean = false,
-		val deadline: Long? = null,
-		val sellPrice: Int
-	)
 
-
-	data class PostUpdateRequest(
-		val title: String? = null,
-		val description: String? = null,
-		val type: String? = null,
-		val repImg: String? = null,
-		val images: List<String>? = null,
-		val status: String? = null,
-		val offerYn: Boolean? = null,
-		val deadline: Long? = null,
-		val hiddenYn: Boolean? = null,
-		val sellPrice: Int? = null,
-	)
-
-	data class PostSummary(
-		val id: Long,
-		val title: String,
-		val repImg: String,
-		val createdAt: Long?,
-		val refreshedAt: Long?,
-		val chatCnt: Int,
-		val wishCnt: Int,
-		val sellPrice: Int,
-		val sellingArea: String,
-		val deadline: Long?,
-		val type: String,
-		val status: String,
-	)
-
-	data class ListResponse(
-		val data: List<PostSummary>,
-		val cur: Long,
-		val seed: Int?,
-		val isLast: Boolean,
-		val count: Int,
-	)
 }

@@ -26,7 +26,7 @@ data class ProductPost(
 	// val mannerTemperature: Int,
 	// val categoryId: Long,
 	// val category: String,
-	// val profilePicture: String,
+	val profileImg: String,
 ) {
 	enum class ProductPostStatus {
 		NEW,
