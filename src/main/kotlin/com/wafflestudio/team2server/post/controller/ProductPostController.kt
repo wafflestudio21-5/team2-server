@@ -50,8 +50,8 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@RequestParam(required = false, defaultValue = "true") enable: Boolean,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		if (enable) productPostService.likePost(id, authUserInfo.uid)
-		else productPostService.unlikePost(id, authUserInfo.uid)
+		if (enable) productPostService.likePost(authUserInfo.uid, id)
+		else productPostService.unlikePost(authUserInfo.uid, id)
 	}
 
 	@GetMapping("/posts/wish")
