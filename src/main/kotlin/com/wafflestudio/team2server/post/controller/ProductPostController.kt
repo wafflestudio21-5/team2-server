@@ -120,7 +120,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@PathVariable id: Long,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
 	): List<BidInfo> {
-		return productPostService.bidList(id, authUserInfo)
+		return productPostService.bidList(id)
 	}
 
 	/**

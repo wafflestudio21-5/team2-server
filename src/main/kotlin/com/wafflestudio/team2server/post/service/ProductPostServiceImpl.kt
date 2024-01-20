@@ -283,11 +283,8 @@ class ProductPostServiceImpl(
 			}
 	}
 
-	override fun bidList(postId: Long, authUserInfo: AuthUserInfo): List<BidInfo> {
+	override fun bidList(postId: Long): List<BidInfo> {
 		val postEntity: ProductPostEntity = productPostRepository.findById(postId).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
-		if (postEntity.hiddenYn && postEntity.author.id != authUserInfo.uid) {
-			throw BaniException(ErrorType.POST_NOT_FOUND)
-		}
 		if (postEntity.type != ProductPost.ProductPostType.AUCTION) { // 경매 타입인지 체크
 			throw BaniException(ErrorType.POST_NOT_FOUND)
 		}
@@ -299,6 +296,7 @@ class ProductPostServiceImpl(
 	}
 
 	override fun bid(userId: Long, id: Long, bidPrice: Int, now: Instant) {
+		// TODO: bid 가격 제한 validation
 		// 경매 타입인지 체크
 		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
 		if (postEntity.hiddenYn && postEntity.author.id != userId) {
@@ -322,6 +320,7 @@ class ProductPostServiceImpl(
 	}
 
 	private fun calculateScore(bidPrice: Int, now: Instant): Double {
+		// TODO: 최대 경매 시간 계산하기
 		val epochMilli = now.toEpochMilli()
 		val timeScore = DIGIT - epochMilli * 100 % DIGIT
 		val bidScore = bidPrice.toDouble() * DIGIT

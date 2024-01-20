@@ -31,7 +31,7 @@ class AuctionRepository(
 	}
 
 	fun getBidTop10(postId: Long): Map<Long, Int> {
-		val top10 = zSetOperations.rangeWithScores("$BID_LIST_PREFIX:$postId", 0, 10)
+		val top10 = zSetOperations.reverseRangeWithScores("$BID_LIST_PREFIX:$postId", 0, 10)
 		return top10?.associate {
 			val value = it.value?.toLongOrNull()
 			val score = it.score
