@@ -3,6 +3,7 @@ package com.wafflestudio.team2server.post.service
 import com.wafflestudio.team2server.common.auth.AuthUserInfo
 import com.wafflestudio.team2server.post.model.*
 import com.wafflestudio.team2server.user.model.User
+import java.time.Instant
 
 interface ProductPostService {
 	fun exists(id: Long): Boolean
@@ -16,6 +17,7 @@ interface ProductPostService {
 	fun getLikedPosts(userId: Long): List<PostSummary>
 	fun getLikedUsers(postId: Long): List<User>
 	fun getPostListRandom(cur: Long, seed: Int, distance: Int, count: Int, areaId: Int, authUserInfo: AuthUserInfo): ListResponse
-	fun bidList(postId: Long): List<BidSummary>
-	fun placeBid(userId: Long, id: Long, bidPrice: Int)
+	fun getAuctionPosts(userId: Long): List<BidSummary>
+	fun bidList(postId: Long, authUserInfo: AuthUserInfo): List<BidInfo>
+	fun bid(userId: Long, id: Long, bidPrice: Int, now: Instant)
 }

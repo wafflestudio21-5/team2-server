@@ -7,6 +7,7 @@ import com.wafflestudio.team2server.common.error.ErrorType
 import com.wafflestudio.team2server.common.error.UserNotFoundException
 import com.wafflestudio.team2server.post.model.*
 import com.wafflestudio.team2server.post.repository.*
+import com.wafflestudio.team2server.post.repository.AuctionRepository.Companion.DIGIT
 import com.wafflestudio.team2server.user.model.User
 import com.wafflestudio.team2server.user.repository.UserRepository
 import com.wafflestudio.team2server.user.service.UserService
@@ -24,6 +25,7 @@ class ProductPostServiceImpl(
 	private val userRepository: UserRepository,
 	private val wishListRepository: WishListRepository,
 	private val productPostImageRepository: ProductPostImageRepository,
+	private val auctionRepository: AuctionRepository,
 ) : ProductPostService {
 	override fun exists(id: Long): Boolean {
 		return productPostRepository.findById(id).getOrNull() != null
@@ -35,16 +37,20 @@ class ProductPostServiceImpl(
 		if (postCreateRequest.areaId !in authUserInfo.refAreaIds) {
 			throw BaniException(ErrorType.INVALID_PARAMETER)
 		}
+		val type = when (postCreateRequest.type) {
+			"TRADE" -> ProductPost.ProductPostType.TRADE
+			"SHARE" -> ProductPost.ProductPostType.SHARE
+			"AUCTION" -> ProductPost.ProductPostType.AUCTION
+			else -> throw BaniException(ErrorType.INVALID_PARAMETER)
+		}
+		if (type == ProductPost.ProductPostType.AUCTION && postCreateRequest.deadline == null) {
+			throw BaniException(ErrorType.INVALID_PARAMETER)
+		}
 		val postEntity =
 			ProductPostEntity(
 				title = postCreateRequest.title,
 				description = postCreateRequest.description,
-				type = when (postCreateRequest.type) {
-					"TRADE" -> ProductPost.ProductPostType.TRADE
-					"SHARE" -> ProductPost.ProductPostType.SHARE
-					"AUCTION" -> ProductPost.ProductPostType.AUCTION
-					else -> throw BaniException(ErrorType.INVALID_PARAMETER)
-				},
+				type = type,
 				deadline = Instant.ofEpochMilli(postCreateRequest.deadline ?: 0),
 				author = userRepository.findById(userId)
 					.getOrNull() ?: throw BaniException(ErrorType.USER_NOT_FOUND),
@@ -83,10 +89,15 @@ class ProductPostServiceImpl(
 		target.type = when (postUpdateRequest.type) {
 			"TRADE" -> ProductPost.ProductPostType.TRADE
 			"SHARE" -> ProductPost.ProductPostType.SHARE
-			"AUCTION" -> ProductPost.ProductPostType.AUCTION
+			"AUCTION" -> {
+				if (target.deadline.toEpochMilli() == 0L || postUpdateRequest.deadline == null) {
+					throw BaniException(ErrorType.INVALID_PARAMETER)
+				}
+				ProductPost.ProductPostType.AUCTION
+			}
 			else -> target.type
 		}
-		target.deadline = Instant.ofEpochMilli(postUpdateRequest.deadline ?: 0) ?: target.deadline
+		target.deadline = postUpdateRequest.deadline?.let { Instant.ofEpochMilli(it) } ?: target.deadline
 		target.description = postUpdateRequest.description ?: target.description
 		target.hiddenYn = postUpdateRequest.hiddenYn ?: target.hiddenYn
 		target.status = when (postUpdateRequest.status) {
@@ -149,6 +160,7 @@ class ProductPostServiceImpl(
 		if (postEntity.hiddenYn && postEntity.author.id != userId) {
 			throw BaniException(ErrorType.POST_NOT_FOUND)
 		}
+		// TODO: type이 auction 인 경우 최고가 포함해서 보내기
 		return ProductPost(postEntity, authUserInfo) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
 	}
 
@@ -250,6 +262,72 @@ class ProductPostServiceImpl(
 		)
 	}
 
+	override fun getAuctionPosts(userId: Long): List<BidSummary> {
+		return auctionRepository.getAuctionPosts(userId)
+			.mapNotNull {
+				val post: ProductPostEntity = productPostRepository.findById(it).getOrNull() ?: return@mapNotNull null
+				BidSummary(
+					id = post.id!!,
+					title = post.title,
+					repImg = post.repImg,
+					createdAt = post.createdAt.toEpochMilli(),
+					refreshedAt = post.refreshedAt.toEpochMilli(),
+					chatCnt = post.chatCnt,
+					wishCnt = post.wishCnt,
+					sellPrice = post.sellPrice,
+					sellingArea = areaService.getAreaById(post.sellingArea.id).name,
+					deadline = post.deadline.toEpochMilli(),
+					type = post.type.name,
+					status = post.status.name,
+				)
+			}
+	}
+
+	override fun bidList(postId: Long, authUserInfo: AuthUserInfo): List<BidInfo> {
+		val postEntity: ProductPostEntity = productPostRepository.findById(postId).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
+		if (postEntity.hiddenYn && postEntity.author.id != authUserInfo.uid) {
+			throw BaniException(ErrorType.POST_NOT_FOUND)
+		}
+		if (postEntity.type != ProductPost.ProductPostType.AUCTION) { // 경매 타입인지 체크
+			throw BaniException(ErrorType.POST_NOT_FOUND)
+		}
+		return auctionRepository.getBidTop10(postId)
+			.map {
+				val userEntity = userRepository.findById(it.key).getOrNull() ?: throw UserNotFoundException
+				BidInfo(userEntity.id, userEntity.nickname, it.value)
+			}
+	}
+
+	override fun bid(userId: Long, id: Long, bidPrice: Int, now: Instant) {
+		// 경매 타입인지 체크
+		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
+		if (postEntity.hiddenYn && postEntity.author.id != userId) {
+			throw BaniException(ErrorType.POST_NOT_FOUND)
+		}
+		if (postEntity.type != ProductPost.ProductPostType.AUCTION) {
+			throw BaniException(ErrorType.POST_NOT_FOUND)
+		}
+		// 경매 deadline 지났는지 여부
+		if (now.isAfter(postEntity.deadline)) {
+			throw BaniException(ErrorType.EXPIRED_AUCTION)
+		}
+		// 제시 가격이 최소 가격보다 낮을 때
+		if (bidPrice < postEntity.sellPrice) {
+			throw BaniException(ErrorType.INVALID_BID_PRICE)
+		}
+		// score 계산
+		val score = calculateScore(bidPrice, now)
+		// bidding
+		auctionRepository.bid(id, userId, score)
+	}
+
+	private fun calculateScore(bidPrice: Int, now: Instant): Double {
+		val epochMilli = now.toEpochMilli()
+		val timeScore = DIGIT - epochMilli * 100 % DIGIT
+		val bidScore = bidPrice.toDouble() * DIGIT
+		return bidScore + timeScore
+	}
+
 	fun ProductPost(it: ProductPostEntity?, authUserInfo: AuthUserInfo): ProductPost? {
 		if (it == null) return null
 		return ProductPost(
@@ -278,12 +356,5 @@ class ProductPostServiceImpl(
 		)
 	}
 
-	override fun bidList(postId: Long): List<BidSummary> {
-		TODO("Not yet implemented")
-	}
-
-	override fun placeBid(userId: Long, id: Long, bidPrice: Int) {
-		TODO("Not yet implemented")
-	}
 }
 

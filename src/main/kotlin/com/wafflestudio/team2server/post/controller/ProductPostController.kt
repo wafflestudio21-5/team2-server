@@ -7,6 +7,7 @@ import com.wafflestudio.team2server.post.model.*
 import com.wafflestudio.team2server.post.service.ProductPostService
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
@@ -104,5 +105,34 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		return productPostService.searchPostByKeyword(cur, keyword, distance, count, areaId, authUserInfo)
 	}
 
+	@GetMapping("posts/auction")
+	fun getAuctionList(
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
+	): List<BidSummary> {
+		return productPostService.getAuctionPosts(authUserInfo.uid)
+	}
+
+	/**
+	 * 상위 10위 조회.
+	 */
+	@GetMapping("/posts/auction/{id}")
+	fun getBidList(
+		@PathVariable id: Long,
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
+	): List<BidInfo> {
+		return productPostService.bidList(id, authUserInfo)
+	}
+
+	/**
+	 * 경매하기
+	 */
+	@PostMapping("/posts/auction/{id}")
+	fun bid(
+		@PathVariable id: Long,
+		@RequestBody request: AuctionRequest,
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
+	) {
+		productPostService.bid(authUserInfo.uid, id, request.bidPrice, Instant.now())
+	}
 
 }
