@@ -29,25 +29,6 @@ class ChannelController(
 	): ChannelListResponse {
 		return channelService.getList(authUserInfo.uid)
 	}
-	@Operation(hidden = true,
-		summary = "채팅 상세 조회(무한 스크롤)", description = "ID에 해당하는 채팅방의 상세 정보를 제공한다.",
-		responses = [
-			ApiResponse(responseCode = "200", description = "조회 성공"),
-		])
-	@GetMapping("/{channelId}")
-	fun getChannelDetails(
-		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
-		@PathVariable channelId: Long,
-		@RequestParam(required = false, defaultValue = "30") size: Int,
-		@RequestParam(required = false) firstNo: Long?,
-		@RequestParam(required = false, defaultValue = "false") channelInfo: Boolean
-	): ChannelDetailResponse {
-		return if (firstNo == null) {
-			channelService.getDetailWithoutFirstNo(channelId, size, channelInfo, authUserInfo.uid)
-		} else {
-			channelService.getDetailWithFirstNo(channelId, size, firstNo, channelInfo, authUserInfo.uid)
-		}
-	}
 
 	@Operation(
 		summary = "판매자와의 채팅방 생성", description = "API 요청자와 판매자 간의 채팅방을 생성한 뒤, 해당 채팅방 ID를 반환한다. 이미 존재하는 채팅방이 있다면, 생성하지 않고 기존 채팅방 ID를 반환한다.",
