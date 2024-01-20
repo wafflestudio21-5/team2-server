@@ -20,7 +20,7 @@ class ChannelEntity(
 	@OneToMany(mappedBy = "channel")
 	val channelUsers: List<ChannelUserEntity> = mutableListOf(),
 
-	@OneToMany(mappedBy = "channel_message")
+	@OneToMany(mappedBy = "channel")
 	val channelMessages: List<ChannelMessageEntity> = mutableListOf(),
 
 ) : BaseCreatedDateEntity() {

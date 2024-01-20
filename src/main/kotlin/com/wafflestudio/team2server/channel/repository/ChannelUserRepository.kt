@@ -36,4 +36,6 @@ interface ChannelUserRepository: JpaRepository<ChannelUserEntity, ChannelUserId>
 
 	fun findAllByIdChannelId(channelId: Long): List<ChannelUserEntity>
 
+	fun findByIdChannelIdAndUserId(channelId: Long, userId: Long): ChannelUserEntity?
+
 }
