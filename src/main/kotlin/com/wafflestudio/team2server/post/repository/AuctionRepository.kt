@@ -16,6 +16,8 @@ class AuctionRepository(
 	companion object {
 		const val BID_LIST_PREFIX = "bl"
 
+		const val DEADLINE_AUCTION_PREFIX = "da"
+
 		const val USER_AUCTION_LIST_PREFIX = "ua"
 
 		const val DIGIT = 10000000
@@ -30,15 +32,15 @@ class AuctionRepository(
 		setOperation.add("$USER_AUCTION_LIST_PREFIX:$userId", postId.toString())
 	}
 
-	fun getBidTop10(postId: Long): Map<Long, Int> {
-		val top10 = zSetOperations.reverseRangeWithScores("$BID_LIST_PREFIX:$postId", 0, 10)
+	fun getTopRankBidList(postId: Long, rank: Long): Map<Long, Int> {
+		val top10 = zSetOperations.reverseRangeWithScores("$BID_LIST_PREFIX:$postId", 0, rank)
 		return top10?.associate {
 			val value = it.value?.toLongOrNull()
 			val score = it.score
 			if (value == null || score == null) {
 				return emptyMap()
 			}
-			val bidPrice = (score / DIGIT).toInt()
+			val bidPrice = (score / DIGIT).toInt() * 100
 			value to bidPrice
 		} ?: emptyMap()
 	}
@@ -51,4 +53,5 @@ class AuctionRepository(
 		return setOperation.members("$USER_AUCTION_LIST_PREFIX:$userId")
 			?.mapNotNull { it.toLongOrNull() } ?: emptyList()
 	}
+
 }

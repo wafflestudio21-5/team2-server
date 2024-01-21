@@ -13,6 +13,7 @@ import com.wafflestudio.team2server.user.repository.UserRepository
 import com.wafflestudio.team2server.user.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.Duration
 import java.time.Instant
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.min
@@ -43,15 +44,21 @@ class ProductPostServiceImpl(
 			"AUCTION" -> ProductPost.ProductPostType.AUCTION
 			else -> throw BaniException(ErrorType.INVALID_PARAMETER)
 		}
-		if (type == ProductPost.ProductPostType.AUCTION && postCreateRequest.deadline == null) {
-			throw BaniException(ErrorType.INVALID_PARAMETER)
+		val deadline = Instant.ofEpochMilli(postCreateRequest.deadline ?: 0)
+		if (type == ProductPost.ProductPostType.AUCTION) {
+			val createdAt = Instant.now()
+			val threeMonthsInSecond = 3L * 30 * 24 * 60 * 60
+			if (deadline.isBefore(createdAt) || Duration.between(createdAt, deadline).seconds > threeMonthsInSecond) {
+				// 마감기한이 생성기한 전이거나 마감기한이 3개월 넘어갈 때,
+				throw BaniException(ErrorType.INVALID_DEADLINE)
+			}
 		}
 		val postEntity =
 			ProductPostEntity(
 				title = postCreateRequest.title,
 				description = postCreateRequest.description,
 				type = type,
-				deadline = Instant.ofEpochMilli(postCreateRequest.deadline ?: 0),
+				deadline = deadline,
 				author = userRepository.findById(userId)
 					.getOrNull() ?: throw BaniException(ErrorType.USER_NOT_FOUND),
 				buyerId = -1,
@@ -86,18 +93,21 @@ class ProductPostServiceImpl(
 			target.refreshCnt += 1
 		}
 		target.title = postUpdateRequest.title ?: target.title
+		target.deadline = postUpdateRequest.deadline?.let { Instant.ofEpochMilli(it) } ?: target.deadline // target.type 할당 전에 위치해야 함.
 		target.type = when (postUpdateRequest.type) {
 			"TRADE" -> ProductPost.ProductPostType.TRADE
 			"SHARE" -> ProductPost.ProductPostType.SHARE
 			"AUCTION" -> {
-				if (target.deadline.toEpochMilli() == 0L || postUpdateRequest.deadline == null) {
-					throw BaniException(ErrorType.INVALID_PARAMETER)
+				val createdAt = Instant.now()
+				val threeMonthsInSecond = 3L * 30 * 24 * 60 * 60
+				if (target.deadline.isBefore(createdAt) || Duration.between(createdAt, target.deadline).seconds > threeMonthsInSecond) {
+					// 마감기한이 생성기한 전이거나 마감기한이 3개월 넘어갈 때,
+					throw BaniException(ErrorType.INVALID_DEADLINE)
 				}
 				ProductPost.ProductPostType.AUCTION
 			}
 			else -> target.type
 		}
-		target.deadline = postUpdateRequest.deadline?.let { Instant.ofEpochMilli(it) } ?: target.deadline
 		target.description = postUpdateRequest.description ?: target.description
 		target.hiddenYn = postUpdateRequest.hiddenYn ?: target.hiddenYn
 		target.status = when (postUpdateRequest.status) {
@@ -161,7 +171,21 @@ class ProductPostServiceImpl(
 			throw BaniException(ErrorType.POST_NOT_FOUND)
 		}
 		// TODO: type이 auction 인 경우 최고가 포함해서 보내기
-		return ProductPost(postEntity, authUserInfo) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
+		val maxBidPrice = if (postEntity.type == ProductPost.ProductPostType.AUCTION) {
+			val top = auctionRepository.getTopRankBidList(id, 1)
+				.map {
+					val userEntity = userRepository.findById(it.key).getOrNull() ?: throw UserNotFoundException
+					BidInfo(userEntity.id, userEntity.nickname, it.value)
+				}
+			if (top.isEmpty()) {
+				null
+			} else {
+				top.first()
+			}
+		} else {
+			null
+		}
+		return ProductPost(postEntity, authUserInfo, maxBidPrice) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
 	}
 
 	@Transactional
@@ -288,7 +312,7 @@ class ProductPostServiceImpl(
 		if (postEntity.type != ProductPost.ProductPostType.AUCTION) { // 경매 타입인지 체크
 			throw BaniException(ErrorType.POST_NOT_FOUND)
 		}
-		return auctionRepository.getBidTop10(postId)
+		return auctionRepository.getTopRankBidList(postId, 10)
 			.map {
 				val userEntity = userRepository.findById(it.key).getOrNull() ?: throw UserNotFoundException
 				BidInfo(userEntity.id, userEntity.nickname, it.value)
@@ -296,7 +320,6 @@ class ProductPostServiceImpl(
 	}
 
 	override fun bid(userId: Long, id: Long, bidPrice: Int, now: Instant) {
-		// TODO: bid 가격 제한 validation
 		// 경매 타입인지 체크
 		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
 		if (postEntity.hiddenYn && postEntity.author.id != userId) {
@@ -309,25 +332,24 @@ class ProductPostServiceImpl(
 		if (now.isAfter(postEntity.deadline)) {
 			throw BaniException(ErrorType.EXPIRED_AUCTION)
 		}
-		// 제시 가격이 최소 가격보다 낮을 때
-		if (bidPrice < postEntity.sellPrice) {
+		// 제시 가격이 최소 가격보다 낮을 때 혹은 10억 이상일 때,
+		if (bidPrice < postEntity.sellPrice || bidPrice > 1000000000) {
 			throw BaniException(ErrorType.INVALID_BID_PRICE)
 		}
 		// score 계산
-		val score = calculateScore(bidPrice, now)
+		val score = calculateScore(bidPrice, now, postEntity.createdAt)
 		// bidding
 		auctionRepository.bid(id, userId, score)
 	}
 
-	private fun calculateScore(bidPrice: Int, now: Instant): Double {
-		// TODO: 최대 경매 시간 계산하기
-		val epochMilli = now.toEpochMilli()
-		val timeScore = DIGIT - epochMilli * 100 % DIGIT
-		val bidScore = bidPrice.toDouble() * DIGIT
+	private fun calculateScore(bidPrice: Int, now: Instant, createdAt: Instant): Double {
+		val epochMilli = now.toEpochMilli() - createdAt.toEpochMilli()
+		val timeScore = DIGIT - epochMilli / 100 % DIGIT
+		val bidScore = (bidPrice / 100).toDouble() * DIGIT
 		return bidScore + timeScore
 	}
 
-	fun ProductPost(it: ProductPostEntity?, authUserInfo: AuthUserInfo): ProductPost? {
+	fun ProductPost(it: ProductPostEntity?, authUserInfo: AuthUserInfo, maxBidPrice: BidInfo? = null): ProductPost? {
 		if (it == null) return null
 		return ProductPost(
 			id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
@@ -351,7 +373,8 @@ class ProductPostServiceImpl(
 			description = it.description,
 			images = it.images.map { it.url },
 			isWish = wishListRepository.existsByUserIdAndPostId(authUserInfo.uid, it.id),
-			profileImg = userService.getUser(it.author.id).profileImageUrl ?: ""
+			profileImg = userService.getUser(it.author.id).profileImageUrl ?: "",
+			maxBidPrice = maxBidPrice,
 		)
 	}
 
