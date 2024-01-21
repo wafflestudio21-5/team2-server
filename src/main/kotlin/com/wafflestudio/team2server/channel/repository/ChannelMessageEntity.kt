@@ -15,11 +15,11 @@ class ChannelMessageEntity(
 	val channel: ChannelEntity,
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "sender_id")
 	val sender: UserEntity,
 
 	val message: String,
-	val msgNo: Long = 0L,
+	val msgNo: Long,
 
 	):BaseCreatedDateEntity() {
 }

@@ -3,6 +3,7 @@ package com.wafflestudio.team2server.channel.repository
 import com.wafflestudio.team2server.common.util.BaseCreatedDateEntity
 import com.wafflestudio.team2server.post.repository.ProductPostEntity
 import jakarta.persistence.*
+import org.springframework.data.domain.Persistable
 import java.time.Instant
 
 @Entity(name = "channel")
@@ -23,6 +24,14 @@ class ChannelEntity(
 	@OneToMany(mappedBy = "channel")
 	val channelMessages: List<ChannelMessageEntity> = mutableListOf(),
 
-) : BaseCreatedDateEntity() {
+) : Persistable<Long>, BaseCreatedDateEntity() {
+
+	override fun getId(): Long {
+		return id
+	}
+
+	override fun isNew(): Boolean {
+		return id == 0L
+	}
 
 }

@@ -20,6 +20,7 @@ interface ChannelUserRepository: JpaRepository<ChannelUserEntity, ChannelUserId>
 		JOIN FETCH cu.user u
 		JOIN FETCH cu.channel c
 		JOIN FETCH c.productPost p
+		JOIN FETCH p.sellingArea a
 		WHERE c.id IN :channelIds AND u.id != :myUserId
 	""")
 	fun findChannelInfosByChannelIds(channelIds: Set<Long>, myUserId: Long): List<ChannelUserEntity>
@@ -34,7 +35,7 @@ interface ChannelUserRepository: JpaRepository<ChannelUserEntity, ChannelUserId>
 	fun findChannelInfo(channelId: Long, myUserId: Long): ChannelUserEntity
 
 
-	fun findAllByIdChannelId(channelId: Long): List<ChannelUserEntity>
+	fun findAllByIdChannelId(channelId: Long): Set<ChannelUserEntity>
 
 	fun findByIdChannelIdAndUserId(channelId: Long, userId: Long): ChannelUserEntity?
 

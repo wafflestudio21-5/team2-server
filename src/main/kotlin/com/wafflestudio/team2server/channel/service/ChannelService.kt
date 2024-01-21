@@ -6,10 +6,14 @@ import com.wafflestudio.team2server.post.model.ProductPost
 import com.wafflestudio.team2server.post.repository.ProductPostEntity
 import com.wafflestudio.team2server.post.repository.ProductPostRepository
 import com.wafflestudio.team2server.user.repository.UserRepository
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.Instant
+
+private val logger: KLogger = KotlinLogging.logger { }
 
 @Service
 class ChannelService(
@@ -33,7 +37,7 @@ class ChannelService(
 				channelId = it.channel.id,
 				profileImg = it.user.profileImg,
 				nickname = it.user.nickname,
-				activeArea = "추후 수정", // TODO 추후 수정
+				activeArea = it.channel.productPost.sellingArea.fullName,
 				lastMsg = it.channel.lastMsg,
 				msgUpdatedAt = it.channel.msgUpdatedAt,
 				pinnedAt = myChannelUsers[it.channel.id]!!.pinnedAt
@@ -114,10 +118,11 @@ class ChannelService(
 			)
 		)
 
+		logger.info {"channelId: ${channel.id}"}
+
 		// 2. 채번 테이블 생성하기
 		messageSequenceRepository.save(
 			MessageSequenceEntity(
-				id = channel.id,
 				channel = channel
 			)
 		)
