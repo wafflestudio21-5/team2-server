@@ -77,6 +77,7 @@ create table channel_user
 	pinned_at  datetime,
 	exit_yn    boolean not null default 0,
 	created_at datetime,
+	last_read_msg_id bigint default 0,
 	primary key (user_id, channel_id)
 );
 
@@ -86,7 +87,6 @@ create table channel_message
 	channel_id bigint   not null,
 	sender_id  bigint   not null,
 	message    varchar(500),
-	read_yn    boolean  not null default 0,
 	created_at datetime not null default now(),
 	msg_no     bigint   not null,
 	primary key (id)
