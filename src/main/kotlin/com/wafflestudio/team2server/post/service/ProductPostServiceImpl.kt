@@ -154,6 +154,7 @@ class ProductPostServiceImpl(
 			throw PostNotFoundException
 		}
 		val maxBidPrice = getMaxBidInfo(postEntity)
+		postEntity.viewCnt += 1
 		return toProductPost(postEntity, authUserInfo, maxBidPrice) ?: throw PostNotFoundException
 	}
 
