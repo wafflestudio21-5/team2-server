@@ -2,16 +2,16 @@ package com.wafflestudio.team2server.post.service
 
 import com.wafflestudio.team2server.area.service.AreaService
 import com.wafflestudio.team2server.common.auth.AuthUserInfo
-import com.wafflestudio.team2server.common.error.BaniException
-import com.wafflestudio.team2server.common.error.ErrorType
-import com.wafflestudio.team2server.common.error.UserNotFoundException
+import com.wafflestudio.team2server.common.error.*
 import com.wafflestudio.team2server.post.model.*
 import com.wafflestudio.team2server.post.repository.*
+import com.wafflestudio.team2server.post.repository.AuctionRepository.Companion.DIGIT
 import com.wafflestudio.team2server.user.model.User
 import com.wafflestudio.team2server.user.repository.UserRepository
 import com.wafflestudio.team2server.user.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.Duration
 import java.time.Instant
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.min
@@ -24,6 +24,7 @@ class ProductPostServiceImpl(
 	private val userRepository: UserRepository,
 	private val wishListRepository: WishListRepository,
 	private val productPostImageRepository: ProductPostImageRepository,
+	private val auctionRepository: AuctionRepository,
 ) : ProductPostService {
 	override fun exists(id: Long): Boolean {
 		return productPostRepository.findById(id).getOrNull() != null
@@ -35,17 +36,27 @@ class ProductPostServiceImpl(
 		if (postCreateRequest.areaId !in authUserInfo.refAreaIds) {
 			throw BaniException(ErrorType.INVALID_PARAMETER)
 		}
+		val type = when (postCreateRequest.type) {
+			"TRADE" -> ProductPost.ProductPostType.TRADE
+			"SHARE" -> ProductPost.ProductPostType.SHARE
+			"AUCTION" -> ProductPost.ProductPostType.AUCTION
+			else -> throw BaniException(ErrorType.INVALID_PARAMETER)
+		}
+		val deadline = Instant.ofEpochMilli(postCreateRequest.deadline ?: 0)
+		if (type == ProductPost.ProductPostType.AUCTION) {
+			val createdAt = Instant.now()
+			val threeMonthsInSecond = 3L * 30 * 24 * 60 * 60
+			if (deadline.isBefore(createdAt) || Duration.between(createdAt, deadline).seconds > threeMonthsInSecond) {
+				// 마감기한이 생성기한 전이거나 마감기한이 3개월 넘어갈 때,
+				throw BaniException(ErrorType.INVALID_DEADLINE)
+			}
+		}
 		val postEntity =
 			ProductPostEntity(
 				title = postCreateRequest.title,
 				description = postCreateRequest.description,
-				type = when (postCreateRequest.type) {
-					"TRADE" -> ProductPost.ProductPostType.TRADE
-					"SHARE" -> ProductPost.ProductPostType.SHARE
-					"AUCTION" -> ProductPost.ProductPostType.AUCTION
-					else -> throw BaniException(ErrorType.INVALID_PARAMETER)
-				},
-				deadline = Instant.ofEpochMilli(postCreateRequest.deadline ?: 0),
+				type = type,
+				deadline = deadline,
 				author = userRepository.findById(userId)
 					.getOrNull() ?: throw BaniException(ErrorType.USER_NOT_FOUND),
 				buyerId = -1,
@@ -80,13 +91,21 @@ class ProductPostServiceImpl(
 			target.refreshCnt += 1
 		}
 		target.title = postUpdateRequest.title ?: target.title
+		target.deadline = postUpdateRequest.deadline?.let { Instant.ofEpochMilli(it) } ?: target.deadline // target.type 할당 전에 위치해야 함.
 		target.type = when (postUpdateRequest.type) {
 			"TRADE" -> ProductPost.ProductPostType.TRADE
 			"SHARE" -> ProductPost.ProductPostType.SHARE
-			"AUCTION" -> ProductPost.ProductPostType.AUCTION
+			"AUCTION" -> {
+				val createdAt = Instant.now()
+				val threeMonthsInSecond = 3L * 30 * 24 * 60 * 60
+				if (target.deadline.isBefore(createdAt) || Duration.between(createdAt, target.deadline).seconds > threeMonthsInSecond) {
+					// 마감기한이 생성기한 전이거나 마감기한이 3개월 넘어갈 때,
+					throw BaniException(ErrorType.INVALID_DEADLINE)
+				}
+				ProductPost.ProductPostType.AUCTION
+			}
 			else -> target.type
 		}
-		target.deadline = Instant.ofEpochMilli(postUpdateRequest.deadline ?: 0) ?: target.deadline
 		target.description = postUpdateRequest.description ?: target.description
 		target.hiddenYn = postUpdateRequest.hiddenYn ?: target.hiddenYn
 		target.status = when (postUpdateRequest.status) {
@@ -120,22 +139,7 @@ class ProductPostServiceImpl(
 		val adjAreaIdList = areaService.getAdjAreas(areaId, distance)
 		val fetch = productPostRepository.findByKeywordIgnoreCaseAndSellingArea(cur, keyword, adjAreaIdList)
 		return ListResponse(
-			fetch.subList(0, min(15, fetch.size)).map {
-				PostSummary(
-					id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
-					title = it.title,
-					repImg = it.repImg,
-					createdAt = it.createdAt.toEpochMilli(),
-					refreshedAt = it.refreshedAt.toEpochMilli(),
-					chatCnt = it.chatCnt,
-					wishCnt = it.wishCnt,
-					sellPrice = it.sellPrice,
-					sellingArea = areaService.getAreaById(it.sellingArea.id).name,
-					deadline = it.deadline.toEpochMilli(),
-					type = it.type.name,
-					status = it.status.name,
-				)
-			},
+			fetch.subList(0, min(15, fetch.size)).map { toPostSummary(it) },
 			fetch.getOrNull(fetch.size - 2)?.id ?: 0L,
 			null,
 			fetch.size != 16,
@@ -145,11 +149,13 @@ class ProductPostServiceImpl(
 
 	override fun getPostById(id: Long, authUserInfo: AuthUserInfo): ProductPost {
 		val userId = authUserInfo.uid
-		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
+		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw PostNotFoundException
 		if (postEntity.hiddenYn && postEntity.author.id != userId) {
-			throw BaniException(ErrorType.POST_NOT_FOUND)
+			throw PostNotFoundException
 		}
-		return ProductPost(postEntity, authUserInfo) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
+		val maxBidPrice = getMaxBidInfo(postEntity)
+		postEntity.viewCnt += 1
+		return toProductPost(postEntity, authUserInfo, maxBidPrice) ?: throw PostNotFoundException
 	}
 
 	@Transactional
@@ -182,20 +188,7 @@ class ProductPostServiceImpl(
 				wishListRepository.delete(it)
 				return@mapNotNull null
 			} else {
-				PostSummary(
-					id = post.id!!,
-					title = post.title,
-					repImg = post.repImg,
-					createdAt = post.createdAt.toEpochMilli(),
-					refreshedAt = post.refreshedAt.toEpochMilli(),
-					chatCnt = post.chatCnt,
-					wishCnt = post.wishCnt,
-					sellPrice = post.sellPrice,
-					sellingArea = areaService.getAreaById(post.sellingArea.id).name,
-					deadline = post.deadline.toEpochMilli(),
-					type = post.type.name,
-					status = post.status.name,
-				)
+				toPostSummary(post)
 			}
 		}
 	}
@@ -250,7 +243,66 @@ class ProductPostServiceImpl(
 		)
 	}
 
-	fun ProductPost(it: ProductPostEntity?, authUserInfo: AuthUserInfo): ProductPost? {
+	override fun getAuctionPosts(userId: Long): List<PostSummary> {
+		return auctionRepository.getAuctionPosts(userId)
+			.mapNotNull {
+				toPostSummary(productPostRepository.findById(it).getOrNull() ?: return@mapNotNull null)
+			}
+	}
+
+	override fun bidList(postId: Long): List<BidInfo> {
+		val postEntity: ProductPostEntity = productPostRepository.findById(postId).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
+		if (postEntity.type != ProductPost.ProductPostType.AUCTION) { // 경매 타입인지 체크
+			throw BaniException(ErrorType.POST_NOT_FOUND)
+		}
+		return auctionRepository.getTopRankBidList(postId, 10)
+			.map {
+				val userEntity = userRepository.findById(it.key).getOrNull() ?: throw UserNotFoundException
+				BidInfo(userEntity.id, userEntity.nickname, it.value)
+			}
+	}
+
+	override fun bid(userId: Long, id: Long, bidPrice: Int, now: Instant) {
+		// 경매 타입인지 체크
+		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
+		if ((postEntity.hiddenYn && postEntity.author.id != userId) || postEntity.type != ProductPost.ProductPostType.AUCTION) {
+			throw PostNotFoundException
+		}
+		// 경매 deadline 지났는지 여부
+		if (now.isAfter(postEntity.deadline)) {
+			throw ExpiredAuctionException
+		}
+		// 제시 가격이 제시된 최고 가격(없다면 시작 가격)보다 낮을 때 혹은 10억 이상일 때 예외 반환
+		if ((bidPrice < (getMaxBidInfo(postEntity)?.bidPrice ?: postEntity.sellPrice)) || bidPrice > 1000000000) {
+			throw InvalidBidPriceException
+		}
+		// score 계산
+		val score = calculateScore(bidPrice, now, postEntity.createdAt)
+		// bidding
+		auctionRepository.bid(id, userId, score)
+	}
+
+	private fun calculateScore(bidPrice: Int, now: Instant, createdAt: Instant): Double {
+		val epochMilli = now.toEpochMilli() - createdAt.toEpochMilli()
+		val timeScore = DIGIT - epochMilli / 100 % DIGIT
+		val bidScore = (bidPrice / 100).toDouble() * DIGIT
+		return bidScore + timeScore
+	}
+
+	private fun getMaxBidInfo(postEntity: ProductPostEntity): BidInfo? {
+		return when (postEntity.type) {
+			ProductPost.ProductPostType.AUCTION -> {
+				auctionRepository.getTopRankBidList(postEntity.id ?: throw PostNotFoundException, 1)
+					.map {
+						val userEntity = userRepository.findById(it.key).getOrNull() ?: throw UserNotFoundException
+						BidInfo(userEntity.id, userEntity.nickname, it.value)
+					}.firstOrNull()
+			}
+			else -> null
+		}
+	}
+
+	private fun toProductPost(it: ProductPostEntity?, authUserInfo: AuthUserInfo, maxBidPrice: BidInfo? = null): ProductPost? {
 		if (it == null) return null
 		return ProductPost(
 			id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
@@ -274,16 +326,27 @@ class ProductPostServiceImpl(
 			description = it.description,
 			images = it.images.map { it.url },
 			isWish = wishListRepository.existsByUserIdAndPostId(authUserInfo.uid, it.id),
-			profileImg = userService.getUser(it.author.id).profileImageUrl ?: ""
+			profileImg = userService.getUser(it.author.id).profileImageUrl ?: "",
+			maxBidPrice = maxBidPrice,
 		)
 	}
 
-	override fun bidList(postId: Long): List<BidSummary> {
-		TODO("Not yet implemented")
+	private fun toPostSummary(post: ProductPostEntity): PostSummary {
+		return PostSummary(
+			id = post.id!!,
+			title = post.title,
+			repImg = post.repImg,
+			createdAt = post.createdAt.toEpochMilli(),
+			refreshedAt = post.refreshedAt.toEpochMilli(),
+			chatCnt = post.chatCnt,
+			wishCnt = post.wishCnt,
+			sellPrice = post.sellPrice,
+			sellingArea = areaService.getAreaById(post.sellingArea.id).name,
+			deadline = post.deadline.toEpochMilli(),
+			type = post.type.name,
+			status = post.status.name,
+		)
 	}
 
-	override fun placeBid(userId: Long, id: Long, bidPrice: Int) {
-		TODO("Not yet implemented")
-	}
 }
 

@@ -30,15 +30,16 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-	// websocket
-	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	// json
 	implementation("com.fasterxml.jackson.core:jackson-core:2.16.1")
 	implementation("com.fasterxml.jackson.core:jackson-databind:2.16.1")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	// db
 	runtimeOnly("com.mysql:mysql-connector-j")
+	// redis
+	implementation("redis.clients:jedis:5.1.0")
 	// jwt
 	implementation("com.auth0:java-jwt:4.4.0")
 	implementation("com.auth0:jwks-rsa:0.22.1")

@@ -27,6 +27,7 @@ data class ProductPost(
 	// val categoryId: Long,
 	// val category: String,
 	val profileImg: String,
+	val maxBidPrice: BidInfo? = null,
 ) {
 	enum class ProductPostStatus {
 		NEW,

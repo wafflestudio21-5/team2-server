@@ -45,3 +45,5 @@ object PermissionDeniedException : BaniException(ErrorType.PERMISSION_DENIED)
 object FileNotAvailableException : BaniException(ErrorType.FILE_NOT_AVAILABLE)
 
 object BadFileFormatException : BaniException(ErrorType.BAD_FILE_FORMAT)
+object ExpiredAuctionException : BaniException(ErrorType.EXPIRED_AUCTION)
+object InvalidBidPriceException : BaniException(ErrorType.INVALID_BID_PRICE)

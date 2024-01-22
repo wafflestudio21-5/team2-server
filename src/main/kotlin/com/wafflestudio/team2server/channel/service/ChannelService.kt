@@ -2,18 +2,13 @@ package com.wafflestudio.team2server.channel.service
 
 import com.wafflestudio.team2server.channel.repository.*
 import com.wafflestudio.team2server.common.error.*
-import com.wafflestudio.team2server.post.model.ProductPost
 import com.wafflestudio.team2server.post.repository.ProductPostEntity
 import com.wafflestudio.team2server.post.repository.ProductPostRepository
 import com.wafflestudio.team2server.user.repository.UserRepository
-import io.github.oshai.kotlinlogging.KLogger
-import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.Instant
-
-private val logger: KLogger = KotlinLogging.logger { }
 
 @Service
 class ChannelService(
@@ -21,12 +16,11 @@ class ChannelService(
 	private val channelRepository: ChannelRepository,
 	private val userRepository: UserRepository,
 	private val productPostRepository: ProductPostRepository,
-	private val messageSequenceRepository: MessageSequenceRepository,
 ) {
 
 	fun getList(userId: Long): ChannelListResponse {
 		// 내가 포함된 채팅창 ID들 리스트 가져오기
-		val myChannelUsers = channelUserRepository.findChannelsByUserId(userId).associateBy { it.channel.id }
+		val myChannelUsers = channelUserRepository.findChannelIdsByUserId(userId).associateBy { it.channel.id }
 		val channelIds = myChannelUsers.keys
 
 		// 채팅창 ID 들을 기준으로 채팅방 정보, 채팅중인 상대방의 정보 가져오기
@@ -37,7 +31,7 @@ class ChannelService(
 				channelId = it.channel.id,
 				profileImg = it.user.profileImg,
 				nickname = it.user.nickname,
-				activeArea = it.channel.productPost.sellingArea.fullName,
+				activeArea = "추후 수정", // TODO 추후 수정
 				lastMsg = it.channel.lastMsg,
 				msgUpdatedAt = it.channel.msgUpdatedAt,
 				pinnedAt = myChannelUsers[it.channel.id]!!.pinnedAt
@@ -50,7 +44,6 @@ class ChannelService(
 		return ChannelListResponse(pinned = pinned, normal = normal)
 
 	}
-
 
 	@Transactional
 	fun createChannel(userId: Long, postId: Long): ChannelCreateResponse {
@@ -117,17 +110,7 @@ class ChannelService(
 				productPost = productPost
 			)
 		)
-
-		logger.info {"channelId: ${channel.id}"}
-
-		// 2. 채번 테이블 생성하기
-		messageSequenceRepository.save(
-			MessageSequenceEntity(
-				channel = channel
-			)
-		)
-
-		// 3. 구매자, 판매자(게시글 작성자) 등록하기
+		// 2. 구매자, 판매자(게시글 작성자) 등록하기
 		saveChannelUser(userId, channel)
 		saveChannelUser(authorId, channel)
 
@@ -199,11 +182,3 @@ data class ChannelUnpinResponse(
 	@Schema(description = "채팅방 식별자(ID)")
 	val channelId: Long
 )
-
-
-
-
-
-
-
-
