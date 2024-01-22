@@ -5,6 +5,7 @@ import com.wafflestudio.team2server.common.auth.AuthUserInfo
 import com.wafflestudio.team2server.common.error.BaniException
 import com.wafflestudio.team2server.common.error.ErrorType
 import com.wafflestudio.team2server.community.model.*
+import com.wafflestudio.team2server.community.repos.CommunityImageEntity
 import com.wafflestudio.team2server.community.repository.*
 import com.wafflestudio.team2server.user.repository.UserRepository
 import jakarta.transaction.Transactional
@@ -20,7 +21,8 @@ class CommunityServiceImpl(
 	private val communityLikeRepository: CommunityLikeRepository,
 	private val commentRepository: CommentRepository,
 	private val commentLikeRepository: CommentLikeRepository,
-	private val areaService: AreaService
+	private val areaService: AreaService,
+	private val communityImageRepository: CommunityImageRepository
 ) : CommunityService {
 	override fun getCommunityList(cur: Long, seed: Int, distance: Int, count: Int, areaId: Int, authUserInfo: AuthUserInfo): CommunityListResponse {
 		check(areaId in authUserInfo.refAreaIds) {
@@ -73,6 +75,11 @@ class CommunityServiceImpl(
 			chatCnt = 0,
 			repImg = communityRequest.repImg,
 		)
+		val imageLists = communityRequest.images.map {
+			CommunityImageEntity(url = it, community = community)
+		}
+		community.images = imageLists
+		communityImageRepository.saveAll(imageLists)
 		communityRepository.save(community)
 	}
 
