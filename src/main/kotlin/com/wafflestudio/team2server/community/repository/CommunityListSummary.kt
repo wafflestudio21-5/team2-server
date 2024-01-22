@@ -11,6 +11,6 @@ interface CommunityListSummary {
 	fun getLikeCnt(): Int
 	fun getChatCnt(): Int
 	fun getDescription(): String
-	fun getAreaId(): Long
+	fun getAreaInfo(): String
 	fun getEnd(): Long
 }

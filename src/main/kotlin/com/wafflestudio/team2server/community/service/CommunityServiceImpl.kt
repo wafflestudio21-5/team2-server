@@ -39,7 +39,7 @@ class CommunityServiceImpl(
 					it.getLikeCnt(),
 					it.getChatCnt(),
 					it.getDescription(),
-					it.getAreaId()
+					it.getAreaInfo()
 				)
 			},
 			fetch.getOrNull(fetch.size - 2)?.getEnd() ?: 0L,
@@ -50,24 +50,28 @@ class CommunityServiceImpl(
 	}
 	override fun findCommunityById(id: Long): Community {
 		val community: CommunityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
+		community.viewCnt++
+		communityRepository.save(community)
 		return Community(community)
-		// 추후 viewCnt 관련 로직 추가
 	}
 
 	@Transactional
-	override fun create(communityRequest: CommunityRequest, userId: Long) {
+	override fun create(communityRequest: CommunityRequest, authUserInfo: AuthUserInfo) {
+		val userId = authUserInfo.uid
 		val user = userRepository.findById(userId).getOrNull() ?: throw BaniException(ErrorType.UNAUTHORIZED)
-		// areaId, repImg 추후 수정
+		if (communityRequest.areaId !in authUserInfo.refAreaIds) {
+			throw BaniException(ErrorType.INVALID_PARAMETER)
+		}
 		val community = CommunityEntity(
 			author = user,
-			areaId = 0,
+			areaInfo = areaService.getAreaById(communityRequest.areaId),
 			createdAt = Instant.now(),
 			title = communityRequest.title,
 			description = communityRequest.description,
 			viewCnt = 0,
 			likeCnt = 0,
 			chatCnt = 0,
-			repImg = "",
+			repImg = communityRequest.repImg,
 		)
 		communityRepository.save(community)
 	}

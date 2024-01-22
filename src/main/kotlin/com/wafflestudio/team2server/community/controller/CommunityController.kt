@@ -34,7 +34,7 @@ class CommunityController(private val communityService: CommunityService) {
 		@RequestBody communityRequest: CommunityRequest,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		communityService.create(communityRequest, authUserInfo.uid)
+		communityService.create(communityRequest, authUserInfo)
 	}
 
 	@GetMapping("/{communityId}")
