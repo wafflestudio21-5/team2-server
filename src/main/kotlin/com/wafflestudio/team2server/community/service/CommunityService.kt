@@ -13,4 +13,5 @@ interface CommunityService {
 	fun createComment(commentRequest: CommunityController.CommentRequest, userId: Long, id: Long)
 	fun updateComment(commentUpdateRequest: CommunityController.CommentUpdateRequest, userId: Long, id: Long, commentId: Long)
 	fun deleteComment(userId: Long, id: Long, commentId: Long)
+	fun likeComment(userId: Long, id: Long, commentId: Long)
 }

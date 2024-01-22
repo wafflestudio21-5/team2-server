@@ -93,6 +93,15 @@ class CommunityController(private val communityService: CommunityService) {
 		communityService.deleteComment(authUserInfo.uid, communityId, commentId)
 	}
 
+	@PostMapping("/{communityId}/{commentId}")
+	fun likeComment (
+		@PathVariable communityId: Long,
+		@PathVariable commentId: Long,
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo
+	) {
+		communityService.likeComment(authUserInfo.uid, communityId, commentId)
+	}
+
 	data class CommunityRequest(
 		val title: String = "",
 		val description: String = "",
