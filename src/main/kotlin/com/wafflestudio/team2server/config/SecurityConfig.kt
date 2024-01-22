@@ -39,6 +39,7 @@ class SecurityConfig {
 				authorize("/v3/api-docs/**", permitAll)
 				authorize("/swagger-resources/**", permitAll)
 				authorize("/ws/**", permitAll)
+				authorize("/image/**", permitAll)
 				authorize(anyRequest, authenticated)
 			}
 		}
