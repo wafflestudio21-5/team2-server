@@ -1,17 +1,18 @@
 package com.wafflestudio.team2server.community.service;
 
-import com.wafflestudio.team2server.community.controller.CommunityController
-import com.wafflestudio.team2server.community.model.Community;
+import com.wafflestudio.team2server.common.auth.AuthUserInfo
+import com.wafflestudio.team2server.community.model.*
 
 interface CommunityService {
-	fun getCommunityList(cur: Long, seed: Int, areaId: Int, distance: Int): CommunityController.ListResponse
+	fun getCommunityList(cur: Long, seed: Int, distance: Int, count: Int, areaId: Int, authUserInfo: AuthUserInfo): CommunityListResponse
 	fun findCommunityById(id: Long): Community
-	fun create(communityRequest: CommunityController.CommunityRequest, userId: Long)
-	fun update(communityRequest: CommunityController.CommunityUpdateRequest, userId: Long, id:Long)
+	fun create(communityRequest: CommunityRequest, userId: Long)
+	fun update(communityRequest: CommunityUpdateRequest, userId: Long, id:Long)
 	fun delete(userId: Long, id:Long)
 	fun likeCommunity(userId: Long, id: Long)
-	fun createComment(commentRequest: CommunityController.CommentRequest, userId: Long, id: Long)
-	fun updateComment(commentUpdateRequest: CommunityController.CommentUpdateRequest, userId: Long, id: Long, commentId: Long)
+	fun createComment(commentRequest: CommentRequest, userId: Long, id: Long)
+	fun updateComment(commentUpdateRequest: CommentUpdateRequest, userId: Long, id: Long, commentId: Long)
 	fun deleteComment(userId: Long, id: Long, commentId: Long)
 	fun likeComment(userId: Long, id: Long, commentId: Long)
+	fun getCommentList(userId: Long, id: Long): List<CommentListResponse>
 }

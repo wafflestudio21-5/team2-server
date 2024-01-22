@@ -1,15 +1,17 @@
 package com.wafflestudio.team2server.community.service;
 
+import com.wafflestudio.team2server.area.service.AreaService
+import com.wafflestudio.team2server.common.auth.AuthUserInfo
 import com.wafflestudio.team2server.common.error.BaniException
 import com.wafflestudio.team2server.common.error.ErrorType
-import com.wafflestudio.team2server.community.controller.CommunityController
-import com.wafflestudio.team2server.community.model.Community
+import com.wafflestudio.team2server.community.model.*
 import com.wafflestudio.team2server.community.repository.*
 import com.wafflestudio.team2server.user.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.Instant
 import kotlin.jvm.optionals.getOrNull
+import kotlin.math.min
 
 @Service
 class CommunityServiceImpl(
@@ -17,10 +19,34 @@ class CommunityServiceImpl(
 	private val userRepository: UserRepository,
 	private val communityLikeRepository: CommunityLikeRepository,
 	private val commentRepository: CommentRepository,
-	private val commentLikeRepository: CommentLikeRepository
+	private val commentLikeRepository: CommentLikeRepository,
+	private val areaService: AreaService
 ) : CommunityService {
-	override fun getCommunityList(cur: Long, seed: Int, areaId: Int, distance: Int): CommunityController.ListResponse {
-		TODO("Not yet implemented")
+	override fun getCommunityList(cur: Long, seed: Int, distance: Int, count: Int, areaId: Int, authUserInfo: AuthUserInfo): CommunityListResponse {
+		check(areaId in authUserInfo.refAreaIds) {
+			throw BaniException(ErrorType.INVALID_PARAMETER)
+		}
+		val cur = if (count % 300 == 0) Long.MAX_VALUE else cur
+		val fetch = communityRepository.findRandom(cur, seed, areaService.getAdjAreas(areaId, distance), (count/300)*300)
+		return CommunityListResponse(
+			fetch.subList(0, min(15, fetch.size)).map {
+				CommunitySummary(
+					it.getId(),
+					it.getTitle(),
+					it.getRepimg(),
+					it.getCreatedAt(),
+					it.getViewCnt(),
+					it.getLikeCnt(),
+					it.getChatCnt(),
+					it.getDescription(),
+					it.getAreaId()
+				)
+			},
+			fetch.getOrNull(fetch.size - 2)?.getEnd() ?: 0L,
+			seed,
+			fetch.size != 16,
+			count + fetch.subList(0, min(15, fetch.size)).size
+		)
 	}
 	override fun findCommunityById(id: Long): Community {
 		val community: CommunityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
@@ -29,7 +55,7 @@ class CommunityServiceImpl(
 	}
 
 	@Transactional
-	override fun create(communityRequest: CommunityController.CommunityRequest, userId: Long) {
+	override fun create(communityRequest: CommunityRequest, userId: Long) {
 		val user = userRepository.findById(userId).getOrNull() ?: throw BaniException(ErrorType.UNAUTHORIZED)
 		// areaId, repImg 추후 수정
 		val community = CommunityEntity(
@@ -47,7 +73,7 @@ class CommunityServiceImpl(
 	}
 
 	@Transactional
-	override fun update(communityRequest: CommunityController.CommunityUpdateRequest, userId: Long, id: Long) {
+	override fun update(communityRequest: CommunityUpdateRequest, userId: Long, id: Long) {
 		val community = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
 		if (community.author.id != userId) {
 			throw BaniException(ErrorType.UNAUTHORIZED)
@@ -84,8 +110,35 @@ class CommunityServiceImpl(
 		communityRepository.save(community)
 	}
 
+	override fun getCommentList(userId: Long, id: Long): List<CommentListResponse> {
+		val comments = commentRepository.findByCommunityId(id)
+		val response = comments.map {
+			val childComments = commentRepository.findByParentId(it.id).map{
+				CommentSummary(
+					it.id,
+					it.author.nickname,
+					it.comment,
+					it.imgUrl,
+					it.createdAt,
+					it.likeCnt,
+				)
+			}
+
+			CommentListResponse(
+				it.id,
+				it.author.nickname,
+				it.comment,
+				it.imgUrl,
+				it.createdAt,
+				it.likeCnt,
+				childComments
+			)
+		}
+		return response
+	}
+
 	@Transactional
-	override fun createComment(commentRequest: CommunityController.CommentRequest, userId: Long, id: Long) {
+	override fun createComment(commentRequest: CommentRequest, userId: Long, id: Long) {
 		val user = userRepository.findById(userId).getOrNull() ?: throw BaniException(ErrorType.UNAUTHORIZED)
 		val community = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
 		val comment = CommentEntity(
@@ -102,7 +155,7 @@ class CommunityServiceImpl(
 	}
 
 	@Transactional
-	override fun updateComment(commentUpdateRequest: CommunityController.CommentUpdateRequest, userId: Long, id: Long, commentId: Long) {
+	override fun updateComment(commentUpdateRequest: CommentUpdateRequest, userId: Long, id: Long, commentId: Long) {
 		val comment = commentRepository.findById(commentId).getOrNull() ?: throw BaniException(ErrorType.COMMENT_NOT_FOUND)
 		if (comment.author.id != userId) {
 			throw BaniException(ErrorType.UNAUTHORIZED)

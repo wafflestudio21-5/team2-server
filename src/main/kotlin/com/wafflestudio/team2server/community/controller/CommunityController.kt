@@ -1,7 +1,7 @@
 package com.wafflestudio.team2server.community.controller
 
 import com.wafflestudio.team2server.common.auth.AuthUserInfo
-import com.wafflestudio.team2server.community.model.Community
+import com.wafflestudio.team2server.community.model.*
 import com.wafflestudio.team2server.community.service.CommunityService
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -18,13 +18,15 @@ class CommunityController(private val communityService: CommunityService) {
 		@RequestParam(required = false, defaultValue = Long.MAX_VALUE.toString()) cur: Long,
 		@RequestParam(required = false, defaultValue = "0") seed: Int,
 		@RequestParam(required = false, defaultValue = "1") distance: Int,
+		@RequestParam(required = false, defaultValue = "0") count: Int,
+		@RequestParam(required = true) areaId: Int,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
-	) : ListResponse {
+	): CommunityListResponse {
 		val seed = when (seed) {
 			0 -> Random.nextInt().absoluteValue
 			else -> seed
 		}
-		return communityService.getCommunityList(cur, seed, authUserInfo.refAreaIds[0], distance)
+		return communityService.getCommunityList(cur, seed, distance, count, areaId, authUserInfo)
 	}
 
 	@PostMapping("")
@@ -65,6 +67,14 @@ class CommunityController(private val communityService: CommunityService) {
 		communityService.likeCommunity(authUserInfo.uid, communityId)
 	}
 
+	@GetMapping("/{communityId}/chat")
+	fun getCommentList(
+		@PathVariable communityId: Long,
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo
+	): List<CommentListResponse> {
+		return communityService.getCommentList(authUserInfo.uid, communityId)
+	}
+
 	@PostMapping("/{communityId}/comment")
 	fun postComment(
 		@PathVariable communityId: Long,
@@ -102,38 +112,5 @@ class CommunityController(private val communityService: CommunityService) {
 		communityService.likeComment(authUserInfo.uid, communityId, commentId)
 	}
 
-	data class CommunityRequest(
-		val title: String = "",
-		val description: String = "",
-	)
-	data class CommunityUpdateRequest(
-		val title: String?,
-		val description: String?,
-	)
 
-	data class CommentRequest(
-		val comment: String = "",
-		val parentId: Long
-	)
-
-	data class CommentUpdateRequest(
-		val comment: String?
-	)
-	data class CommunitySummary(
-		val id: Long,
-		val title: String,
-		val repImg: String,
-		val createdAt: Long?,
-		val viewCnt: Int,
-		val likeCnt: Int,
-		val chatCnt: Int,
-		val description: String,
-		val areaId: Long
-	)
-	data class ListResponse(
-		val data: List<CommunitySummary>,
-		val cur: Long,
-		val seed: Int?,
-		val isLast: Boolean
-	)
 }
