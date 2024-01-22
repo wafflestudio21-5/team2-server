@@ -28,4 +28,9 @@ class UserServiceTest @Autowired constructor(
 		userService.deleteUser(11)
 	}
 
+	@Test
+	fun `매너온도 업데이트 테스트`() {
+		userService.updateMannerTemperature(33, 0.1)
+	}
+
 }

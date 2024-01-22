@@ -1,8 +1,10 @@
 package com.wafflestudio.team2server.user.controller
 
 import com.wafflestudio.team2server.common.auth.AuthUserInfo
+import com.wafflestudio.team2server.common.auth.TokenGenerator
 import com.wafflestudio.team2server.common.error.*
 import com.wafflestudio.team2server.user.model.AuthProvider
+import com.wafflestudio.team2server.user.model.TokenResponse
 import com.wafflestudio.team2server.user.model.User
 import com.wafflestudio.team2server.user.service.UserService
 import io.swagger.v3.oas.annotations.Operation
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class UserController(
 	private val userService: UserService,
+	private val tokenGenerator: TokenGenerator,
 ) {
 
 	@Operation(
@@ -80,6 +83,29 @@ class UserController(
 		return userService.getUser(user.uid)
 	}
 
+	@PostMapping("/user/refArea")
+	fun addRefArea(@AuthenticationPrincipal user: AuthUserInfo, request: RefAreaRequest): TokenResponse {
+		if (user.refAreaIds.size > 2) {
+			throw InvalidAreaCountException
+		}
+		val refAreaId = userService.addRefArea(user.uid, request.refAreaId)
+		val newRefAreaIds = (user.refAreaIds + refAreaId).distinct()
+		val token = tokenGenerator.create(user.uid, newRefAreaIds, user.isAdmin)
+		return TokenResponse(user.uid, newRefAreaIds, user.isAdmin, token)
+	}
+
+	@DeleteMapping("/user/refArea")
+	fun deleteRefArea(@AuthenticationPrincipal user: AuthUserInfo, request: RefAreaRequest): TokenResponse {
+		val refAreaId = request.refAreaId
+		if (user.refAreaIds.size > 1 && !user.refAreaIds.contains(refAreaId)) {
+			throw InvalidAreaCountException
+		}
+		userService.deleteRefArea(user.uid, refAreaId)
+		val newRefAreaIds = user.refAreaIds.filter { it != refAreaId }
+		val token = tokenGenerator.create(user.uid, newRefAreaIds, user.isAdmin)
+		return TokenResponse(user.uid, newRefAreaIds, user.isAdmin, token)
+	}
+
 	data class SignupRequest(
 		@field:Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,6}$", message = "이메일 형식이 올바르지 않습니다.")
 		val email: String,
@@ -105,6 +131,10 @@ class UserController(
 		@field:Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{2,10}$", message = "닉네임은 특수문자를 제외한 2~10자리여야 합니다.")
 		val nickname: String?,
 		val profileImage: String?,
+	)
+
+	data class RefAreaRequest(
+		val refAreaId: Int,
 	)
 
 	data class SignupResponse(val user: User)

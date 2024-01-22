@@ -28,7 +28,9 @@ class StorageService(
 			objectMetadata.contentLength = file.size
 			objectMetadata.contentType = file.contentType
 			amazonS3.putObject(
-				PutObjectRequest(bucket, fileName, file.inputStream, objectMetadata)
+				PutObjectRequest(bucket, fileName, file.inputStream, objectMetadata).withCannedAcl(
+					com.amazonaws.services.s3.model.CannedAccessControlList.PublicRead
+				)
 			)
 			amazonS3.getUrl(bucket, fileName).toString()
 		}
