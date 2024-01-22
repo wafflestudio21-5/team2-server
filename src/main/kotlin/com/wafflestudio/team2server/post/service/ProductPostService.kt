@@ -17,7 +17,7 @@ interface ProductPostService {
 	fun getLikedPosts(userId: Long): List<PostSummary>
 	fun getLikedUsers(postId: Long): List<User>
 	fun getPostListRandom(cur: Long, seed: Int, distance: Int, count: Int, areaId: Int, authUserInfo: AuthUserInfo): ListResponse
-	fun getAuctionPosts(userId: Long): List<BidSummary>
+	fun getAuctionPosts(userId: Long): List<PostSummary>
 	fun bidList(postId: Long): List<BidInfo>
 	fun bid(userId: Long, id: Long, bidPrice: Int, now: Instant)
 }

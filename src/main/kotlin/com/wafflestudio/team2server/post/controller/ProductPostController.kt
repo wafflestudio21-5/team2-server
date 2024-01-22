@@ -108,7 +108,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 	@GetMapping("posts/auction")
 	fun getAuctionList(
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
-	): List<BidSummary> {
+	): List<PostSummary> {
 		return productPostService.getAuctionPosts(authUserInfo.uid)
 	}
 

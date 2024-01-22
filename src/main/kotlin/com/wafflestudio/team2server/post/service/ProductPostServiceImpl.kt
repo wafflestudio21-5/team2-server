@@ -2,9 +2,7 @@ package com.wafflestudio.team2server.post.service
 
 import com.wafflestudio.team2server.area.service.AreaService
 import com.wafflestudio.team2server.common.auth.AuthUserInfo
-import com.wafflestudio.team2server.common.error.BaniException
-import com.wafflestudio.team2server.common.error.ErrorType
-import com.wafflestudio.team2server.common.error.UserNotFoundException
+import com.wafflestudio.team2server.common.error.*
 import com.wafflestudio.team2server.post.model.*
 import com.wafflestudio.team2server.post.repository.*
 import com.wafflestudio.team2server.post.repository.AuctionRepository.Companion.DIGIT
@@ -141,22 +139,7 @@ class ProductPostServiceImpl(
 		val adjAreaIdList = areaService.getAdjAreas(areaId, distance)
 		val fetch = productPostRepository.findByKeywordIgnoreCaseAndSellingArea(cur, keyword, adjAreaIdList)
 		return ListResponse(
-			fetch.subList(0, min(15, fetch.size)).map {
-				PostSummary(
-					id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
-					title = it.title,
-					repImg = it.repImg,
-					createdAt = it.createdAt.toEpochMilli(),
-					refreshedAt = it.refreshedAt.toEpochMilli(),
-					chatCnt = it.chatCnt,
-					wishCnt = it.wishCnt,
-					sellPrice = it.sellPrice,
-					sellingArea = areaService.getAreaById(it.sellingArea.id).name,
-					deadline = it.deadline.toEpochMilli(),
-					type = it.type.name,
-					status = it.status.name,
-				)
-			},
+			fetch.subList(0, min(15, fetch.size)).map { toPostSummary(it) },
 			fetch.getOrNull(fetch.size - 2)?.id ?: 0L,
 			null,
 			fetch.size != 16,
@@ -166,26 +149,12 @@ class ProductPostServiceImpl(
 
 	override fun getPostById(id: Long, authUserInfo: AuthUserInfo): ProductPost {
 		val userId = authUserInfo.uid
-		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
+		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw PostNotFoundException
 		if (postEntity.hiddenYn && postEntity.author.id != userId) {
-			throw BaniException(ErrorType.POST_NOT_FOUND)
+			throw PostNotFoundException
 		}
-		// TODO: type이 auction 인 경우 최고가 포함해서 보내기
-		val maxBidPrice = if (postEntity.type == ProductPost.ProductPostType.AUCTION) {
-			val top = auctionRepository.getTopRankBidList(id, 1)
-				.map {
-					val userEntity = userRepository.findById(it.key).getOrNull() ?: throw UserNotFoundException
-					BidInfo(userEntity.id, userEntity.nickname, it.value)
-				}
-			if (top.isEmpty()) {
-				null
-			} else {
-				top.first()
-			}
-		} else {
-			null
-		}
-		return ProductPost(postEntity, authUserInfo, maxBidPrice) ?: throw BaniException(ErrorType.POST_NOT_FOUND)
+		val maxBidPrice = getMaxBidInfo(postEntity)
+		return toProductPost(postEntity, authUserInfo, maxBidPrice) ?: throw PostNotFoundException
 	}
 
 	@Transactional
@@ -218,20 +187,7 @@ class ProductPostServiceImpl(
 				wishListRepository.delete(it)
 				return@mapNotNull null
 			} else {
-				PostSummary(
-					id = post.id!!,
-					title = post.title,
-					repImg = post.repImg,
-					createdAt = post.createdAt.toEpochMilli(),
-					refreshedAt = post.refreshedAt.toEpochMilli(),
-					chatCnt = post.chatCnt,
-					wishCnt = post.wishCnt,
-					sellPrice = post.sellPrice,
-					sellingArea = areaService.getAreaById(post.sellingArea.id).name,
-					deadline = post.deadline.toEpochMilli(),
-					type = post.type.name,
-					status = post.status.name,
-				)
+				toPostSummary(post)
 			}
 		}
 	}
@@ -286,24 +242,10 @@ class ProductPostServiceImpl(
 		)
 	}
 
-	override fun getAuctionPosts(userId: Long): List<BidSummary> {
+	override fun getAuctionPosts(userId: Long): List<PostSummary> {
 		return auctionRepository.getAuctionPosts(userId)
 			.mapNotNull {
-				val post: ProductPostEntity = productPostRepository.findById(it).getOrNull() ?: return@mapNotNull null
-				BidSummary(
-					id = post.id!!,
-					title = post.title,
-					repImg = post.repImg,
-					createdAt = post.createdAt.toEpochMilli(),
-					refreshedAt = post.refreshedAt.toEpochMilli(),
-					chatCnt = post.chatCnt,
-					wishCnt = post.wishCnt,
-					sellPrice = post.sellPrice,
-					sellingArea = areaService.getAreaById(post.sellingArea.id).name,
-					deadline = post.deadline.toEpochMilli(),
-					type = post.type.name,
-					status = post.status.name,
-				)
+				toPostSummary(productPostRepository.findById(it).getOrNull() ?: return@mapNotNull null)
 			}
 	}
 
@@ -322,19 +264,16 @@ class ProductPostServiceImpl(
 	override fun bid(userId: Long, id: Long, bidPrice: Int, now: Instant) {
 		// 경매 타입인지 체크
 		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
-		if (postEntity.hiddenYn && postEntity.author.id != userId) {
-			throw BaniException(ErrorType.POST_NOT_FOUND)
-		}
-		if (postEntity.type != ProductPost.ProductPostType.AUCTION) {
-			throw BaniException(ErrorType.POST_NOT_FOUND)
+		if ((postEntity.hiddenYn && postEntity.author.id != userId) || postEntity.type != ProductPost.ProductPostType.AUCTION) {
+			throw PostNotFoundException
 		}
 		// 경매 deadline 지났는지 여부
 		if (now.isAfter(postEntity.deadline)) {
-			throw BaniException(ErrorType.EXPIRED_AUCTION)
+			throw ExpiredAuctionException
 		}
-		// 제시 가격이 최소 가격보다 낮을 때 혹은 10억 이상일 때,
-		if (bidPrice < postEntity.sellPrice || bidPrice > 1000000000) {
-			throw BaniException(ErrorType.INVALID_BID_PRICE)
+		// 제시 가격이 제시된 최고 가격(없다면 시작 가격)보다 낮을 때 혹은 10억 이상일 때 예외 반환
+		if ((bidPrice < (getMaxBidInfo(postEntity)?.bidPrice ?: postEntity.sellPrice)) || bidPrice > 1000000000) {
+			throw InvalidBidPriceException
 		}
 		// score 계산
 		val score = calculateScore(bidPrice, now, postEntity.createdAt)
@@ -349,7 +288,20 @@ class ProductPostServiceImpl(
 		return bidScore + timeScore
 	}
 
-	fun ProductPost(it: ProductPostEntity?, authUserInfo: AuthUserInfo, maxBidPrice: BidInfo? = null): ProductPost? {
+	private fun getMaxBidInfo(postEntity: ProductPostEntity): BidInfo? {
+		return when (postEntity.type) {
+			ProductPost.ProductPostType.AUCTION -> {
+				auctionRepository.getTopRankBidList(postEntity.id ?: throw PostNotFoundException, 1)
+					.map {
+						val userEntity = userRepository.findById(it.key).getOrNull() ?: throw UserNotFoundException
+						BidInfo(userEntity.id, userEntity.nickname, it.value)
+					}.firstOrNull()
+			}
+			else -> null
+		}
+	}
+
+	private fun toProductPost(it: ProductPostEntity?, authUserInfo: AuthUserInfo, maxBidPrice: BidInfo? = null): ProductPost? {
 		if (it == null) return null
 		return ProductPost(
 			id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
@@ -375,6 +327,23 @@ class ProductPostServiceImpl(
 			isWish = wishListRepository.existsByUserIdAndPostId(authUserInfo.uid, it.id),
 			profileImg = userService.getUser(it.author.id).profileImageUrl ?: "",
 			maxBidPrice = maxBidPrice,
+		)
+	}
+
+	private fun toPostSummary(post: ProductPostEntity): PostSummary {
+		return PostSummary(
+			id = post.id!!,
+			title = post.title,
+			repImg = post.repImg,
+			createdAt = post.createdAt.toEpochMilli(),
+			refreshedAt = post.refreshedAt.toEpochMilli(),
+			chatCnt = post.chatCnt,
+			wishCnt = post.wishCnt,
+			sellPrice = post.sellPrice,
+			sellingArea = areaService.getAreaById(post.sellingArea.id).name,
+			deadline = post.deadline.toEpochMilli(),
+			type = post.type.name,
+			status = post.status.name,
 		)
 	}
 
