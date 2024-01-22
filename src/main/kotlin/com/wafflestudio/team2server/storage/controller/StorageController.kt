@@ -1,6 +1,7 @@
 package com.wafflestudio.team2server.storage.controller
 
 import com.wafflestudio.team2server.common.auth.AuthUserInfo
+import com.wafflestudio.team2server.storage.model.ImageResponse
 import com.wafflestudio.team2server.storage.service.StorageService
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -12,7 +13,7 @@ class StorageController(private val storageService: StorageService) {
 	@PostMapping("/upload")
 	fun uploadFile(
 		multipartFiles: List<MultipartFile>,
-		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
+		//@AuthenticationPrincipal authUserInfo: AuthUserInfo,
 	): ImageResponse {
 		return ImageResponse(storageService.uploadFile(multipartFiles))
 	}
@@ -25,7 +26,4 @@ class StorageController(private val storageService: StorageService) {
 		storageService.deleteFile(fileName)
 	}
 
-	data class ImageResponse(
-		val images: List<String>,
-	)
 }
