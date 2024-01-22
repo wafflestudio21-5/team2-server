@@ -58,7 +58,7 @@ class ChannelDetailService(
 					message = it.message
 				)
 			},
-			cur = messages.last().id - 1
+			cur = messages.last().msgNo - 1
 		)
 
 		// 2. 메시지 이력 조회를 요청한 사람에게 보내기
