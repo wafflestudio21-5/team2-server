@@ -115,12 +115,14 @@ create table wish_list
 );
 create table trade_review
 (
-	id          bigint auto_increment,
-	post_id     bigint,
-	type        int,
-	description varchar(255),
-	hide_yn     boolean,
-	created_at  datetime,
+	id             bigint auto_increment,
+	post_id        bigint,
+	author_type    varchar(20),
+	description    varchar(255),
+	created_at     datetime,
+	sender_id      bigint,
+	receiver_id    bigint,
+	author_area_id int,
 	primary key (id)
 );
 create table hide_post

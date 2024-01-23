@@ -147,8 +147,8 @@ class ProductPostServiceImpl(
 		)
 	}
 
-	override fun getPostById(id: Long, authUserInfo: AuthUserInfo): ProductPost {
-		val userId = authUserInfo.uid
+	override fun getPostById(id: Long, authUserInfo: AuthUserInfo?): ProductPost {
+		val userId = authUserInfo?.uid
 		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw PostNotFoundException
 		if (postEntity.hiddenYn && postEntity.author.id != userId) {
 			throw PostNotFoundException
@@ -302,7 +302,7 @@ class ProductPostServiceImpl(
 		}
 	}
 
-	private fun toProductPost(it: ProductPostEntity?, authUserInfo: AuthUserInfo, maxBidPrice: BidInfo? = null): ProductPost? {
+	private fun toProductPost(it: ProductPostEntity?, authUserInfo: AuthUserInfo?, maxBidPrice: BidInfo? = null): ProductPost? {
 		if (it == null) return null
 		return ProductPost(
 			id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
@@ -325,7 +325,7 @@ class ProductPostServiceImpl(
 			sellingArea = it.sellingArea.name,
 			description = it.description,
 			images = it.images.map { it.url },
-			isWish = wishListRepository.existsByUserIdAndPostId(authUserInfo.uid, it.id),
+			isWish = wishListRepository.existsByUserIdAndPostId(authUserInfo?.uid ?: -1, it.id),
 			profileImg = userService.getUser(it.author.id).profileImageUrl ?: "",
 			maxBidPrice = maxBidPrice,
 		)
