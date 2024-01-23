@@ -10,7 +10,7 @@ interface ProductPostService {
 	fun searchPostByKeyword(cur: Long, keyword: String, distance: Int, count: Int, areaId: Int, authUserInfo: AuthUserInfo): ListResponse
 	fun create(postCreateRequest: PostCreateRequest, authUserInfo: AuthUserInfo)
 	fun update(postUpdateRequest: PostUpdateRequest, userId: Long, id: Long, refresh: Boolean)
-	fun getPostById(id: Long, authUserInfo: AuthUserInfo): ProductPost
+	fun getPostById(id: Long, authUserInfo: AuthUserInfo?): ProductPost
 	fun deleteById(id: Long)
 	fun likePost(userId: Long, postId: Long)
 	fun unlikePost(userId: Long, postId: Long)
