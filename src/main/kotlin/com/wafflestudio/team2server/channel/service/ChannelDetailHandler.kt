@@ -54,14 +54,23 @@ class ChannelDetailHandler(
 		val msgResult = messageUtil.messageParser(message.payload)
 
 		when (msgResult.command) {
-			"RECENT_MESSAGE" -> channelDetailService.getRecentMessage(channelId, session, msgResult.headers) // 메시지 이력 찾기 (무한 스크롤)
-			"SEND_TEXT" -> channelDetailService.sendText(channelId, session, msgResult.body) // 메시지 전송
+			"RECENT_MESSAGE" -> { // 메시지 이력 찾기 (무한 스크롤)
+				sessionManager.refreshPingTimer(session)
+				channelDetailService.getRecentMessage(channelId, session, msgResult.headers)
+			}
+			"SEND_TEXT" -> { // 메시지 전송
+				sessionManager.refreshPingTimer(session)
+				channelDetailService.sendText(channelId, session, msgResult.body)
+			}
+			"PING" -> sessionManager.refreshPingTimer(session) // 핑 초기화
+			"DISCONNECT" -> session.close(CloseStatus.NORMAL)
 		}
 
 	}
 
 	// 소켓 종료 확인
 	override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
+		logger.info { "ws close: status=$status" }
 		sessionManager.deleteChannelSession(session)
 		super.afterConnectionClosed(session, status)
 	}
