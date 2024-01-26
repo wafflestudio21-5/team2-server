@@ -2,7 +2,6 @@ package com.wafflestudio.team2server.channel.service
 
 import com.wafflestudio.team2server.channel.repository.*
 import com.wafflestudio.team2server.common.error.*
-import com.wafflestudio.team2server.post.model.ProductPost
 import com.wafflestudio.team2server.post.repository.ProductPostEntity
 import com.wafflestudio.team2server.post.repository.ProductPostRepository
 import com.wafflestudio.team2server.user.repository.UserRepository
@@ -63,7 +62,7 @@ class ChannelService(
 
 		return if (channelO.isEmpty) {
 			// 2-1. 존재하지 않는다면 -> channel_user 에 두 유저 추가
-			createChannel(productPost, userId)
+			setupChannel(productPost, userId)
 		} else {
 			// 2-2. 존재한다면 -> 기존 채널 ID 반환
 			ChannelCreateResponse(channelO.get().id)
@@ -105,7 +104,7 @@ class ChannelService(
 		return ChannelUnpinResponse(channelId)
 	}
 
-	private fun createChannel(productPost: ProductPostEntity, userId: Long): ChannelCreateResponse {
+	private fun setupChannel(productPost: ProductPostEntity, userId: Long): ChannelCreateResponse {
 		val authorId = productPost.author.id
 		if (userId == authorId) {
 			throw SelfTransactionException
@@ -117,8 +116,8 @@ class ChannelService(
 				productPost = productPost
 			)
 		)
-
-		logger.info {"channelId: ${channel.id}"}
+		productPost.chatCnt++
+		logger.info { "channelId: ${channel.id}" }
 
 		// 2. 채번 테이블 생성하기
 		messageSequenceRepository.save(
