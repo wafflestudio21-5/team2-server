@@ -10,5 +10,6 @@ data class CommentSummary (
 	val createdAt: Long?,
 	val likeCnt: Int,
 	// sval areaId: Long,
-	val isLiked: Boolean
+	val isLiked: Boolean,
+	val images: List<String>,
 )

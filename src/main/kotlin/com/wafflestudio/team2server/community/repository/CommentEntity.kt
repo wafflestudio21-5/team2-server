@@ -1,5 +1,7 @@
 package com.wafflestudio.team2server.community.repository
 
+import com.wafflestudio.team2server.community.repos.CommentImageEntity
+import com.wafflestudio.team2server.community.repos.CommunityImageEntity
 import com.wafflestudio.team2server.user.repository.UserEntity
 import jakarta.persistence.*
 import java.time.Instant
@@ -20,5 +22,7 @@ class CommentEntity (
 	var imgUrl: String = "",
 	var likeCnt: Int = 0,
 	val createdAt: Instant = Instant.now(),
-	var updatedAt: Instant
+	var updatedAt: Instant,
+	@OneToMany(mappedBy = "comment")
+	var images: List<CommentImageEntity> = mutableListOf()
 )
