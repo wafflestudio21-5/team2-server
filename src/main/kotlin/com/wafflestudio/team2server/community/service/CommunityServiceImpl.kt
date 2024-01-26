@@ -132,7 +132,7 @@ class CommunityServiceImpl(
 					it.imgUrl,
 					it.createdAt,
 					it.likeCnt,
-					it.author.id == userId
+					commentLikeRepository.existsByUserIdAndCommentId(userId, it.id)
 				)
 			}
 
@@ -143,7 +143,7 @@ class CommunityServiceImpl(
 				it.imgUrl,
 				it.createdAt,
 				it.likeCnt,
-				it.author.id == userId,
+				commentLikeRepository.existsByUserIdAndCommentId(userId, it.id),
 				childComments
 			)
 		}
