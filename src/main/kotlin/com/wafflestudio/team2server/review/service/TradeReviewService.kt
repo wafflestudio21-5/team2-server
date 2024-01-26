@@ -14,6 +14,7 @@ import com.wafflestudio.team2server.review.repository.TradeReviewEntity
 import com.wafflestudio.team2server.review.repository.TradeReviewRepository
 import com.wafflestudio.team2server.user.repository.UserEntity
 import com.wafflestudio.team2server.user.repository.UserRepository
+import com.wafflestudio.team2server.user.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import kotlin.jvm.optionals.getOrElse
@@ -58,6 +59,9 @@ class TradeReviewService(
 			post.status = ProductPost.ProductPostStatus.SOLDOUT
 		}
 		tradeReviewRepository.save(tradeReview)
+		println(request.getEval().delta)
+		receiver.mannerTemperature += request.getEval().delta
+		println(receiver.mannerTemperature)
 	}
 
 	fun getTradeReviewFrom(userId: Long, from: String): List<TradeReview> {

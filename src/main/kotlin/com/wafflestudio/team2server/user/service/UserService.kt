@@ -6,6 +6,7 @@ import com.wafflestudio.team2server.area.model.Area
 import com.wafflestudio.team2server.area.repository.*
 import com.wafflestudio.team2server.common.auth.TokenVerifier
 import com.wafflestudio.team2server.common.error.*
+import com.wafflestudio.team2server.review.model.TradeReviewRequest
 import com.wafflestudio.team2server.user.controller.UserController
 import com.wafflestudio.team2server.user.model.AuthProvider
 import com.wafflestudio.team2server.user.model.User
@@ -158,9 +159,9 @@ class UserService(
 	}
 
 	@Transactional
-	fun updateMannerTemperature(uid: Long, delta: Double) {
+	fun updateMannerTemperature(uid: Long, evaluation: TradeReviewRequest.Eval) {
 		val user = userRepository.findById(uid).getOrElse { throw UserNotFoundException }
-		user.mannerTemperature += delta
+		user.mannerTemperature += evaluation.delta
 	}
 
 	private fun UserEntity.toUser() = User(

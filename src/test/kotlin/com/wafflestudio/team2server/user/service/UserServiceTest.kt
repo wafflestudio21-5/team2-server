@@ -1,5 +1,6 @@
 package com.wafflestudio.team2server.user.service
 
+import com.wafflestudio.team2server.review.model.TradeReviewRequest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -30,7 +31,7 @@ class UserServiceTest @Autowired constructor(
 
 	@Test
 	fun `매너온도 업데이트 테스트`() {
-		userService.updateMannerTemperature(33, 0.1)
+		userService.updateMannerTemperature(33, TradeReviewRequest.Eval.GOOD)
 	}
 
 }
