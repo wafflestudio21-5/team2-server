@@ -7,7 +7,7 @@ data class CommentSummary (
 	val nickname: String,
 	val comment: String,
 	val imgUrl: String,
-	val createdAt: Instant?,
+	val createdAt: Long?,
 	val likeCnt: Int,
 	// sval areaId: Long,
 	val isLiked: Boolean

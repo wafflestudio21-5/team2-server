@@ -6,7 +6,7 @@ data class CommunitySummary(
 	val id: Long,
 	val title: String,
 	val repImg: String,
-	val createdAt: Instant?,
+	val createdAt: Long?,
 	val viewCnt: Int,
 	val likeCnt: Int,
 	val chatCnt: Int,

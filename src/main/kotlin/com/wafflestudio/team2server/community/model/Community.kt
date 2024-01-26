@@ -14,6 +14,7 @@ data class Community(
 	val likeCnt: Int,
 	val chatCnt: Int,
 	val repImg: String,
+	val images: List<String>,
 ) {
 	constructor(communityEntity: CommunityEntity) : this(
 		id = communityEntity.id,
@@ -26,6 +27,7 @@ data class Community(
 		likeCnt = communityEntity.likeCnt,
 		chatCnt = communityEntity.chatCnt,
 		repImg = communityEntity.repImg,
+		images = communityEntity.images.map { it.url },
 	)
 
 }
