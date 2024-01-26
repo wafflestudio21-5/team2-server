@@ -70,7 +70,7 @@ class CommunityController(private val communityService: CommunityService) {
 		communityService.likeCommunity(authUserInfo.uid, communityId)
 	}
 
-	@GetMapping("/{communityId}/chat")
+	@GetMapping("/{communityId}/comment")
 	fun getCommentList(
 		@PathVariable communityId: Long,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
