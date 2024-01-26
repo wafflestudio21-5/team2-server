@@ -36,7 +36,7 @@ class CommunityServiceImpl(
 					it.getId(),
 					it.getTitle(),
 					it.getRep_img(),
-					it.getCreated_at(),
+					it.getCreated_at()?.toEpochMilli(),
 					it.getView_cnt(),
 					it.getLike_cnt(),
 					it.getChat_cnt(),
@@ -137,7 +137,7 @@ class CommunityServiceImpl(
 					nickname = cc.author.nickname,
 					comment =cc.comment,
 					imgUrl = cc.imgUrl,
-					createdAt = cc.createdAt,
+					createdAt = cc.createdAt.toEpochMilli(),
 					likeCnt = cc.likeCnt,
 					isLiked = commentLikeRepository.existsByUserIdAndCommentId(userId, cc.id)
 				)
@@ -171,7 +171,9 @@ class CommunityServiceImpl(
 			createdAt = Instant.now(),
 			updatedAt = Instant.now(),
 		)
+		community.chatCnt++
 		commentRepository.save(comment)
+		communityRepository.save(community)
 	}
 
 	@Transactional
@@ -200,11 +202,6 @@ class CommunityServiceImpl(
 	@Transactional
 	override fun likeComment(userId: Long, id: Long, commentId: Long) {
 		val comment = commentRepository.findById(commentId).getOrNull() ?: throw BaniException(ErrorType.COMMENT_NOT_FOUND)
-		//if (community.author.id == userId) {
-		//	TODO("본인이 누른 경우 어떻게 할 지 코드 추가 with client")
-		//}
-		// 커뮤니티 id를 저장해야할 지에 대한 고민
-		//val community = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
 		if (!commentLikeRepository.existsByUserIdAndCommentId(userId, commentId)) {
 			val commentLike = CommentLikeEntity(userId = userId, commentId = commentId)
 			commentLikeRepository.save(commentLike)
