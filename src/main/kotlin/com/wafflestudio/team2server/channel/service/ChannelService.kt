@@ -133,6 +133,18 @@ class ChannelService(
 		return ChannelCreateResponse(channel.id)
 	}
 
+	@Transactional
+	fun exitChannel(userId: Long, channelId: Long) {
+		val channelUserId = ChannelUserId(
+			channelId = channelId,
+			userId = userId
+		)
+		val channelUser = channelUserRepository.findById(channelUserId)
+			.orElseThrow { BaniException(ErrorType.CHANNEL_USER_ID_NOT_FOUND) }
+
+		channelUser.exitYn = true
+	}
+
 
 	private fun saveChannelUser(userId: Long, channel: ChannelEntity) {
 

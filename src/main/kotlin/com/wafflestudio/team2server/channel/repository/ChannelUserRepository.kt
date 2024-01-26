@@ -22,6 +22,7 @@ interface ChannelUserRepository: JpaRepository<ChannelUserEntity, ChannelUserId>
 		JOIN FETCH c.productPost p
 		JOIN FETCH p.sellingArea a
 		WHERE c.id IN :channelIds AND u.id != :myUserId
+		AND cu.exitYn = false
 	""")
 	fun findChannelInfosByChannelIds(channelIds: Set<Long>, myUserId: Long): List<ChannelUserEntity>
 
