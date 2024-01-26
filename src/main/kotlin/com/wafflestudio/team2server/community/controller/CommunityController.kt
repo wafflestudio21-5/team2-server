@@ -38,8 +38,11 @@ class CommunityController(private val communityService: CommunityService) {
 	}
 
 	@GetMapping("/{communityId}")
-	fun getCommunity(@PathVariable communityId: Long): Community {
-		return communityService.findCommunityById(communityId)
+	fun getCommunity(
+		@PathVariable communityId: Long,
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
+	): CommunityResponse {
+		return communityService.findCommunityById(authUserInfo.uid, communityId)
 	}
 
 	@PutMapping("/{communityId}")
