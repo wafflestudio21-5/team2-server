@@ -1,6 +1,7 @@
 package com.wafflestudio.team2server.community.model
 
 import java.time.Instant
+import javax.swing.text.StyledEditorKit.BoldAction
 
 data class CommentListResponse (
 	val id: Long,
@@ -10,5 +11,6 @@ data class CommentListResponse (
 	val createdAt: Instant?,
 	val likeCnt: Int,
 	// val areaId: Long,
+	val isLiked: Boolean,
 	val childComments: List<CommentSummary> = emptyList()
 )

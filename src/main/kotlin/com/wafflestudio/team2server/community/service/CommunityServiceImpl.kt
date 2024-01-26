@@ -132,6 +132,7 @@ class CommunityServiceImpl(
 					it.imgUrl,
 					it.createdAt,
 					it.likeCnt,
+					it.author.id == userId
 				)
 			}
 
@@ -142,6 +143,7 @@ class CommunityServiceImpl(
 				it.imgUrl,
 				it.createdAt,
 				it.likeCnt,
+				it.author.id == userId,
 				childComments
 			)
 		}
