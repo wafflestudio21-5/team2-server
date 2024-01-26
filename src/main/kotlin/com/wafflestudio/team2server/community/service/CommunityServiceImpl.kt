@@ -91,6 +91,12 @@ class CommunityServiceImpl(
 		}
 		community.title = communityRequest.title ?: community.title
 		community.description = communityRequest.description ?: community.description
+		community.repImg = communityRequest.repImg ?: community.repImg
+		community.images = communityRequest.images?.map {
+			val image = CommunityImageEntity(url = it, community = community)
+			communityImageRepository.save(image)
+			image
+		} ?: community.images
 		communityRepository.save(community)
 	}
 
