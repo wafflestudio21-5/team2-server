@@ -11,5 +11,5 @@ data class CommunitySummary(
 	val likeCnt: Int,
 	val chatCnt: Int,
 	val description: String,
-	val areaId: Long
+	val areaId: String
 )

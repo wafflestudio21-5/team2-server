@@ -5,6 +5,7 @@ import com.wafflestudio.team2server.common.auth.AuthUserInfo
 import com.wafflestudio.team2server.common.error.BaniException
 import com.wafflestudio.team2server.common.error.ErrorType
 import com.wafflestudio.team2server.community.model.*
+import com.wafflestudio.team2server.community.repos.CommunityImageEntity
 import com.wafflestudio.team2server.community.repository.*
 import com.wafflestudio.team2server.user.repository.UserRepository
 import jakarta.transaction.Transactional
@@ -20,7 +21,8 @@ class CommunityServiceImpl(
 	private val communityLikeRepository: CommunityLikeRepository,
 	private val commentRepository: CommentRepository,
 	private val commentLikeRepository: CommentLikeRepository,
-	private val areaService: AreaService
+	private val areaService: AreaService,
+	private val communityImageRepository: CommunityImageRepository
 ) : CommunityService {
 	override fun getCommunityList(cur: Long, seed: Int, distance: Int, count: Int, areaId: Int, authUserInfo: AuthUserInfo): CommunityListResponse {
 		check(areaId in authUserInfo.refAreaIds) {
@@ -33,13 +35,13 @@ class CommunityServiceImpl(
 				CommunitySummary(
 					it.getId(),
 					it.getTitle(),
-					it.getRepimg(),
-					it.getCreatedAt(),
-					it.getViewCnt(),
-					it.getLikeCnt(),
-					it.getChatCnt(),
+					it.getRep_img(),
+					it.getCreated_at(),
+					it.getView_cnt(),
+					it.getLike_cnt(),
+					it.getChat_cnt(),
 					it.getDescription(),
-					it.getAreaId()
+					it.getArea_info()
 				)
 			},
 			fetch.getOrNull(fetch.size - 2)?.getEnd() ?: 0L,
@@ -50,25 +52,34 @@ class CommunityServiceImpl(
 	}
 	override fun findCommunityById(id: Long): Community {
 		val community: CommunityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
+		community.viewCnt++
+		communityRepository.save(community)
 		return Community(community)
-		// 추후 viewCnt 관련 로직 추가
 	}
 
 	@Transactional
-	override fun create(communityRequest: CommunityRequest, userId: Long) {
+	override fun create(communityRequest: CommunityRequest, authUserInfo: AuthUserInfo) {
+		val userId = authUserInfo.uid
 		val user = userRepository.findById(userId).getOrNull() ?: throw BaniException(ErrorType.UNAUTHORIZED)
-		// areaId, repImg 추후 수정
+		if (communityRequest.areaId !in authUserInfo.refAreaIds) {
+			throw BaniException(ErrorType.INVALID_PARAMETER)
+		}
 		val community = CommunityEntity(
 			author = user,
-			areaId = 0,
+			areaInfo = areaService.getAreaById(communityRequest.areaId),
 			createdAt = Instant.now(),
 			title = communityRequest.title,
 			description = communityRequest.description,
 			viewCnt = 0,
 			likeCnt = 0,
 			chatCnt = 0,
-			repImg = "",
+			repImg = communityRequest.repImg,
 		)
+		val imageLists = communityRequest.images.map {
+			CommunityImageEntity(url = it, community = community)
+		}
+		community.images = imageLists
+		communityImageRepository.saveAll(imageLists)
 		communityRepository.save(community)
 	}
 
@@ -121,6 +132,7 @@ class CommunityServiceImpl(
 					it.imgUrl,
 					it.createdAt,
 					it.likeCnt,
+					commentLikeRepository.existsByUserIdAndCommentId(userId, it.id)
 				)
 			}
 
@@ -131,6 +143,7 @@ class CommunityServiceImpl(
 				it.imgUrl,
 				it.createdAt,
 				it.likeCnt,
+				commentLikeRepository.existsByUserIdAndCommentId(userId, it.id),
 				childComments
 			)
 		}

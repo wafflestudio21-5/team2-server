@@ -205,6 +205,14 @@ create table tender
 	tender_at datetime,
 	primary key (id)
 );
+create table comment_img
+(
+	id           bigint auto_increment,
+	comment_id 	 bigint,
+	url          varchar(255),
+	created_at   datetime,
+	primary key (id)
+);
 /*create table area
 (
 	id        bigint,

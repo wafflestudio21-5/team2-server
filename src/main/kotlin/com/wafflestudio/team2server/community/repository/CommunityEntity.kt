@@ -1,5 +1,8 @@
 package com.wafflestudio.team2server.community.repository
 
+import com.wafflestudio.team2server.area.repository.AreaEntity
+import com.wafflestudio.team2server.community.repos.CommunityImageEntity
+import com.wafflestudio.team2server.post.repository.ProductPostImageEntity
 import com.wafflestudio.team2server.user.repository.UserEntity
 import jakarta.persistence.*
 import java.time.Instant
@@ -12,7 +15,9 @@ class CommunityEntity(
 	@OneToOne
 	@JoinColumn(name = "user_id")
 	val author: UserEntity,
-	val areaId: Long = -1,
+	@OneToOne
+	@JoinColumn(name = "area_id")
+	val areaInfo: AreaEntity,
 	val createdAt: Instant = Instant.now(),
 	var title: String = "",
 	var description: String = "",
@@ -20,4 +25,6 @@ class CommunityEntity(
 	var likeCnt: Int = 0,
 	var chatCnt: Int = 0,
 	var repImg: String = "",
+	@OneToMany(mappedBy = "community")
+	var images: List<CommunityImageEntity> = mutableListOf()
 )
