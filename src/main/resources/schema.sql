@@ -163,6 +163,14 @@ create table community_like
 	created_at   datetime,
 	primary key (id)
 );
+create table comment_like
+(
+	id           bigint auto_increment,
+	user_id      bigint,
+	comment_id   bigint,
+	created_at   datetime,
+	primary key (id)
+);
 create table community_img
 (
 	id           bigint auto_increment,
