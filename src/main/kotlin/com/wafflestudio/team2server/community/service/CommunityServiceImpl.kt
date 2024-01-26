@@ -50,11 +50,12 @@ class CommunityServiceImpl(
 			count + fetch.subList(0, min(15, fetch.size)).size
 		)
 	}
-	override fun findCommunityById(id: Long): Community {
+	override fun findCommunityById(userId: Long, id: Long): CommunityResponse {
 		val community: CommunityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
 		community.viewCnt++
+		val response = CommunityResponse(community = Community(community), isLiked = communityLikeRepository.existsByUserIdAndCommunityId(userId, community.id!!))
 		communityRepository.save(community)
-		return Community(community)
+		return response
 	}
 
 	@Transactional

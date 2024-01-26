@@ -5,7 +5,7 @@ import com.wafflestudio.team2server.community.model.*
 
 interface CommunityService {
 	fun getCommunityList(cur: Long, seed: Int, distance: Int, count: Int, areaId: Int, authUserInfo: AuthUserInfo): CommunityListResponse
-	fun findCommunityById(id: Long): Community
+	fun findCommunityById(userId: Long, id: Long): CommunityResponse
 	fun create(communityRequest: CommunityRequest, authUserInfo: AuthUserInfo)
 	fun update(communityRequest: CommunityUpdateRequest, userId: Long, id:Long)
 	fun delete(userId: Long, id:Long)
