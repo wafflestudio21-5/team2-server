@@ -10,7 +10,7 @@ class CommentEntity (
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0L,
 	@OneToOne
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "author_id")
 	val author: UserEntity,
 	@ManyToOne
 	@JoinColumn(name = "community_id")
