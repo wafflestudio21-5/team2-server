@@ -41,7 +41,7 @@ class CommunityServiceImpl(
 					it.getLike_cnt(),
 					it.getChat_cnt(),
 					it.getDescription(),
-					areaService.getAreaById(it.getArea_info()).name
+					areaService.getAreaById(it.getArea_id()).name
 				)
 			},
 			fetch.getOrNull(fetch.size - 2)?.getEnd() ?: 0L,
