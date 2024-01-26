@@ -39,6 +39,7 @@ class ErrorHandler {
 		request: HttpServletRequest,
 		response: HttpServletResponse,
 	): ResponseEntity<Any> {
+		e.printStackTrace()
 		return ResponseEntity(HttpStatus.BAD_REQUEST)
 	}
 
@@ -50,6 +51,7 @@ class ErrorHandler {
 		request: HttpServletRequest,
 		response: HttpServletResponse,
 	): ResponseEntity<Any> {
+		e.printStackTrace()
 		return ResponseEntity(HttpStatus.CONFLICT)
 	}
 
@@ -61,6 +63,7 @@ class ErrorHandler {
 
 	@ExceptionHandler(BaniException::class)
 	fun handlerBaniException(e: BaniException): ResponseEntity<ErrorResponse> {
+		e.printStackTrace()
 		return ResponseEntity(
 			ErrorResponse(ErrorInfo(e.errorType.code, e.errorType.name)),
 			e.errorType.httpStatus,
