@@ -143,6 +143,7 @@ create table community
 	description text,
 	view_cnt    int,
 	like_cnt    int,
+	chat_cnt 	int,
 	rep_img     varchar(255),
 	primary key (id)
 );

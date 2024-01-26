@@ -13,7 +13,7 @@ class CommunityEntity(
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long? = null,
 	@OneToOne
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "author_id")
 	val author: UserEntity,
 	@OneToOne
 	@JoinColumn(name = "area_id")
