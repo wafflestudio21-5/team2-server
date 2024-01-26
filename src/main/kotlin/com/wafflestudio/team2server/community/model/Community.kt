@@ -1,13 +1,12 @@
 package com.wafflestudio.team2server.community.model
 
 import com.wafflestudio.team2server.community.repository.CommunityEntity
-import java.time.Instant
 
 data class Community(
 	val id: Long? = null,
 	val authorId: Long,
 	val areaId: Long,
-	val createdAt: Instant,
+	val createdAt: Long,
 	val title: String,
 	val description: String,
 	val viewCnt: Int,
@@ -19,7 +18,7 @@ data class Community(
 		id = communityEntity.id,
 		authorId = communityEntity.author.id,
 		areaId = communityEntity.areaId,
-		createdAt = communityEntity.createdAt,
+		createdAt = communityEntity.createdAt.toEpochMilli(),
 		title = communityEntity.title,
 		description = communityEntity.description,
 		viewCnt = communityEntity.viewCnt,

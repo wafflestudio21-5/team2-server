@@ -172,7 +172,7 @@ class UserService(
 		profileImageUrl = profileImg,
 		nickname = nickname,
 		mannerTemp = mannerTemperature,
-		createdAt = createdAt,
+		createdAt = createdAt?.toEpochMilli(),
 		refAreaIds = areaUsers.map { Area(it.area, it.authenticatedAt, it.count) },
 	)
 

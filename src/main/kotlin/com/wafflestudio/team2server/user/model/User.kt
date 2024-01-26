@@ -12,7 +12,7 @@ data class User(
 	val profileImageUrl: String?,
 	val nickname: String,
 	val mannerTemp: Double,
-	val createdAt: Instant?,
+	val createdAt: Long?,
 	val refAreaIds: List<Area>,
 ) {
 
