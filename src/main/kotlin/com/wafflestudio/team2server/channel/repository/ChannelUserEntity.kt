@@ -24,7 +24,10 @@ class ChannelUserEntity(
 	val user: UserEntity,
 
 	var pinnedAt: Instant? = null,
-) : Persistable<ChannelUserId>, BaseCreatedDateEntity() {
+
+	var exitYn: Boolean = false,
+
+	) : Persistable<ChannelUserId>, BaseCreatedDateEntity() {
 
 	override fun getId(): ChannelUserId {
 		return id

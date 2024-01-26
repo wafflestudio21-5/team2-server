@@ -91,7 +91,7 @@ class ChannelController(
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo,
 		@PathVariable channelId: Long,
 	) {
-		TODO()
+		channelService.exitChannel(userId = authUserInfo.uid, channelId = channelId)
 	}
 
 	@Schema(description = "채팅방 생성 요청 DTO")
