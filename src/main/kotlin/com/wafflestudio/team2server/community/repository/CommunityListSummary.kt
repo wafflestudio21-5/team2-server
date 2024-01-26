@@ -5,12 +5,12 @@ import java.time.Instant
 interface CommunityListSummary {
 	fun getId(): Long
 	fun getTitle(): String
-	fun getRepimg(): String
-	fun getCreatedAt(): Instant?
-	fun getViewCnt(): Int
-	fun getLikeCnt(): Int
-	fun getChatCnt(): Int
+	fun getRep_img(): String
+	fun getCreated_at(): Instant?
+	fun getView_cnt(): Int
+	fun getLike_cnt(): Int
+	fun getChat_cnt(): Int
 	fun getDescription(): String
-	fun getAreaInfo(): String
+	fun getArea_info(): String
 	fun getEnd(): Long
 }

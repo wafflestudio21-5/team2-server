@@ -35,13 +35,13 @@ class CommunityServiceImpl(
 				CommunitySummary(
 					it.getId(),
 					it.getTitle(),
-					it.getRepimg(),
-					it.getCreatedAt(),
-					it.getViewCnt(),
-					it.getLikeCnt(),
-					it.getChatCnt(),
+					it.getRep_img(),
+					it.getCreated_at(),
+					it.getView_cnt(),
+					it.getLike_cnt(),
+					it.getChat_cnt(),
 					it.getDescription(),
-					it.getAreaInfo()
+					it.getArea_info()
 				)
 			},
 			fetch.getOrNull(fetch.size - 2)?.getEnd() ?: 0L,
