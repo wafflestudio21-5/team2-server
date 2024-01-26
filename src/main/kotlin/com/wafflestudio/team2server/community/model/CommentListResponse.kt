@@ -8,9 +8,10 @@ data class CommentListResponse (
 	val nickname: String,
 	val comment: String,
 	val imgUrl: String,
-	val createdAt: Instant?,
+	val createdAt: Long?,
 	val likeCnt: Int,
 	// val areaId: Long,
 	val isLiked: Boolean,
-	val childComments: List<CommentSummary> = emptyList()
+	val childComments: List<CommentSummary> = emptyList(),
+	val images: List<String>
 )

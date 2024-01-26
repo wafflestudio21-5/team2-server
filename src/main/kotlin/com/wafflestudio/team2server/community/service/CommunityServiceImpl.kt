@@ -5,6 +5,7 @@ import com.wafflestudio.team2server.common.auth.AuthUserInfo
 import com.wafflestudio.team2server.common.error.BaniException
 import com.wafflestudio.team2server.common.error.ErrorType
 import com.wafflestudio.team2server.community.model.*
+import com.wafflestudio.team2server.community.repos.CommentImageEntity
 import com.wafflestudio.team2server.community.repos.CommunityImageEntity
 import com.wafflestudio.team2server.community.repository.*
 import com.wafflestudio.team2server.user.repository.UserRepository
@@ -22,7 +23,8 @@ class CommunityServiceImpl(
 	private val commentRepository: CommentRepository,
 	private val commentLikeRepository: CommentLikeRepository,
 	private val areaService: AreaService,
-	private val communityImageRepository: CommunityImageRepository
+	private val communityImageRepository: CommunityImageRepository,
+	private val commentImageRepository: CommentImageRepository,
 ) : CommunityService {
 	override fun getCommunityList(cur: Long, seed: Int, distance: Int, count: Int, areaId: Int, authUserInfo: AuthUserInfo): CommunityListResponse {
 		check(areaId in authUserInfo.refAreaIds) {
@@ -139,7 +141,8 @@ class CommunityServiceImpl(
 					imgUrl = cc.imgUrl,
 					createdAt = cc.createdAt.toEpochMilli(),
 					likeCnt = cc.likeCnt,
-					isLiked = commentLikeRepository.existsByUserIdAndCommentId(userId, cc.id)
+					isLiked = commentLikeRepository.existsByUserIdAndCommentId(userId, cc.id),
+					images = cc.images.map {img -> img.url },
 				)
 			}
 
@@ -148,10 +151,11 @@ class CommunityServiceImpl(
 				nickname = it.author.nickname,
 				comment = it.comment,
 				imgUrl = it.imgUrl,
-				createdAt = it.createdAt,
+				createdAt = it.createdAt.toEpochMilli(),
 				likeCnt = it.likeCnt,
 				isLiked = commentLikeRepository.existsByUserIdAndCommentId(userId, it.id),
-				childComments = childComments
+				childComments = childComments,
+				images = it.images.map {img -> img.url }
 			)
 		}
 		return response
@@ -166,12 +170,17 @@ class CommunityServiceImpl(
 			community = community,
 			comment = commentRequest.comment,
 			parentId = commentRequest.parentId,
-			imgUrl = "",
+			imgUrl = commentRequest.imgUrl,
 			likeCnt = 0,
 			createdAt = Instant.now(),
 			updatedAt = Instant.now(),
 		)
 		community.chatCnt++
+		val imageLists = commentRequest.images.map {
+			CommentImageEntity(url = it, comment = comment)
+		}
+		comment.images = imageLists
+		commentImageRepository.saveAll(imageLists)
 		commentRepository.save(comment)
 		communityRepository.save(community)
 	}
@@ -187,6 +196,12 @@ class CommunityServiceImpl(
 		}
 		comment.comment = commentUpdateRequest.comment ?: comment.comment
 		comment.updatedAt = Instant.now()
+		comment.imgUrl = commentUpdateRequest.imgUrl ?: comment.imgUrl
+		comment.images = commentUpdateRequest.images?.map {
+			val image = CommentImageEntity(url = it, comment = comment)
+			commentImageRepository.save(image)
+			image
+		} ?: comment.images
 		commentRepository.save(comment)
 	}
 
