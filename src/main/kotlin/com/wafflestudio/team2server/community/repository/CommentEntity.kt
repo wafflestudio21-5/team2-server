@@ -16,7 +16,7 @@ class CommentEntity (
 	@JoinColumn(name = "community_id")
 	val community: CommunityEntity,
 	var comment: String = "",
-	val parentId: Long = -1,
+	val parentId: Long? = null,
 	var imgUrl: String = "",
 	var likeCnt: Int = 0,
 	val createdAt: Instant = Instant.now(),

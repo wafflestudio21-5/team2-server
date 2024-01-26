@@ -124,27 +124,27 @@ class CommunityServiceImpl(
 	override fun getCommentList(userId: Long, id: Long): List<CommentListResponse> {
 		val comments = commentRepository.findByCommunityId(id)
 		val response = comments.map {
-			val childComments = commentRepository.findByParentId(it.id).map{
+			val childComments = commentRepository.findByParentId(it.id).map{ cc ->
 				CommentSummary(
-					it.id,
-					it.author.nickname,
-					it.comment,
-					it.imgUrl,
-					it.createdAt,
-					it.likeCnt,
-					commentLikeRepository.existsByUserIdAndCommentId(userId, it.id)
+					id = cc.id,
+					nickname = cc.author.nickname,
+					comment =cc.comment,
+					imgUrl = cc.imgUrl,
+					createdAt = cc.createdAt,
+					likeCnt = cc.likeCnt,
+					isLiked = commentLikeRepository.existsByUserIdAndCommentId(userId, cc.id)
 				)
 			}
 
 			CommentListResponse(
-				it.id,
-				it.author.nickname,
-				it.comment,
-				it.imgUrl,
-				it.createdAt,
-				it.likeCnt,
-				commentLikeRepository.existsByUserIdAndCommentId(userId, it.id),
-				childComments
+				id = it.id,
+				nickname = it.author.nickname,
+				comment = it.comment,
+				imgUrl = it.imgUrl,
+				createdAt = it.createdAt,
+				likeCnt = it.likeCnt,
+				isLiked = commentLikeRepository.existsByUserIdAndCommentId(userId, it.id),
+				childComments = childComments
 			)
 		}
 		return response
