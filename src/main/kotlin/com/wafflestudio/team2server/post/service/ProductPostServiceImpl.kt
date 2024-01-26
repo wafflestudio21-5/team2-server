@@ -308,6 +308,7 @@ class ProductPostServiceImpl(
 			id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
 			authorId = it.author.id,
 			authorName = it.author.nickname,
+			authorMannerTemperature = it.author.mannerTemperature,
 			buyerId = it.buyerId,
 			chatCnt = it.chatCnt,
 			sellPrice = it.sellPrice,

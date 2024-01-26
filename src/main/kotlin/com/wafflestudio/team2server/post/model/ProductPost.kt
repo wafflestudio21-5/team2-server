@@ -8,6 +8,7 @@ data class ProductPost(
 	val status: String,
 	val authorId: Long,
 	val authorName: String,
+	val authorMannerTemperature: Double,
 	val buyerId: Long,
 	val sellingArea: String,
 	val sellPrice: Int,
