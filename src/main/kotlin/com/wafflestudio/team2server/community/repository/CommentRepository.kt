@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query
 
 interface CommentRepository: JpaRepository<CommentEntity, Long> {
 	@Query("""
-		select c from community_comment c where c.community.id = :communityId and c.parentId = null
+		select c from community_comment c where c.community.id = :communityId and c.parentId is null
 	""")
 	fun findByCommunityId(communityId: Long): List<CommentEntity>
 
