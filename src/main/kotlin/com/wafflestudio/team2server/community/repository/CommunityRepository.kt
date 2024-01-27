@@ -10,7 +10,9 @@ interface CommunityRepository : JpaRepository<CommunityEntity, Long> {
 		join (
 		  select community.id, floor(1000*rand(:seed))+id as end
 		  from community
-		  where community.area_id in (:adjAreaIdList) limit :start, 300
+		  where community.area_id in (:adjAreaIdList)
+		  order by community.id desc
+		  limit :start, 300
 		) as t
 		on community.id = t.id
 		where end < :cur order by end desc limit 16
