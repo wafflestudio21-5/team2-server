@@ -208,7 +208,7 @@ class ProductPostServiceImpl(
 	}
 
 	override fun getPostListRandom(
-		cur: Long,
+		prevCur: Long,
 		seed: Int,
 		distance: Int,
 		count: Int,
@@ -218,7 +218,7 @@ class ProductPostServiceImpl(
 		if (areaId !in authUserInfo.refAreaIds) {
 			throw BaniException(ErrorType.INVALID_PARAMETER)
 		}
-		val cur = if (count % 300 == 0) Long.MAX_VALUE else cur
+		val cur = if (count % 300 == 0) Long.MAX_VALUE else prevCur
 		val fetch = productPostRepository.findRandom(cur, seed, areaService.getAdjAreas(areaId, distance), (count / 300) * 300)
 		return ListResponse(
 			fetch.subList(0, min(15, fetch.size)).map {

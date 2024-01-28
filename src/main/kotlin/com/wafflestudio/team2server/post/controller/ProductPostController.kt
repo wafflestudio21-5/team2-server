@@ -22,11 +22,11 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@RequestParam(required = true) areaId: Int,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	): ListResponse {
-		val seed = when (seed) {
+		val currentSeed = when (seed) {
 			0 -> Random.nextInt().absoluteValue
 			else -> seed
 		}
-		return productPostService.getPostListRandom(cur, seed, distance, count, areaId, authUserInfo)
+		return productPostService.getPostListRandom(cur, currentSeed, distance, count, areaId, authUserInfo)
 	}
 
 	@PostMapping("/posts")
