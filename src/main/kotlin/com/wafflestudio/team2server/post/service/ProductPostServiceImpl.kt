@@ -166,20 +166,20 @@ class ProductPostServiceImpl(
 	}
 
 	@Transactional
-	override fun likePost(userId: Long, postId: Long) {
-		if (!wishListRepository.existsByUserIdAndPostId(userId, postId)) {
+	override fun likePost(userId: Long, postId: Long, enable: Boolean) {
+		if (enable && !wishListRepository.existsByUserIdAndPostId(userId, postId)) {
+			val postEntity = productPostRepository.findById(postId).getOrNull() ?: throw PostNotFoundException
 			val wishListEntity = WishListEntity(userId = userId, postId = postId)
+			postEntity.wishCnt++
 			wishListRepository.save(wishListEntity)
-		}
-	}
-
-	@Transactional
-	override fun unlikePost(userId: Long, postId: Long) {
-		if (wishListRepository.existsByUserIdAndPostId(userId, postId)) {
+		} else if (!enable && wishListRepository.existsByUserIdAndPostId(userId, postId)) {
+			val postEntity = productPostRepository.findById(postId).getOrNull() ?: throw PostNotFoundException
 			val wishListEntity = wishListRepository.findByUserIdAndPostId(userId = userId, postId = postId)
+			postEntity.wishCnt--
 			wishListRepository.delete(wishListEntity)
 		}
 	}
+
 
 	override fun getLikedPosts(userId: Long): List<PostSummary> {
 		return wishListRepository.findByUserId(userId).mapNotNull {
