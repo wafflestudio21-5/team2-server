@@ -22,11 +22,11 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@RequestParam(required = true) areaId: Int,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	): ListResponse {
-		val seed = when (seed) {
+		val currentSeed = when (seed) {
 			0 -> Random.nextInt().absoluteValue
 			else -> seed
 		}
-		return productPostService.getPostListRandom(cur, seed, distance, count, areaId, authUserInfo)
+		return productPostService.getPostListRandom(cur, currentSeed, distance, count, areaId, authUserInfo)
 	}
 
 	@PostMapping("/posts")
@@ -40,7 +40,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 	@GetMapping("/posts/{id}")
 	fun getPost(
 		@PathVariable id: Long,
-		@AuthenticationPrincipal authUserInfo: AuthUserInfo
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo?
 	): ProductPost {
 		return productPostService.getPostById(id, authUserInfo)
 	}
@@ -51,8 +51,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		@RequestParam(required = false, defaultValue = "true") enable: Boolean,
 		@AuthenticationPrincipal authUserInfo: AuthUserInfo
 	) {
-		if (enable) productPostService.likePost(authUserInfo.uid, id)
-		else productPostService.unlikePost(authUserInfo.uid, id)
+		productPostService.likePost(authUserInfo.uid, id, enable)
 	}
 
 	@GetMapping("/posts/wish")
