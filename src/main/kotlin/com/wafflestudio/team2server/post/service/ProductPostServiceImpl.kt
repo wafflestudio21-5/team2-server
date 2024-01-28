@@ -147,6 +147,7 @@ class ProductPostServiceImpl(
 		)
 	}
 
+	@Transactional
 	override fun getPostById(id: Long, authUserInfo: AuthUserInfo?): ProductPost {
 		val userId = authUserInfo?.uid
 		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw PostNotFoundException
@@ -348,6 +349,5 @@ class ProductPostServiceImpl(
 			status = post.status.name,
 		)
 	}
-
 }
 

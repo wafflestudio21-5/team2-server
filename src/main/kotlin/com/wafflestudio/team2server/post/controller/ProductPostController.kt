@@ -40,7 +40,7 @@ class ProductPostController(private val productPostService: ProductPostService) 
 	@GetMapping("/posts/{id}")
 	fun getPost(
 		@PathVariable id: Long,
-		@AuthenticationPrincipal authUserInfo: AuthUserInfo
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo?
 	): ProductPost {
 		return productPostService.getPostById(id, authUserInfo)
 	}
