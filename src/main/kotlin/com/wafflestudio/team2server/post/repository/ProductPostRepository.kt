@@ -1,5 +1,6 @@
 package com.wafflestudio.team2server.post.repository
 
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
@@ -11,6 +12,7 @@ interface ProductPostRepository : JpaRepository<ProductPostEntity, Long> {
 			and p.sellingArea.id in (:adjAreaIdList) and p.id<:cur and p.hiddenYn=false
 			order by p.id desc limit 16"""
 	)
+	@Cacheable(value = ["searchpost"])
 	fun findByKeywordIgnoreCaseAndSellingArea(cur: Long, keyword: String, adjAreaIdList: List<Int>): List<ProductPostEntity>
 
 	@Query(
@@ -22,5 +24,6 @@ interface ProductPostRepository : JpaRepository<ProductPostEntity, Long> {
 			on product_post.id=t.id where end<:cur order by end desc limit 16""",
 		nativeQuery = true
 	)
+	@Cacheable(value = ["randompost"])
 	fun findRandom(cur: Long, seed: Int, adjAreaIdList: List<Int>, start: Int): List<PostListSummary>
 }

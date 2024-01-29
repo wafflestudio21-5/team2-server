@@ -14,12 +14,14 @@ import com.wafflestudio.team2server.user.repository.UserEntity
 import com.wafflestudio.team2server.user.repository.UserRepository
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalUnit
 import kotlin.jvm.optionals.getOrElse
 
 private val logger: KLogger = KotlinLogging.logger {}
@@ -97,12 +99,14 @@ class UserService(
 		return user.toUser()
 	}
 
+	@Cacheable(value = ["user"], key = "#uid")
 	fun getUser(uid: Long): User {
 		val user = userRepository.findByIdWithJoinFetch(uid) ?: throw UserNotFoundException
 		return user.toUser()
 	}
 
 	@Transactional
+	@CachePut(value = ["user"], key = "#uid")
 	fun updateUser(uid: Long, request: UserController.UpdateUserRequest): User {
 		val user = userRepository.findByIdWithJoinFetch(uid) ?: throw UserNotFoundException
 		request.run {
@@ -118,6 +122,7 @@ class UserService(
 		return user.toUser()
 	}
 
+	@CacheEvict(value = ["user"], key = "#uid")
 	fun deleteUser(uid: Long) {
 		userRepository.deleteById(uid)
 	}
@@ -126,6 +131,7 @@ class UserService(
 	 * TODO: 낙관적/비관적 락 적용해야할 듯.
 	 */
 	@Transactional
+	@CacheEvict(value = ["user"], key = "#uid")
 	fun addRefArea(uid: Long, refAreaId: Int): Int {
 		val user = userRepository.getReferenceById(uid)
 		val areaUsers = areaUserRepository.findByUser(user)
@@ -151,6 +157,7 @@ class UserService(
 	}
 
 	@Transactional
+	@CacheEvict(value = ["user"], key = "#uid")
 	fun deleteRefArea(uid: Long, refAreaId: Int) {
 		val rows = areaUserRepository.deleteByUserIdAndAreaId(uid, refAreaId)
 		if (rows == 0) {
@@ -159,6 +166,7 @@ class UserService(
 	}
 
 	@Transactional
+	@CacheEvict(value = ["user"], key = "#uid")
 	fun updateMannerTemperature(uid: Long, evaluation: TradeReviewRequest.Eval) {
 		val user = userRepository.findById(uid).getOrElse { throw UserNotFoundException }
 		user.mannerTemperature += evaluation.delta
