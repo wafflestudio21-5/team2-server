@@ -35,6 +35,7 @@ class SecurityConfig {
 				authorize("/auth/**", permitAll)
 				authorize("/signup/**", permitAll)
 				authorize("/area/search", permitAll)
+				authorize("/area/**", permitAll)
 				authorize("/swagger-ui/**", permitAll)
 				authorize("/v3/api-docs/**", permitAll)
 				authorize("/swagger-resources/**", permitAll)
