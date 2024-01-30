@@ -27,6 +27,8 @@ class ChannelUserEntity(
 
 	var exitYn: Boolean = false,
 
+	var readAt: Instant = Instant.now()
+
 	) : Persistable<ChannelUserId>, BaseCreatedDateEntity() {
 
 	override fun getId(): ChannelUserId {

@@ -93,6 +93,11 @@ class ChannelDetailService(
 						)
 					)
 				)
+				// 마지막 읽은 시각 업데이트
+				val cuId = ChannelUserId(channelId = channelId, userId = channelUserId)
+				val channelUser = channelUserRepository.findById(cuId).get()
+				channelUser.readAt = savedChannelMessage.createdAt!!
+
 			} catch (e: BaniException) {
 				logger.info { "채팅 상세 미연결 [userId: $channelUserId]" }
 			}
@@ -181,8 +186,10 @@ data class ChannelInfo(
 	val title: String,
 	@Schema(description = "판매 가격")
 	val sellPrice: Int,
-	@Schema(description = "물품 상태 - NEW(신규), RESERVED(예약), SOLDOUT(판매완료)")
-	val status: ProductPost.ProductPostStatus
+	@Schema(description = "물품 상태 - NEW(신규), RESERVED (예약), SOLDOUT (판매완료)")
+	val status: ProductPost.ProductPostStatus,
+	@Schema(description = "마지막으로 메시지를 읽은 시각")
+	val readAt: Long,
 )
 
 data class ChannelMessageBrief(
@@ -202,5 +209,6 @@ private fun ChannelInfo(entity: ChannelUserEntity): ChannelInfo {
 		title = entity.channel.productPost.title,
 		sellPrice = entity.channel.productPost.sellPrice,
 		status = entity.channel.productPost.status,
+		readAt = entity.readAt.toEpochMilli()
 	)
 }

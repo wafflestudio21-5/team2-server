@@ -7,11 +7,13 @@ import com.wafflestudio.team2server.common.error.ErrorType
 import com.wafflestudio.team2server.common.util.MessageUtil
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
+import java.time.Instant
 
 
 private val logger: KLogger = KotlinLogging.logger { }
@@ -26,6 +28,7 @@ class ChannelDetailHandler(
 ) : TextWebSocketHandler() {
 
 	// 소켓 연결 확인
+	@Transactional
 	override fun afterConnectionEstablished(session: WebSocketSession) {
 		// 1. 토큰 검증 단계
 		val token = messageUtil.getQueryParams(session)["token"]?: throw BaniException(ErrorType.UNAUTHORIZED)
@@ -36,13 +39,22 @@ class ChannelDetailHandler(
 		logger.info {"userId: ${userId}, channelId: $channelId" }
 
 		// 2. 채널에 해당 유저가 속해있는지 확인하는 단계
-		val channelUsers = channelUserRepository.findAllByIdChannelId(channelId).map { it.id.userId }.toSet()
-		if (!channelUsers.contains(userId)) {
+		val channelUsers = channelUserRepository.findAllByIdChannelId(channelId)
+		val channelUserIds = channelUsers.map { it.id.userId }.toSet()
+		if (!channelUserIds.contains(userId)) {
 			throw BaniException(ErrorType.USER_NOT_FOUND)
 		}
 
 		// 3. 채팅 상세에 연결
-		sessionManager.addChannelSession(userId, session, channelUsers)
+		sessionManager.addChannelSession(userId, session, channelUserIds)
+
+		// 4. 메시지 읽은 시각 업데이트
+		for (channelUser in channelUsers) {
+			if (channelUser.user.id == userId) {
+				channelUser.readAt = Instant.now()
+				break
+			}
+		}
 
 		super.afterConnectionEstablished(session)
 	}
