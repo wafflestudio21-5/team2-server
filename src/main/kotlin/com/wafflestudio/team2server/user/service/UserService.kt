@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalUnit
 import kotlin.jvm.optionals.getOrElse
 
 private val logger: KLogger = KotlinLogging.logger {}
@@ -95,6 +94,13 @@ class UserService(
 		areaUserRepository.saveAll(areaUsers)
 		user.areaUsers.addAll(areaUsers)
 		return user.toUser()
+	}
+
+	fun checkDuplicateNickname(nickname: String): Boolean {
+		if (userRepository.existsByNickname(nickname)) {
+			throw NicknameAlreadyExistsException
+		}
+		return true
 	}
 
 	fun getUser(uid: Long): User {
