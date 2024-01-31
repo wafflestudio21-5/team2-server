@@ -112,14 +112,18 @@ class UserService(
 	fun updateUser(uid: Long, request: UserController.UpdateUserRequest): User {
 		val user = userRepository.findByIdWithJoinFetch(uid) ?: throw UserNotFoundException
 		request.run {
-			nickname?.let {
+			if (!nickname.isNullOrBlank() && user.nickname != nickname) {
 				if (userRepository.existsByNickname(nickname)) {
 					throw NicknameAlreadyExistsException
 				}
-				user.nickname = it
+				user.nickname = nickname
 			}
-			password?.let { user.password = passwordEncoder.encode(it) }
-			profileImage?.let { user.profileImg = it }
+			if (!password.isNullOrBlank()) {
+				user.password = passwordEncoder.encode(password)
+			}
+			if (!profileImage.isNullOrBlank()) {
+				user.profileImg = profileImage
+			}
 		}
 		return user.toUser()
 	}
