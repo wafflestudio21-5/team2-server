@@ -9,10 +9,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class AreaController(private val areaService: AreaService) {
-	@GetMapping("/area")
-	fun getAreaInfo(code: String) {
-	}
-
 	@GetMapping("/area/search")
 	fun searchArea(@RequestParam("query") query: String, @RequestParam("cursor", defaultValue = "1") cursor: Int): SearchAreaResponse {
 		if (query.isBlank()) {
