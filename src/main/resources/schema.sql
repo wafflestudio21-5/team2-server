@@ -13,6 +13,8 @@ drop table if exists community_comment cascade;
 drop table if exists community_img cascade;
 drop table if exists community_save cascade;
 drop table if exists community_like cascade;
+drop table if exists comment_like cascade;
+drop table if exists comment_img cascade;
 drop table if exists post_category cascade;
 drop table if exists active_area cascade;
 drop table if exists tender cascade;
@@ -143,7 +145,7 @@ create table community
 	description text,
 	view_cnt    int,
 	like_cnt    int,
-	chat_cnt 	int,
+	chat_cnt    int,
 	rep_img     varchar(255),
 	primary key (id)
 );
@@ -165,10 +167,10 @@ create table community_like
 );
 create table comment_like
 (
-	id           bigint auto_increment,
-	user_id      bigint,
-	comment_id   bigint,
-	created_at   datetime,
+	id         bigint auto_increment,
+	user_id    bigint,
+	comment_id bigint,
+	created_at datetime,
 	primary key (id)
 );
 create table community_img
@@ -216,10 +218,10 @@ create table tender
 );
 create table comment_img
 (
-	id           bigint auto_increment,
-	comment_id 	 bigint,
-	url          varchar(255),
-	created_at   datetime,
+	id         bigint auto_increment,
+	comment_id bigint,
+	url        varchar(255),
+	created_at datetime,
 	primary key (id)
 );
 /*create table area
