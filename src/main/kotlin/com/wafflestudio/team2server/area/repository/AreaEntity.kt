@@ -1,6 +1,7 @@
 package com.wafflestudio.team2server.area.repository
 
 import jakarta.persistence.*
+import java.io.Serializable
 
 @Entity(name = "area")
 class AreaEntity(
@@ -22,4 +23,4 @@ class AreaEntity(
 	*/
 	@OneToMany(mappedBy = "area")
 	val areaUsers: List<AreaUserEntity> = mutableListOf(),
-)
+) : Serializable
