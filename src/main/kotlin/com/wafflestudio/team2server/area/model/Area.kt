@@ -1,5 +1,6 @@
 package com.wafflestudio.team2server.area.model
 
+import java.io.Serializable
 import java.time.Instant
 
 data class Area(
@@ -11,4 +12,4 @@ data class Area(
 	val sdName: String,
 	val authenticatedAt: Instant?,
 	val count: Int,
-)
+) : Serializable

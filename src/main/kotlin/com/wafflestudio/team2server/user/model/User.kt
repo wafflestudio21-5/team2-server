@@ -1,7 +1,7 @@
 package com.wafflestudio.team2server.user.model
 
 import com.wafflestudio.team2server.area.model.Area
-import java.time.Instant
+import java.io.Serializable
 
 data class User(
 	val id: Long? = null,
@@ -14,7 +14,7 @@ data class User(
 	val mannerTemp: Double,
 	val createdAt: Long?,
 	val refAreaIds: List<Area>,
-) {
+) : Serializable {
 
 	enum class Role {
 		USER, ADMIN
