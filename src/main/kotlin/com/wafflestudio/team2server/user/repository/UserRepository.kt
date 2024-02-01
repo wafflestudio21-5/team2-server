@@ -6,28 +6,34 @@ import org.springframework.data.jpa.repository.Query
 
 interface UserRepository : JpaRepository<UserEntity, Long> {
 
-	@Query("""
+	@Query(
+		"""
 		SELECT u from user u
 		LEFT JOIN FETCH u.areaUsers au
 		LEFT JOIN FETCH au.area a
 		WHERE u.email = :email
-	""")
+	"""
+	)
 	fun findByEmailWithJoinFetch(email: String): UserEntity?
 
-	@Query("""
+	@Query(
+		"""
 		SELECT u from user u
 		LEFT JOIN FETCH u.areaUsers au
 		LEFT JOIN FETCH au.area a
 		WHERE u.id = :id
-	""")
+	"""
+	)
 	fun findByIdWithJoinFetch(id: Long): UserEntity?
 
-	@Query("""
+	@Query(
+		"""
 		SELECT u from user u
 		LEFT JOIN FETCH u.areaUsers au
 		LEFT JOIN FETCH au.area a
 		WHERE u.provider = :provider AND u.sub = :sub
-	""")
+	"""
+	)
 	fun findByProviderAndSubWithJoinFetch(provider: AuthProvider, sub: String): UserEntity?
 
 	fun existsByEmail(email: String): Boolean
