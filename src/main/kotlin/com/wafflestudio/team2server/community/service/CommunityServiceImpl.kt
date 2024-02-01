@@ -55,7 +55,13 @@ class CommunityServiceImpl(
 	override fun findCommunityById(userId: Long, id: Long): CommunityResponse {
 		val community: CommunityEntity = communityRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.COMMUNITY_NOT_FOUND)
 		community.viewCnt++
-		val response = CommunityResponse(community = Community(community), isLiked = communityLikeRepository.existsByUserIdAndCommunityId(userId, community.id!!))
+		val response = CommunityResponse(
+			community = Community(community),
+			isLiked = communityLikeRepository.existsByUserIdAndCommunityId(userId, community.id!!),
+			nickname = community.author.nickname,
+			profileImg = community.author.profileImg,
+			areaInfo = community.areaInfo.name
+		)
 		communityRepository.save(community)
 		return response
 	}

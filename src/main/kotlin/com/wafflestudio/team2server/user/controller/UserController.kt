@@ -46,6 +46,11 @@ class UserController(
 		return SignupResponse(user)
 	}
 
+	@GetMapping("/signup/nick/{nickname}")
+	fun checkDuplicateNickName(@PathVariable nickname: String) {
+		userService.checkDuplicateNickname(nickname)
+	}
+
 	@Operation(
 		responses = [
 			ApiResponse(responseCode = "200"),
@@ -81,6 +86,11 @@ class UserController(
 	@GetMapping("/user")
 	fun getUser(@AuthenticationPrincipal user: AuthUserInfo): User {
 		return userService.getUser(user.uid)
+	}
+
+	@GetMapping("/user/{id}")
+	fun getAnotherUser(@AuthenticationPrincipal user: AuthUserInfo, @PathVariable id: Long): User {
+		return userService.getUser(id)
 	}
 
 	@PostMapping("/user/refArea")
