@@ -49,7 +49,11 @@ class UserService(
 				provider = AuthProvider.NONE,
 				email = email,
 				password = passwordEncoder.encode(password),
-				profileImg = profileImage,
+				profileImg = when (profileImage) {
+					"" -> "https://files.slack.com/files-pri/T06UKPBS8-F06FHL84UTH/default_profile_80-c649f052a34ebc4eee35048815d8e4f73061bf74552558bb70e07133f25524f9.png"
+					null -> "https://files.slack.com/files-pri/T06UKPBS8-F06FHL84UTH/default_profile_80-c649f052a34ebc4eee35048815d8e4f73061bf74552558bb70e07133f25524f9.png"
+					else -> profileImage
+				},
 				nickname = nickname,
 			)
 		) // DB 유니크 키 제약으로 email, nickname 중복 방지.
