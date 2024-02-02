@@ -284,7 +284,7 @@ class ProductPostServiceImpl(
 	}
 
 	override fun getMyPosts(userInfo: AuthUserInfo): List<PostSummary> {
-		return productPostRepository.findByAuthor(
+		return productPostRepository.findAllByAuthorOrderByIdDesc(
 			userRepository.findById(userInfo.uid).get()
 		).map { toPostSummary(it) }
 	}

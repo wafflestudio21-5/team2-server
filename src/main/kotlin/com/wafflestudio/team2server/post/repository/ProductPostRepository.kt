@@ -25,5 +25,5 @@ interface ProductPostRepository : JpaRepository<ProductPostEntity, Long> {
 	)
 	fun findRandom(cur: Long, seed: Int, adjAreaIdList: List<Int>, start: Int): List<PostListSummary>
 
-	fun findByAuthor(author: UserEntity): List<ProductPostEntity>
+	fun findAllByAuthorOrderByIdDesc(author: UserEntity): List<ProductPostEntity>
 }
