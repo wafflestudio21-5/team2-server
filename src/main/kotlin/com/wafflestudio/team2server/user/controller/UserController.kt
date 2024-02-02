@@ -88,12 +88,12 @@ class UserController(
 
 	@GetMapping("/user")
 	fun getUser(@AuthenticationPrincipal user: AuthUserInfo): User {
-		return userService.getUser(user.uid)
+		return userService.getUser(user.uid)!!
 	}
 
 	@GetMapping("/user/{id}")
 	fun getAnotherUser(@AuthenticationPrincipal user: AuthUserInfo, @PathVariable id: Long): User {
-		return userService.getUser(id)
+		return userService.getUser(id)!!
 	}
 
 	@PostMapping("/user/refArea")

@@ -336,7 +336,7 @@ class ProductPostServiceImpl(
 			description = it.description,
 			images = it.images.map { it.url },
 			isWish = wishListRepository.existsByUserIdAndPostId(authUserInfo?.uid ?: -1, it.id),
-			profileImg = userService.getUser(it.author?.id ?: -1).profileImageUrl ?: "https://files.slack.com/files-pri/T06UKPBS8-F06FHL84UTH/default_profile_80-c649f052a34ebc4eee35048815d8e4f73061bf74552558bb70e07133f25524f9.png",
+			profileImg = userService.getUser(it.author?.id ?: -1)?.profileImageUrl ?: "https://files.slack.com/files-pri/T06UKPBS8-F06FHL84UTH/default_profile_80-c649f052a34ebc4eee35048815d8e4f73061bf74552558bb70e07133f25524f9.png",
 			maxBidPrice = maxBidPrice,
 		)
 	}

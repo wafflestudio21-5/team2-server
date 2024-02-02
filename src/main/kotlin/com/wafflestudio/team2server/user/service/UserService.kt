@@ -107,9 +107,9 @@ class UserService(
 		return true
 	}
 
-	fun getUser(uid: Long): User {
-		val user = userRepository.findByIdWithJoinFetch(uid) ?: throw UserNotFoundException
-		return user.toUser()
+	fun getUser(uid: Long): User? {
+		val user = userRepository.findByIdWithJoinFetch(uid)
+		return user?.toUser()
 	}
 
 	@Transactional
