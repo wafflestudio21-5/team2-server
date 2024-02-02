@@ -97,19 +97,18 @@ class UserController(
 	}
 
 	@PostMapping("/user/refArea")
-	fun addRefArea(@AuthenticationPrincipal user: AuthUserInfo, @RequestBody request: RefAreaRequest): TokenResponse {
+	fun addRefArea(@AuthenticationPrincipal user: AuthUserInfo, @RequestParam refAreaId: Int): TokenResponse {
 		if (user.refAreaIds.size > 2) {
 			throw InvalidAreaCountException
 		}
-		val refAreaId = userService.addRefArea(user.uid, request.refAreaId)
+		val refAreaId = userService.addRefArea(user.uid, refAreaId)
 		val newRefAreaIds = (user.refAreaIds + refAreaId).distinct()
 		val token = tokenGenerator.create(user.uid, newRefAreaIds, user.isAdmin)
 		return TokenResponse(user.uid, newRefAreaIds, user.isAdmin, token)
 	}
 
 	@DeleteMapping("/user/refArea")
-	fun deleteRefArea(@AuthenticationPrincipal user: AuthUserInfo, @RequestBody request: RefAreaRequest): TokenResponse {
-		val refAreaId = request.refAreaId
+	fun deleteRefArea(@AuthenticationPrincipal user: AuthUserInfo, @RequestParam refAreaId: Int): TokenResponse {
 		if (user.refAreaIds.size > 1 && !user.refAreaIds.contains(refAreaId)) {
 			throw InvalidAreaCountException
 		}
@@ -146,10 +145,11 @@ class UserController(
 		val profileImage: String?,
 	)
 
+	/*
 	data class RefAreaRequest(
 		val refAreaId: Int,
 	)
-
+	*/
 	data class SignupResponse(val user: User)
 
 	@ExceptionHandler(MethodArgumentNotValidException::class)
