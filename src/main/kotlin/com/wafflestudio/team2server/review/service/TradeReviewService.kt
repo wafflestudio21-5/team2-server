@@ -14,7 +14,6 @@ import com.wafflestudio.team2server.review.repository.TradeReviewEntity
 import com.wafflestudio.team2server.review.repository.TradeReviewRepository
 import com.wafflestudio.team2server.user.repository.UserEntity
 import com.wafflestudio.team2server.user.repository.UserRepository
-import com.wafflestudio.team2server.user.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import kotlin.jvm.optionals.getOrElse
@@ -38,7 +37,7 @@ class TradeReviewService(
 			throw BaniException(ErrorType.INVALID_PARAMETER)
 		}
 		val authorType = when (authUserInfo.uid) {
-			post.author.id -> TradeReviewEntity.AuthorType.SELLER
+			post.author?.id -> TradeReviewEntity.AuthorType.SELLER
 			else -> TradeReviewEntity.AuthorType.BUYER
 		}
 		if (tradeReviewRepository.existsByPostAndAuthorType(post, authorType)) { // 이미 리뷰를 작성한 경우 에러
@@ -53,7 +52,7 @@ class TradeReviewService(
 		)
 		if (post.status != ProductPost.ProductPostStatus.SOLDOUT) { // 거래 종료 및 구매자 ID 등록
 			post.buyerId = when (authUserInfo.uid) {
-				post.author.id -> request.receiverId
+				post.author?.id -> request.receiverId
 				else -> authUserInfo.uid
 			}
 			post.status = ProductPost.ProductPostStatus.SOLDOUT

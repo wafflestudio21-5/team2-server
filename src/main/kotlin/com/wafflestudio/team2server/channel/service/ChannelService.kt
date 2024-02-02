@@ -105,7 +105,7 @@ class ChannelService(
 	}
 
 	private fun setupChannel(productPost: ProductPostEntity, userId: Long): ChannelCreateResponse {
-		val authorId = productPost.author.id
+		val authorId = productPost.author?.id ?: throw UserNotFoundException
 		if (userId == authorId) {
 			throw SelfTransactionException
 		}
