@@ -226,7 +226,7 @@ class ProductPostServiceImpl(
 					it.getId(),
 					it.getTitle(),
 					it.getRep_img(),
-					it.getCreated_at().toEpochMilli(),
+					it.getCreated_at().plus(Duration.ofHours(9)).toEpochMilli(),
 					it.getRefreshed_at()?.toEpochMilli() ?: 0L,
 					it.getChat_cnt(),
 					it.getWish_cnt(),
