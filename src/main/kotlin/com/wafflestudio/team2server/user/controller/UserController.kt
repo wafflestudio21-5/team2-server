@@ -2,7 +2,10 @@ package com.wafflestudio.team2server.user.controller
 
 import com.wafflestudio.team2server.common.auth.AuthUserInfo
 import com.wafflestudio.team2server.common.auth.TokenGenerator
-import com.wafflestudio.team2server.common.error.*
+import com.wafflestudio.team2server.common.error.ErrorInfo
+import com.wafflestudio.team2server.common.error.ErrorResponse
+import com.wafflestudio.team2server.common.error.ErrorType
+import com.wafflestudio.team2server.common.error.InvalidAreaCountException
 import com.wafflestudio.team2server.user.model.AuthProvider
 import com.wafflestudio.team2server.user.model.TokenResponse
 import com.wafflestudio.team2server.user.model.User
@@ -94,7 +97,7 @@ class UserController(
 	}
 
 	@PostMapping("/user/refArea")
-	fun addRefArea(@AuthenticationPrincipal user: AuthUserInfo, request: RefAreaRequest): TokenResponse {
+	fun addRefArea(@AuthenticationPrincipal user: AuthUserInfo, @RequestBody request: RefAreaRequest): TokenResponse {
 		if (user.refAreaIds.size > 2) {
 			throw InvalidAreaCountException
 		}
@@ -105,7 +108,7 @@ class UserController(
 	}
 
 	@DeleteMapping("/user/refArea")
-	fun deleteRefArea(@AuthenticationPrincipal user: AuthUserInfo, request: RefAreaRequest): TokenResponse {
+	fun deleteRefArea(@AuthenticationPrincipal user: AuthUserInfo, @RequestBody request: RefAreaRequest): TokenResponse {
 		val refAreaId = request.refAreaId
 		if (user.refAreaIds.size > 1 && !user.refAreaIds.contains(refAreaId)) {
 			throw InvalidAreaCountException
