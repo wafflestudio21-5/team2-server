@@ -83,7 +83,7 @@ class ProductPostServiceImpl(
 	@Transactional
 	override fun update(postUpdateRequest: PostUpdateRequest, userId: Long, id: Long, refresh: Boolean) {
 		val target = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
-		if (target.author.id != userId) {
+		if (target.author?.id != userId) {
 			throw BaniException(ErrorType.UNAUTHORIZED)
 		}
 		if (refresh) {
@@ -139,7 +139,7 @@ class ProductPostServiceImpl(
 		val adjAreaIdList = areaService.getAdjAreas(areaId, distance)
 		val fetch = productPostRepository.findByKeywordIgnoreCaseAndSellingArea(cur, keyword, adjAreaIdList)
 		return ListResponse(
-			fetch.subList(0, min(15, fetch.size)).map { toPostSummary(it) },
+			fetch.subList(0, min(15, fetch.size)).mapNotNull { toPostSummary(it) },
 			fetch.getOrNull(fetch.size - 2)?.id ?: 0L,
 			null,
 			fetch.size != 16,
@@ -151,8 +151,10 @@ class ProductPostServiceImpl(
 	override fun getPostById(id: Long, authUserInfo: AuthUserInfo?): ProductPost {
 		val userId = authUserInfo?.uid
 		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw PostNotFoundException
-		if (postEntity.hiddenYn && postEntity.author.id != userId) {
-			throw PostNotFoundException
+		if (postEntity.author != null) {
+			if (postEntity.hiddenYn && postEntity.author.id != userId) {
+				throw PostNotFoundException
+			}
 		}
 		val maxBidPrice = getMaxBidInfo(postEntity)
 		postEntity.viewCnt += 1
@@ -266,7 +268,7 @@ class ProductPostServiceImpl(
 	override fun bid(userId: Long, id: Long, bidPrice: Int, now: Instant) {
 		// 경매 타입인지 체크
 		val postEntity: ProductPostEntity = productPostRepository.findById(id).getOrNull() ?: throw BaniException(ErrorType.POST_NOT_FOUND)
-		if ((postEntity.hiddenYn && postEntity.author.id != userId) || postEntity.type != ProductPost.ProductPostType.AUCTION) {
+		if (postEntity.hiddenYn && (postEntity.author?.id != userId) || postEntity.type != ProductPost.ProductPostType.AUCTION) {
 			throw PostNotFoundException
 		}
 		// 경매 deadline 지났는지 여부
@@ -286,7 +288,7 @@ class ProductPostServiceImpl(
 	override fun getMyPosts(userInfo: AuthUserInfo): List<PostSummary> {
 		return productPostRepository.findAllByAuthorOrderByIdDesc(
 			userRepository.findById(userInfo.uid).get()
-		).map { toPostSummary(it) }
+		).mapNotNull { toPostSummary(it) }
 	}
 
 	private fun calculateScore(bidPrice: Int, now: Instant, createdAt: Instant): Double {
@@ -313,9 +315,9 @@ class ProductPostServiceImpl(
 		if (it == null) return null
 		return ProductPost(
 			id = it.id ?: throw BaniException(ErrorType.POST_NOT_FOUND),
-			authorId = it.author.id,
-			authorName = it.author.nickname,
-			authorMannerTemperature = it.author.mannerTemperature,
+			authorId = it.author?.id ?: -1,
+			authorName = it.author?.nickname ?: "탈퇴한 사용자",
+			authorMannerTemperature = it.author?.mannerTemperature ?: 0.0,
 			buyerId = it.buyerId,
 			chatCnt = it.chatCnt,
 			sellPrice = it.sellPrice,
@@ -334,26 +336,30 @@ class ProductPostServiceImpl(
 			description = it.description,
 			images = it.images.map { it.url },
 			isWish = wishListRepository.existsByUserIdAndPostId(authUserInfo?.uid ?: -1, it.id),
-			profileImg = userService.getUser(it.author.id).profileImageUrl ?: "",
+			profileImg = userService.getUser(it.author?.id ?: -1).profileImageUrl ?: "https://files.slack.com/files-pri/T06UKPBS8-F06FHL84UTH/default_profile_80-c649f052a34ebc4eee35048815d8e4f73061bf74552558bb70e07133f25524f9.png",
 			maxBidPrice = maxBidPrice,
 		)
 	}
 
-	private fun toPostSummary(post: ProductPostEntity): PostSummary {
-		return PostSummary(
-			id = post.id!!,
-			title = post.title,
-			repImg = post.repImg,
-			createdAt = post.createdAt.toEpochMilli(),
-			refreshedAt = post.refreshedAt.toEpochMilli(),
-			chatCnt = post.chatCnt,
-			wishCnt = post.wishCnt,
-			sellPrice = post.sellPrice,
-			sellingArea = areaService.getAreaById(post.sellingArea.id).name,
-			deadline = post.deadline.toEpochMilli(),
-			type = post.type.name,
-			status = post.status.name,
-		)
+	private fun toPostSummary(post: ProductPostEntity): PostSummary? {
+		try {
+			return PostSummary(
+				id = post.id!!,
+				title = post.title,
+				repImg = post.repImg,
+				createdAt = post.createdAt.toEpochMilli(),
+				refreshedAt = post.refreshedAt.toEpochMilli(),
+				chatCnt = post.chatCnt,
+				wishCnt = post.wishCnt,
+				sellPrice = post.sellPrice,
+				sellingArea = areaService.getAreaById(post.sellingArea.id).name,
+				deadline = post.deadline.toEpochMilli(),
+				type = post.type.name,
+				status = post.status.name,
+			)
+		} catch (e: Exception) {
+			return null
+		}
 	}
 }
 

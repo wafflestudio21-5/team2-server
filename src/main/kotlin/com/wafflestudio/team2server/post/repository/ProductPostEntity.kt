@@ -21,7 +21,7 @@ class ProductPostEntity(
 	var status: ProductPostStatus = ProductPostStatus.NEW,
 	@OneToOne
 	@JoinColumn(name = "author_id")
-	val author: UserEntity,
+	val author: UserEntity?,
 	var buyerId: Long = -1,
 	var sellPrice: Int,
 	@OneToOne
