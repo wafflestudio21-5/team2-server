@@ -283,6 +283,12 @@ class ProductPostServiceImpl(
 		auctionRepository.bid(id, userId, score)
 	}
 
+	override fun getMyPosts(userInfo: AuthUserInfo): List<PostSummary> {
+		return productPostRepository.findByAuthor(
+			userRepository.findById(userInfo.uid).get()
+		).map { toPostSummary(it) }
+	}
+
 	private fun calculateScore(bidPrice: Int, now: Instant, createdAt: Instant): Double {
 		val epochMilli = now.toEpochMilli() - createdAt.toEpochMilli()
 		val timeScore = DIGIT - epochMilli / 100 % DIGIT

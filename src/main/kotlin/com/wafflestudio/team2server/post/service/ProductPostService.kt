@@ -19,4 +19,5 @@ interface ProductPostService {
 	fun getAuctionPosts(userId: Long): List<PostSummary>
 	fun bidList(postId: Long): List<BidInfo>
 	fun bid(userId: Long, id: Long, bidPrice: Int, now: Instant)
+	fun getMyPosts(userInfo: AuthUserInfo): List<PostSummary>
 }

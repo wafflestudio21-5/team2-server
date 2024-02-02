@@ -61,6 +61,13 @@ class ProductPostController(private val productPostService: ProductPostService) 
 		return productPostService.getLikedPosts(authUserInfo.uid)
 	}
 
+	@GetMapping("/posts/my")
+	fun getMyPostList(
+		@AuthenticationPrincipal authUserInfo: AuthUserInfo
+	): List<PostSummary> {
+		return productPostService.getMyPosts(authUserInfo)
+	}
+
 	@PutMapping("/posts/{id}")
 	fun updatePost(
 		@PathVariable id: Long,

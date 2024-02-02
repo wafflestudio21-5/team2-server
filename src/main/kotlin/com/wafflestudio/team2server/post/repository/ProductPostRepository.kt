@@ -1,5 +1,6 @@
 package com.wafflestudio.team2server.post.repository
 
+import com.wafflestudio.team2server.user.repository.UserEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
@@ -23,4 +24,6 @@ interface ProductPostRepository : JpaRepository<ProductPostEntity, Long> {
 		nativeQuery = true
 	)
 	fun findRandom(cur: Long, seed: Int, adjAreaIdList: List<Int>, start: Int): List<PostListSummary>
+
+	fun findByAuthor(author: UserEntity): List<ProductPostEntity>
 }
