@@ -150,10 +150,11 @@ class UserService(
 			val authenticatedAt = matchingAreaUser.authenticatedAt
 			val weekAgo = Instant.now().minus(7, ChronoUnit.DAYS)
 			if (authenticatedAt == null || !authenticatedAt.isBefore(weekAgo)) {
-				throw PermissionDeniedException
+				/* throw PermissionDeniedException */
+			} else {
+				matchingAreaUser.count += 1
+				matchingAreaUser.authenticatedAt = Instant.now()
 			}
-			matchingAreaUser.count += 1
-			matchingAreaUser.authenticatedAt = Instant.now()
 		} else { // 새로운 ref 지역 등록
 			if (areaUsers.size > 1) {
 				throw InvalidAreaCountException
