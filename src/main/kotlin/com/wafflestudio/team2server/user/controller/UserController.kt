@@ -107,7 +107,7 @@ class UserController(
 		return TokenResponse(user.uid, newRefAreaIds, user.isAdmin, token)
 	}
 
-	@DeleteMapping("/user/refArea")
+	@PostMapping("/user/refArea/delete")
 	fun deleteRefArea(@AuthenticationPrincipal user: AuthUserInfo, @RequestParam refAreaId: Int): TokenResponse {
 		if (user.refAreaIds.size > 1 && !user.refAreaIds.contains(refAreaId)) {
 			throw InvalidAreaCountException
