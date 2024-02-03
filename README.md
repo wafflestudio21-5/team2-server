@@ -240,9 +240,8 @@ III. [협업 방식](#iii-협업-방식)
 ## 3. Slack
 
 - 일일 스크럼
-    
-    ![Untitled](img
-/Untitled%204.png)
+
+    <img src="img/Untitled%204.png" width="300px"/>
     
     - 매일 통합, 백엔드, 안드로이드 스크럼 스레드를 이용해 그 날 발생한 이슈들에 대하여 논의
 - 주간 회의
