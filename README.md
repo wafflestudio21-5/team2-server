@@ -47,12 +47,12 @@
 
 ### 1.1. 일반 로그인 / 회원가입 화면
 
-![Screenshot_20240203_105951_bunnybunny.jpg](img/Screenshot_20240203_105951_bunnybunny.jpg)
+<img src="img/Screenshot_20240203_105951_bunnybunny.jpg" width="300px"/>
 
 - 이메일, 비밀번호로 로그인
 - 일반 회원가입, 카카오 로그인 화면으로 이동 가능
 
-![Screenshot_20240203_105957_bunnybunny.jpg](img/Screenshot_20240203_105957_bunnybunny.jpg)
+<img src="img/Screenshot_20240203_105957_bunnybunny.jpg" width="300px"/>
 
 - 이메일, 비밀번호, 닉네임을 입력해 회원가입
 - 이메일, 비밀번호, 닉네임 형식 확인 기능
@@ -60,20 +60,19 @@
 
 ### 1.2. 사용자별 지역 설정 화면 (행정동 단위)
 
-![Screenshot_20240203_110040_bunnybunny.jpg](img/Screenshot_20240203_110040_bunnybunny.jpg)
+<img src="img/Screenshot_20240203_110040_bunnybunny.jpg" width="300px"/>
 
 - 동 단위로 검색 가능
 
 ### 1.3. 지역 및 거리 범위 설정
 
-![Screenshot_20240203_110450_bunnybunny.jpg](img/Screenshot_20240203_110450_bunnybunny.jpg)
+<img src="img/Screenshot_20240203_110450_bunnybunny.jpg" width="300px"/>
 
 - 상단의 OO동 (ex. 대학동) 클릭
     
     → 지역 및 거리 범위 설정 화면으로 이동
-    
 
-![Screenshot_20240203_110441_bunnybunny.jpg](img/Screenshot_20240203_110441_bunnybunny.jpg)
+<img src="img/Screenshot_20240203_110441_bunnybunny.jpg" width="300px"/>
 
 - 지역 선택 / 거리 범위 설정 기능
 
@@ -81,9 +80,8 @@
 
 ### 2.1. 물품 게시글 목록 / 상세 화면
 
-![1000000437.png](img/1000000437.png)
-
-![1000000445.png](img/1000000445.png)
+<img src="img/1000000437.png" width="300px"/>
+<img src="img/1000000445.png" width="300px"/>
 
 - 채팅하기 버튼 클릭
     
@@ -93,7 +91,7 @@
 
 ### 2.2. 물품 게시글 작성 화면
 
-![1000000439.png](img/1000000439.png)
+<img src="img/1000000439.png" width="300px"/>
 
 - 사진 최대 10개 등록 가능
 - 제목, 희망 거래 금액, 설명 작성
@@ -103,43 +101,39 @@
 
 ### 3.1. 동네생활 게시글 목록 / 상세 화면
 
-![1000000438.png](img/1000000438.png)
-
-![1000000448.png](img/1000000448.png)
+<img src="img/1000000438.png" width="300px"/>
+<img src="img/1000000448.png" width="300px"/>
 
 ### 3.2. 동네생활 게시글 작성
 
-![Screenshot_20240203_112740_bunnybunny.jpg](img/Screenshot_20240203_112740_bunnybunny.jpg)
+<img src="img/Screenshot_20240203_112740_bunnybunny.jpg" width="300px"/>
 
 ### 3.3. 동네생활 댓글, 대댓글
 
-![1000000446.png](img/1000000446.png)
+<img src="img/1000000446.png" width="300px"/>
 
 ## 4. 채팅
 
 ### 4.1. 채팅 목록 / 상세 화면
 
-![Screenshot_20240203_110434_bunnybunny.jpg](img/Screenshot_20240203_110434_bunnybunny.jpg)
-
-![Screenshot_20240203_110443_bunnybunny.jpg](img/Screenshot_20240203_110443_bunnybunny.jpg)
+<img src="img/Screenshot_20240203_110434_bunnybunny.jpg" width="300px"/>
+<img src="img/Screenshot_20240203_110443_bunnybunny.jpg" width="300px"/>
 
 ## 5. 나의 당근
 
 ### 5.1. 나의 당근 메인 화면
 
-![1000000440.png](img/1000000440.png)
+<img src="img/1000000440.png" width="300px"/>
 
 ### 5.2. 사용자 프로필 조회 / 수정 화면
 
-![1000000441.png](img/1000000441.png)
-
-![1000000442.png](img/1000000442.png)
+<img src="img/1000000441.png" width="300px"/>
+<img src="img/1000000442.png" width="300px"/>
 
 ### 5.3. 관심 목록 / 판매 내역 화면
 
-![1000000444.png](img/1000000444.png)
-
-![Screenshot_20240203_111512_bunnybunny.jpg](img/Screenshot_20240203_111512_bunnybunny.jpg)
+<img src="img/1000000444.png" width="300px"/>
+<img src="img/Screenshot_20240203_111512_bunnybunny.jpg" width="300px"/>
 
 # II. 서비스 아키텍처
 
