@@ -5,6 +5,7 @@ import com.wafflestudio.team2server.common.error.ErrorType
 import com.wafflestudio.team2server.common.util.MessageUtil
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.WebSocketSession
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
 
@@ -24,6 +25,8 @@ class WebSocketSessionManager(
 	private val sessionUserMapForChannel = ConcurrentHashMap<WebSocketSession, Long>()
 	// session 을 통해 userId를 알아보기 위한 map (채팅 목록 화면)
 	private val sessionUserMapForUser = ConcurrentHashMap<WebSocketSession, Long>()
+	// session 을 통해 timer 확인
+	private val sessionTimer = ConcurrentHashMap<WebSocketSession, Timer>()
 
 	/**
 	 * 특정 채널에 속해있는 사용자들의 session을 저장
@@ -36,6 +39,7 @@ class WebSocketSessionManager(
 		}
 		userChannelSession[userId] = session
 		sessionUserMapForChannel[session] = userId
+		refreshPingTimer(session)
 	}
 
 	fun deleteChannelSession(session: WebSocketSession) {
@@ -70,4 +74,12 @@ class WebSocketSessionManager(
 		userSession.remove(userId)
 		sessionUserMapForUser.remove(session)
 	}
+
+	fun refreshPingTimer(session: WebSocketSession) {
+		sessionTimer[session]?.cancel()
+		val timer = Timer()
+		timer.schedule(PingTimerTask(session), 30 * 1000) // 30초 후에 만료.
+		sessionTimer[session] = timer
+	}
+
 }

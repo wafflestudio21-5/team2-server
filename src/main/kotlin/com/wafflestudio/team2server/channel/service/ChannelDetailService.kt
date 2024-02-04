@@ -60,7 +60,6 @@ class ChannelDetailService(
 			},
 			cur = messages.last().msgNo - 1
 		)
-
 		// 2. 메시지 이력 조회를 요청한 사람에게 보내기
 		session.sendMessage(
 			TextMessage(objectMapper.writeValueAsString(channelDetailResponse))
@@ -146,6 +145,7 @@ class ChannelDetailService(
 
 		return savedChannelMessage
 	}
+
 }
 
 data class ChannelDetailResponse(
